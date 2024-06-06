@@ -1,0 +1,7 @@
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$id": "attributes.doi#",
+  "type": "string",
+  "pattern": "[0-9].[0-9]+\/[A-Za-z]+",
+  "minLength": 1
+}

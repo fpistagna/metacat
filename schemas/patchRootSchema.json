@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "metadata": { 
+      "type": "object",
+      "properties": {
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "doi": { "$ref": "attributes.doi#" },
+            "prefix": { "$ref": "attributes.prefix#" },
+            "suffix": { "$ref": "attributes.suffix#" },
+            "identifiers": { "$ref": "identifiers#" },
+            "creators": { "$ref": "creators#" },
+            "titles": { "$ref": "titles#"},
+            "publisher": { "$ref": "publisher#" },
+            "publicationYear": { "$ref": "attributes.publicationYear#" }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "metadata"
+  ]
+}

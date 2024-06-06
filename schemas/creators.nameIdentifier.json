@@ -1,0 +1,48 @@
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$id": "creators.nameIdentifier#",
+  "type": "array",
+  "uniqueItems": true,
+  "items": {
+    "type": "object",
+    "if": {
+      "required": [
+        "nameIdentifier"
+      ],
+      "properties": {
+        "schemeUri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameIdentifier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameIdentifierScheme": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "then": {
+      "required": [
+        "nameIdentifier",
+        "nameIdentifierScheme"
+      ],
+      "properties": {
+        "schemeUri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameIdentifier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameIdentifierScheme": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

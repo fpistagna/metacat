@@ -1,0 +1,30 @@
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$id": "creators#",
+  "type": "array",
+  "uniqueItems": true,
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "required": [
+      "name"
+    ],
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "nameType": { "enum": ["Organizational", "Personal"] },
+      "givenName": {
+        "type": "string",
+        "minLength": 1
+      },
+      "familyName": {
+        "type": "string",
+        "minLength": 1
+      },
+      "affiliation": { "$ref": "creators.affiliation#" },
+      "nameIdentifiers": { "$ref": "creators.nameIdentifier#"}
+    }
+  }
+}

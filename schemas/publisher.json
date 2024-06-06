@@ -1,0 +1,76 @@
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$id": "publisher#",
+  "type": "object",
+  "if": {
+    "required": [
+      "publisherIdentifier"
+    ],
+    "properties": {
+      "lang": {
+        "type": "string",
+        "minLength": 1
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "schemeUri": {
+        "type": "string",
+        "minLength": 1
+      },
+      "publisherIdentifier": {
+        "type": "string",
+        "minLength": 1
+      },
+      "publisherIdentifierScheme": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "name",
+      "publisherIdentifier",
+      "publisherIdentifierScheme"
+    ],
+    "properties": {
+      "lang": {
+        "type": "string",
+        "minLength": 1
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "schemeUri": {
+        "type": "string",
+        "minLength": 1
+      },
+      "publisherIdentifier": {
+        "type": "string",
+        "minLength": 1
+      },
+      "publisherIdentifierScheme": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "else": {
+    "required": [
+      "name"
+    ],
+    "properties": {
+      "lang": {
+        "type": "string",
+        "minLength": 1
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

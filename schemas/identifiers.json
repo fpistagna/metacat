@@ -1,0 +1,20 @@
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$id": "identifiers#",
+  "type": "array",
+  "uniqueItems": true,
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "required": [
+      "identifier"
+    ],
+    "properties": {
+      "identifier": {
+        "type": "string",
+        "minLength": 1
+      },
+      "identifierType": { "enum": ["DOI", "oai", "Local accession number"] }
+    }
+  }
+}

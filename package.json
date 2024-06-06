@@ -1,0 +1,32 @@
+{
+  "name": "project",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "server": "node server.js",
+    "server2": "./node_modules/nodemon/bin/nodemon.js ./src/server.js",
+    "test": "./node_modules/mocha/bin/mocha express.test.js",
+    "error": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Fabrizio Pistagna",
+  "license": "ISC",
+  "dependencies": {
+    "ajv": "^8.13.0",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "express-json-validator-middleware": "^3.0.1",
+    "generate-schema": "^2.6.0",
+    "jsonpatch": "^3.1.0",
+    "mongoose": "^8.4.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^10.4.0",
+    "nodemon": "^3.1.1",
+    "superagent": "^9.0.2"
+  }
+}

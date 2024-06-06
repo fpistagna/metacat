@@ -1,0 +1,69 @@
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$id": "creators.affiliation#",
+  "type": "array",
+  "uniqueItems": true,
+  "items": {
+    "type": "object",
+    "if": {
+      "required": [
+        "affiliationIdentifier"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schemeUri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affiliationIdentifier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affiliationIdentifierScheme": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "then": {
+      "required": [
+        "name",
+        "schemeUri",
+        "affiliationIdentifier",
+        "affiliationIdentifierScheme"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schemeUri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affiliationIdentifier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affiliationIdentifierScheme": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "else": {
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

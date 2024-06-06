@@ -1,0 +1,27 @@
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$id": "titles#",
+  "type": "array",
+  "uniqueItems": true,
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "required": [
+      "title"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "identifierType": { 
+        "enum": [
+          "AlternativeTitle",
+          "Subtitle",
+          "TranslatedTitle",
+          "Other"
+        ]
+      }
+    }
+  }
+}

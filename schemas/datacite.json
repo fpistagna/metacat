@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "datacite#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "doi": { "$ref": "attributes.doi#" },
+        "prefix": { "$ref": "attributes.prefix#" },
+        "suffix": { "$ref": "attributes.suffix#" },
+        "identifiers": { "$ref": "identifiers#" },
+        "creators": { "$ref": "creators#" },
+        "titles": { "$ref": "titles#"},
+        "publisher": { "$ref": "publisher#" },
+        "publicationYear": { "$ref": "attributes.publicationYear#" }
+      },
+      "required": [
+        "identifiers",
+        "creators",
+        "titles",
+        "publisher",
+        "publicationYear"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "type",
+    "attributes"
+  ]
+}
