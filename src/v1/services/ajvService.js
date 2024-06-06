@@ -74,3 +74,16 @@ module.exports.patchValidator = (req, res, next) => {
   else
     next();
 }
+
+module.exports.cliValidator = (data) => {
+  const validate = ajv.compile(schema);
+
+  const valid = validate(data);
+  console.log(valid);
+  if (!valid)
+    /*return ({ "errors": validate.errors,
+      "code": validate(data)})*/
+    console.log({ status: "errors", error: validate.errors });
+  else
+    console.log({ status: "valid", data: JSON.stringify(data) });
+}
