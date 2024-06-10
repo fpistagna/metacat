@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 module.exports.RecordSchema = mongoose.Schema({
   "record": {
     "id": {
-      "type": "String"
+      "type": "String",
+      "required": true
     },
     "doi": {
       "type": "String"
@@ -23,19 +24,16 @@ module.exports.RecordSchema = mongoose.Schema({
         "type": "String"
       },
       "identifiers": {
-        "type": [
-          "Mixed"
-        ]
+        "type": [ "Mixed" ],
+        "required": true
       },
       "creators": {
-        "type": [
-          "Mixed"
-        ]
+        "type": [ "Mixed" ],
+        "required": true
       },
       "titles": {
-        "type": [
-          "Mixed"
-        ]
+        "type": [ "Mixed" ],
+        "required": true
       },
       "publisher": {
         "lang": {
@@ -52,8 +50,9 @@ module.exports.RecordSchema = mongoose.Schema({
         }
       },
       "publicationYear": {
-        "type": "Number"
-      }
+        "type": "Number",
+        "required": true
+      },
     }
   }
 })

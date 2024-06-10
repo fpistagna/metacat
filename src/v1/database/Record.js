@@ -45,9 +45,6 @@ const createNewRecord = async (data) => {
 const updateOneRecordAttribute = async(id, attribute, data) => {
   try {
     let record = await RecordModel.findById(id);
-    console.log(data.metadata.attributes);
-    console.log(attribute);
-    console.log(record.metadata.attributes[attribute]);
     record.metadata.attributes[attribute] = data.metadata.attributes[attribute];
     const updatedRecord = await RecordModel.create(record);
     return ({
