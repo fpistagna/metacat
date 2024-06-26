@@ -1,32 +1,69 @@
 // In src/services/recordService.js
-const Record = require("../database/Record");
+//const Record = require("../database/Record");
+const Mongoose = require("../database/modular/mongoose")
+
+const Record = require("../database/modular/Record");
+const RecordMetadataAttribute = require("../database/modular/RecordMetadataAttribute");
+
 const { v4: uuid } = require("uuid");
 
 const getAllRecords = async () => {
-  const allRecords = await Record.getAllRecords();
-  return allRecords;
+  try {
+    const allRecords = await Record.getAllRecords();
+    return allRecords;
+  } catch (err) {
+      throw new Error (`RecordService:getAllRecords:${err}`, 
+        { cause: err })
+  }
 };
 
 const getOneRecord = async (recordId) => {
-  const record = await Record.getOneRecord(recordId);
-  return(record);
+  try {
+    const record = await Record.getOneRecord(recordId);
+    return (record);
+  } catch (err) {
+      throw new Error (`RecordService:getAllRecords:${err}`, 
+        { cause: err })
+  }
 };
 
-const createNewRecord = async (data) => {
-//  const record = await Record.createNewRecord(data);
-  let newRecord = {
-    record: {
-      id: uuid(),
-      doi: data.metadata.id
-    },
-    timestamps: {
-      createdAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
-      updatedAt: new Date().toLocaleString("en-US", { timeZone: "UTC" })
-    },
-    metadata: data.metadata    
+async function _createRecordMetadata(metadata) {
+  try {
+    const recordMetadata = await RecordMetadataAttribute.createMetadata(metadata)
+    return (recordMetadata)
+  } catch (err) {
+      throw new Error (`RecordService:createRecordMetadata:${err}`, 
+        { cause: err })
   }
-  const dbOp = await Record.createNewRecord(newRecord);
-  return(dbOp);
+}
+
+async function _createNewRecord(id, metadata) {
+  try {
+    return ({
+     record: {
+       id: uuid(),
+       doi: id
+     },
+     timestamps: {
+       createdAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
+       updatedAt: new Date().toLocaleString("en-US", { timeZone: "UTC" })
+     },
+     metadata: metadata    
+    })
+  } catch (err) {
+      throw new Error (`RecordService:_createNewRecord:${err}`, { cause: err })
+  }
+}
+
+const createNewRecord = async (data) => {
+  try {
+    let recordMetadata = await _createRecordMetadata(data.metadata)
+    let newRecord = await _createNewRecord(data.metadata.id, recordMetadata)
+    let record = await Record.createNewRecord(newRecord);
+    return(record);
+  } catch (err) {
+      throw new Error (`RecordService:createNewRecord:${err}`, { cause: err })
+  }
 };
 
 const updateOneRecord = () => {
@@ -34,9 +71,12 @@ const updateOneRecord = () => {
 };
 
 const updateOneRecordAttribute = async (recordId, attribute, data) => {
-  const dbOp = await Record.updateOneRecordAttribute(recordId, attribute, data);
-  console.log(dbOp);
-  return(dbOp);
+  try {
+    const updatedRecord = await Record.updateOneRecordAttribute(recordId, attribute, data);
+    return (updatedRecord);
+  } catch (err) {
+      throw new Error (`RecordService:updateRecordAttribute:${err}`, { cause: err })
+  }
 }
 
 const deleteOneRecord = () => {

@@ -26,5 +26,4 @@ router.patch("/:recordId/:attribute",
 router.delete("/:recordId", 
 	recordController.deleteOneRecord);
 
-
 module.exports = router;
