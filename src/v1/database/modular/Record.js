@@ -2,7 +2,7 @@ const Mongoose = require("./mongoose")
 
 Mongoose.connectDB()
 const RecordModel = Mongoose.RecordModel
-const RecordMetadataAttributeModel = Mongoose.RecordMetadataAttributeModel
+const RecordMetadataModel = Mongoose.RecordMetadataModel
 const customError = require('../../../utils/customError');
 
 const getAllRecords = async () => {
@@ -42,7 +42,8 @@ const createNewRecord = async (data) => {
 }
 
 const updateOneRecordAttribute = async(id, attribute, data) => {
-  console.log(`DBG:Record:updateRecordAttribute:\n ${attribute} - ${JSON.stringify(data)}`)
+  console.log(`DBG:Record:updateRecordAttribute:\n\
+    ${attribute} - ${JSON.stringify(data)}`)
   try {
     let record = await RecordModel.findById(id)
       .populate("metadata")
@@ -50,14 +51,17 @@ const updateOneRecordAttribute = async(id, attribute, data) => {
     
     console.log(`DBG:Record Metadata _ID: ${record.metadata._id}`)
     
-    let recordMetadata = await RecordMetadataAttributeModel.findById(record.metadata._id)
+    let recordMetadata = await RecordMetadataModel.findById(
+      record.metadata._id)
 
-    console.log(`DBG:\n FOUND ${record.metadata._id}\n\ndocument:${recordMetadata}\n`)
+    console.log(`DBG:\n FOUND ${record.metadata._id}\n\n\
+      document:${recordMetadata}\n`)
 
     recordMetadata.attributes[attribute] = data.metadata.attributes[attribute]
 
     const updatedMetadataRecord = await recordMetadata.save()
-    console.log(`DBG:Updated Record Metadata: ${JSON.stringify(updatedMetadataRecord)}`)
+    console.log(`DBG:Updated Record Metadata:\
+     ${JSON.stringify(updatedMetadataRecord)}`)
 
     return (updatedMetadataRecord)
   } catch (error) { 
@@ -70,4 +74,4 @@ module.exports = {
   getOneRecord,
   createNewRecord,
   updateOneRecordAttribute
-};
+}

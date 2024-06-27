@@ -1,39 +1,50 @@
 // In src/services/recordService.js
-//const Record = require("../database/Record");
+//const Record = require("../database/Record")
 const Mongoose = require("../database/modular/mongoose")
 
-const Record = require("../database/modular/Record");
-const RecordMetadataAttribute = require("../database/modular/RecordMetadataAttribute");
+const Record = require("../database/modular/Record")
+const RecordMetadata = require("../database/modular/RecordMetadata")
 
-const { v4: uuid } = require("uuid");
+const { v4: uuid } = require("uuid")
 
 const getAllRecords = async () => {
   try {
-    const allRecords = await Record.getAllRecords();
-    return allRecords;
-  } catch (err) {
-      throw new Error (`RecordService:getAllRecords:${err}`, 
-        { cause: err })
+    const allRecords = await Record.getAllRecords()
+    return allRecords
+  } catch (e) {
+      throw new Error (`RecordService:getAllRecords:${e}`, 
+        { cause: e })
   }
-};
+}
 
 const getOneRecord = async (recordId) => {
   try {
-    const record = await Record.getOneRecord(recordId);
-    return (record);
-  } catch (err) {
-      throw new Error (`RecordService:getAllRecords:${err}`, 
-        { cause: err })
+    const record = await Record.getOneRecord(recordId)
+    return (record)
+  } catch (e) {
+      throw new Error (`RecordService:getAllRecords:${e}`, 
+        { cause: e })
   }
-};
+}
+
+const getRecordByQuery = async (query) => {
+  try {
+    console.log(query)
+    const record = await RecordMetadata.getRecordByQuery(query)
+    return (record)
+  } catch(e) {
+    console.log(e)
+  }
+}
 
 async function _createRecordMetadata(metadata) {
   try {
-    const recordMetadata = await RecordMetadataAttribute.createMetadata(metadata)
+    const recordMetadata = await RecordMetadata.createMetadata(
+      metadata)
     return (recordMetadata)
-  } catch (err) {
-      throw new Error (`RecordService:createRecordMetadata:${err}`, 
-        { cause: err })
+  } catch (e) {
+      throw new Error (`RecordService:createRecordMetadata:${e}`, 
+        { cause: e })
   }
 }
 
@@ -50,8 +61,8 @@ async function _createNewRecord(id, metadata) {
      },
      metadata: metadata    
     })
-  } catch (err) {
-      throw new Error (`RecordService:_createNewRecord:${err}`, { cause: err })
+  } catch (e) {
+      throw new Error (`RecordService:_createNewRecord:${e}`, { cause: e })
   }
 }
 
@@ -59,35 +70,41 @@ const createNewRecord = async (data) => {
   try {
     let recordMetadata = await _createRecordMetadata(data.metadata)
     let newRecord = await _createNewRecord(data.metadata.id, recordMetadata)
-    let record = await Record.createNewRecord(newRecord);
-    return(record);
-  } catch (err) {
-      throw new Error (`RecordService:createNewRecord:${err}`, { cause: err })
+    let record = await Record.createNewRecord(newRecord)
+    return(record)
+  } catch (e) {
+      throw new Error (`RecordService:createNewRecord:${e}`, 
+        { cause: e })
   }
-};
+}
 
 const updateOneRecord = () => {
-  return;
-};
+  return
+}
 
 const updateOneRecordAttribute = async (recordId, attribute, data) => {
   try {
-    const updatedRecord = await Record.updateOneRecordAttribute(recordId, attribute, data);
-    return (updatedRecord);
-  } catch (err) {
-      throw new Error (`RecordService:updateRecordAttribute:${err}`, { cause: err })
+    const updatedRecord = await Record.updateOneRecordAttribute(
+      recordId, 
+      attribute, 
+      data)
+    return (updatedRecord)
+  } catch (e) {
+      throw new Error (`RecordService:updateRecordAttribute:${e}`, 
+        { cause: e })
   }
 }
 
 const deleteOneRecord = () => {
-  return;
-};
+  return
+}
 
 module.exports = {
   getAllRecords,
   getOneRecord,
+  getRecordByQuery,
   createNewRecord,
   updateOneRecord,
   updateOneRecordAttribute,
   deleteOneRecord,
-};
+}

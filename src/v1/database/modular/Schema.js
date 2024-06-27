@@ -18,7 +18,7 @@ const recordSchema = new Schema({
   },
   metadata: {
     type: Schema.Types.ObjectId,
-    ref: 'RecordMetadataAttribute',
+    ref: 'RecordMetadata',
     required: true
   }
 })

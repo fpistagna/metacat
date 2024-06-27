@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 
 const RecordSchema = require('./Schema');
 const RecordModel = mongoose.model("Record", RecordSchema.RecordSchema);
-const RecordMetadataAttributeSchema = require('./RecordMetadataAttribute');
-const RecordMetadataAttributeModel = mongoose.model("RecordMetadataAttribute", RecordMetadataAttributeSchema.RecordMetadataAttributeSchema);
+const RecordMetadataSchema = require('./RecordMetadata');
+const RecordMetadataModel = mongoose.model("RecordMetadata", RecordMetadataSchema.RecordMetadataSchema);
 
 function connectDB() {
   const url = "mongodb://127.0.0.1:27017/test";
@@ -28,6 +28,6 @@ function connectDB() {
 
 module.exports = {
   RecordModel,
-  RecordMetadataAttributeModel,
+  RecordMetadataModel,
   connectDB
 }

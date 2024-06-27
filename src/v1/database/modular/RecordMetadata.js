@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
 const customError = require('../../../utils/customError');
 
-const recordMetadataAttributeSchema = new Schema({
+const recordMetadataSchema = new Schema({
 	id: {
 		type: String,
 		required: true
@@ -71,20 +71,38 @@ const recordMetadataAttributeSchema = new Schema({
 
 })
 
-const RecordMetadataAttributeModel = mongoose.model("RecordMetadataAttribute", recordMetadataAttributeSchema);
+const RecordMetadataModel = mongoose.model("RecordMetadata", recordMetadataSchema);
 
 const createMetadata = async (object) => {
 	try {
-		console.log("DBG:RecordMetadataAttribute:createMetadata");
+		console.log("DBG:RecordMetadata:createMetadata");
 		console.log(object);
-		let recordMetadata = await RecordMetadataAttributeModel.create(object);
+		let recordMetadata = await RecordMetadataModel.create(object);
 		return (recordMetadata);
 	} catch (error) {
 		throw new customError.MetadataError (9, error, { cause: error });
 	}
 }
 
+const getRecordByQuery = async (query) => {
+  try {
+    console.log(query)
+    let key = Object.keys(query)[0]
+    let value = query[Object.keys(query)[0]]
+    let newQuery = {}
+    newQuery[key] = value
+    console.log("newQuery")
+    console.log(newQuery)
+    const result = await RecordMetadataModel.find(query)
+    console.log(result)
+    return (result)
+  } catch(e) {
+    console.log(e)
+  }
+}
+
 module.exports = {
-	recordMetadataAttributeSchema,
-	createMetadata
+	recordMetadataSchema,
+	createMetadata,
+	getRecordByQuery
 }
