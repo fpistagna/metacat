@@ -2,7 +2,6 @@
 
 const recordService = require("../services/recordService"),
   ajv = require("../services/ajvService")
-
 /* ### Controller functions ### */
 
 const getAllRecords = async (req, res, next) => {
@@ -10,13 +9,13 @@ const getAllRecords = async (req, res, next) => {
     if (Object.keys(req.query).length > 0) {
       console.log(req.query)
       const result = await recordService.getRecordByQuery(req.query)
-      res.status(200).send({ status: "ok", data: result })
+      res.respond(result)
     } else {
       const allRecords = await recordService.getAllRecords()
       if (!allRecords.length)
-        res.status(204).send({ status: "no data" })
+        res.respondNoContent()
       else
-        res.status(200).send({ status: "ok", data: allRecords })
+        res.respond(allRecords)
     }
   } catch (error) { return next(error) }
 }
@@ -24,38 +23,33 @@ const getAllRecords = async (req, res, next) => {
 const getOneRecord = async (req, res, next) => {
   try {
     const record = await recordService.getOneRecord(req.params.recordId)
-    if ( !record )
-      res.status(404).send({
-        status: "not found",
-        id: req.params.recordId})
+    if (!record)
+      res.respond({ id: req.params.recordId }, 404)
     else 
-      res.status(200).send({
-        status: "ok", 
-        id: req.params.recordId, 
-        data: record })
+      res.respond({
+        id: req.params.recordId,
+        data: record
+      }, 200)
   } catch (error) { return next(error) }
 }
 
-const getRecordAttribute = async (req, res) => {
+const getRecordAttribute = async (req, res, next) => {
   try {
     const record = await recordService.getOneRecord(req.params.recordId)
-    if ( !record )
-      res.status(404).send({
-        status: "not found",
-        id: req.params.recordId})
+    if (!record)
+      res.respond({ recordId: req.params.recordId }, 404)
     else {
       if (record.metadata.attributes.hasOwnProperty(req.params.attribute) ) {
         const {[req.params.attribute]: attr} = record.metadata.attributes
-        res.status(200).send({
-          status: "ok",
-          id: req.params.recordId,
-          attribute:  attr})
-      } else {
-        res.status(404).send({
-          status: "not found",
-          id: req.params.recordId,
-          attribute:  req.params.attribute })
-      }
+        res.respond({
+          recordId: req.params.recordId,
+          attribute: attr
+        }, 200)
+      } else 
+        res.respond({ 
+          recordId: req.params.recordId,
+          message: "attribute not found"
+        }, 404)
     }
   } catch (error) { return next(error) } 
 }
@@ -63,13 +57,7 @@ const getRecordAttribute = async (req, res) => {
 const createNewRecord = async (req, res, next) => {
   try {
     const record = await recordService.createNewRecord(req.body)
-
-    if (record)
-      res.status(201).send({ 
-        status: "created", data: record })
-    else
-      res.status(500).send({ 
-        status: "error", error: record})
+    res.respondCreated(record)
   }
   catch (error) { return next(error) }
 }

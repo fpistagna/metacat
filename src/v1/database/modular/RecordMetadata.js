@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const { Schema } = require('mongoose');
-const customError = require('../../../utils/customError');
+const mongoose = require('mongoose')
+const { Schema } = require('mongoose')
+const customError = require('../../../utils/customError')
 
 const recordMetadataSchema = new Schema({
 	id: {
@@ -71,16 +71,17 @@ const recordMetadataSchema = new Schema({
 
 })
 
-const RecordMetadataModel = mongoose.model("RecordMetadata", recordMetadataSchema);
+const RecordMetadataModel = mongoose.model("RecordMetadata", recordMetadataSchema)
 
 const createMetadata = async (object) => {
 	try {
-		console.log("DBG:RecordMetadata:createMetadata");
-		console.log(object);
-		let recordMetadata = await RecordMetadataModel.create(object);
-		return (recordMetadata);
+		console.log("DBG:RecordMetadata:createMetadata")
+		console.log(object)
+		let recordMetadata = await RecordMetadataModel.create(object)
+		return (recordMetadata)
 	} catch (error) {
-		throw new customError.MetadataError (9, error, { cause: error });
+		console.log(`DBG:RecordMetadata:createMetadata:${error}`)
+		throw new customError.MetadataError (9, error, { cause: error })
 	}
 }
 

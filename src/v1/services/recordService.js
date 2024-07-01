@@ -7,6 +7,8 @@ const RecordMetadata = require("../database/modular/RecordMetadata")
 
 const { v4: uuid } = require("uuid")
 
+const customError = require('../../utils/customError')
+
 const getAllRecords = async () => {
   try {
     const allRecords = await Record.getAllRecords()
@@ -22,7 +24,9 @@ const getOneRecord = async (recordId) => {
     const record = await Record.getOneRecord(recordId)
     return (record)
   } catch (e) {
-      throw new Error (`RecordService:getAllRecords:${e}`, 
+      if (e)
+        throw e
+      throw new Error (`RecordService:getOneRecords:\n ${e}`, 
         { cause: e })
   }
 }
@@ -43,8 +47,14 @@ async function _createRecordMetadata(metadata) {
       metadata)
     return (recordMetadata)
   } catch (e) {
-      throw new Error (`RecordService:createRecordMetadata:${e}`, 
-        { cause: e })
+      if (e)
+        throw e
+      else 
+        throw new customError.RecordCreationError (
+          19, 
+          `RecordService:createRecordMetadata:${e}`, 
+          { cause: e }
+        )
   }
 }
 
@@ -73,8 +83,13 @@ const createNewRecord = async (data) => {
     let record = await Record.createNewRecord(newRecord)
     return(record)
   } catch (e) {
-      throw new Error (`RecordService:createNewRecord:${e}`, 
-        { cause: e })
+      if (e)
+        throw e
+      throw new customError.RecordCreationError (
+        18, 
+        `RecordService:createNewRecord:${e}`, 
+        { cause: e }
+      )
   }
 }
 

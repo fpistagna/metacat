@@ -13,7 +13,9 @@ const getAllRecords = async () => {
       .exec()
     return (records)
   } catch (error) {
-      throw new Error ('Error fetching Records from db..', { cause: error })
+      throw new customError.RecordError (7,
+        'Error fetching Records from db..', 
+        { cause: error })
   }
 };
 
@@ -25,7 +27,8 @@ const getOneRecord = async (recordId) => {
       .exec()
     return (record)
   } catch (error) {
-      throw new Error ('Record Error fetching from db..')
+      throw new customError.RecordError (7, 
+        `Error fetching from DB..Record id ${recordId} not found`)
   }
 }
 
@@ -37,7 +40,7 @@ const createNewRecord = async (data) => {
       throw new Error ('Record:createNewRecord:RecordModel creation error')
     return (record)
   } catch (error) {
-      throw new customError.RecordError (8, error, { cause: error })
+      throw new customError.RecordCreationError (8, error, { cause: error })
   }
 }
 
