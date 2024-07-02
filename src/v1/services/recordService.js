@@ -58,7 +58,7 @@ async function _createRecordMetadata(metadata) {
   }
 }
 
-async function _createNewRecord(id, metadata) {
+/*async function _createNewRecord(id, metadata) {
   try {
     return ({
      record: {
@@ -74,13 +74,16 @@ async function _createNewRecord(id, metadata) {
   } catch (e) {
       throw new Error (`RecordService:_createNewRecord:${e}`, { cause: e })
   }
-}
+}*/
 
 const createNewRecord = async (data) => {
   try {
     let recordMetadata = await _createRecordMetadata(data.metadata)
-    let newRecord = await _createNewRecord(data.metadata.id, recordMetadata)
-    let record = await Record.createNewRecord(newRecord)
+/*    let newRecord = await _createNewRecord(data.metadata.id, recordMetadata)
+    let record = await Record.createNewRecord(newRecord)*/
+    let record = await Record.createNewRecord({
+      metadata: recordMetadata 
+    })
     return(record)
   } catch (e) {
       if (e)

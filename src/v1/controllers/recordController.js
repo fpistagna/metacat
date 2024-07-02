@@ -83,12 +83,17 @@ const updateOneRecordAttribute = async (req, res, next) => {
       req.params.attribute,
       req.body)
 
-    if ( updatedRecord )
+    res.respond({
+      recordId: req.params.recordId,
+      attribute: req.params.attribute,
+      status: "updated"
+    }, 201)
+/*    if ( updatedRecord )
       res.status(201).send({ 
         status: "updated", data: updatedRecord.data })
     else 
       res.status(404).send({
-        status: "error", error: `${req.params.recordId} not found`})    
+        status: "error", error: `${req.params.recordId} not found`})*/
     } catch (error) { return next(error) }
 }
 

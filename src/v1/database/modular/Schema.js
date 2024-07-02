@@ -1,10 +1,13 @@
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 
+const { v4: uuid } = require("uuid")
+
 const recordSchema = new Schema({
   record: {
     id: {
       type: String,
+      default: '<record uuid>',
       required: true
     },
     doi: String
@@ -12,6 +15,7 @@ const recordSchema = new Schema({
   timestamps: {
     createdAt: {
       type: Date,
+      default: Date.now,
       required: true
     },
     updatedAt: Date,
@@ -21,6 +25,19 @@ const recordSchema = new Schema({
     ref: 'RecordMetadata',
     required: true
   }
+})
+
+// Sets the createdAt parameter equal to the current time
+recordSchema.pre('save', function (next) {
+  now = new Date()
+  if(!this.timestamps.createdAt)
+    this.timestamps.createdAt = now
+
+  this.timestamps.updatedAt = now
+  this.record.id = uuid()
+  this.record.doi = this.metadata.id
+
+  next()
 })
 
 module.exports.RecordSchema = recordSchema;
