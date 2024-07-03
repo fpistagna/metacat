@@ -40,4 +40,8 @@ recordSchema.pre('save', function (next) {
   next()
 })
 
+const RecordModel = mongoose.model("Record", recordSchema);
+
 module.exports.RecordSchema = recordSchema;
+module.exports.RecordModel = RecordModel;
+module.exports.deleteAllRecords = deleteAllRecords;
