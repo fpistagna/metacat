@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const customError = require('../../../utils/customError')
+const winston = require('../../../utils/logger')
+const className = "(Model)RecordMetadata"
 
 const recordMetadataSchema = new Schema({
 	id: {
@@ -75,35 +77,43 @@ const RecordMetadataModel = mongoose.model("RecordMetadata", recordMetadataSchem
 
 const createMetadata = async (object) => {
 	try {
-		console.log("DBG:RecordMetadata:createMetadata")
-		console.log(object)
+		winston.verbose(`${className}:createMetadata:${object}`)
+		
 		let recordMetadata = await RecordMetadataModel.create(object)
+		
+		winston.debug(`${className}:createMetadata:id:${recordMetadata.id}`)
+		winston.verbose(`${className}:createMetadata:${recordMetadata}`)
+
 		return (recordMetadata)
 	} catch (error) {
-		console.log(`DBG:RecordMetadata:createMetadata:${error}`)
+		winston.error(`${className}:createMetadata:${error}`)
 		throw new customError.MetadataError (9, error, { cause: error })
 	}
 }
 
 const getRecordByQuery = async (query) => {
   try {
-    console.log(query)
+  	winston.verbose(`${className}:getRecordByQuery:query:${query}`)
+
     let key = Object.keys(query)[0]
     let value = query[Object.keys(query)[0]]
     let newQuery = {}
     newQuery[key] = value
-    console.log("newQuery")
-    console.log(newQuery)
+
     const result = await RecordMetadataModel.find(query)
-    console.log(result)
-    return (result)
+    
+    winston.verbose(`${className}:getRecordByQuery:${result}`)
+		
+		return (result)
   } catch(e) {
-    console.log(e)
+  	winston.error(`${className}:getRecordByQuery:${e}`)
+    throw new customError.MetadataError (8, error, { cause: error })
   }
 }
 
 module.exports = {
 	recordMetadataSchema,
+	RecordMetadataModel,
 	createMetadata,
 	getRecordByQuery
 }

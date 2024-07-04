@@ -1,30 +1,45 @@
-const Mongoose = require("./mongoose")
+const Mongoose = require("./mongoose").connectDB()
 
-Mongoose.connectDB()
-const RecordModel = Mongoose.RecordModel
-const RecordMetadataModel = Mongoose.RecordMetadataModel
-const customError = require('../../../utils/customError');
+const { RecordModel }  = require('./Schema'),
+  { RecordMetadataModel } = require('./RecordMetadata'),
+  customError = require('../../../utils/customError')
+
+const winston = require('../../../utils/logger')
+const className = "(database)Record"
 
 const getAllRecords = async () => {
   try {
     const records = await RecordModel.find(
       {}, {limit: 10, sort: {'_id': -1}})
-//      .populate("metadata")
+      .populate("metadata")
       .exec()
+
+    winston.debug(`${className}:getAllRecords:${records.length}`)
+    winston.verbose(`${className}:getAllRecords:${records}`)
+    
     return (records)
   } catch (error) {
       throw new customError.RecordError (7,
         'Error fetching Records from db..', 
         { cause: error })
   }
-};
+}
 
 const getOneRecord = async (recordId) => {
-  console.log(`DBG:Record:getOneRecord:\n ${JSON.stringify(recordId)}`)
   try {
+    winston.verbose(`${className}:getOneRecord:`+
+      `recordId:${recordId}:`)
+    
     const record = await RecordModel.findById(recordId)
       .populate("metadata")
       .exec()
+
+    winston.debug(`${className}:getOneRecord:`+
+      `recordId:${recordId}`)
+    winston.verbose(`${className}:getOneRecord:`+
+      `recordId:${recordId}:`+
+      `record:${record}`)
+
     return (record)
   } catch (error) {
       throw new customError.RecordError (7, 
@@ -33,11 +48,17 @@ const getOneRecord = async (recordId) => {
 }
 
 const createNewRecord = async (data) => {
-  console.log(`DBG:Record:createNewRecord:\n ${JSON.stringify(data)}`)
   try {
     const record = await RecordModel.create(data)
-    if (!record)
+
+    winston.debug(`${className}:createNewRecord:${record.record.id}`)
+    winston.verbose(`${className}:createNewRecord:${record}`)
+
+    if (!record) {
+      winston.error(`${className}:createNewRecord:${e}`)
       throw new Error ('Record:createNewRecord:RecordModel creation error')
+    }
+
     return (record)
   } catch (error) {
       throw new customError.RecordCreationError (8, error, { cause: error })
@@ -45,26 +66,30 @@ const createNewRecord = async (data) => {
 }
 
 const updateOneRecordAttribute = async(id, attribute, data) => {
-  console.log(`DBG:Record:updateRecordAttribute:\n\
-    ${attribute} - ${JSON.stringify(data)}`)
   try {
+    winston.verbose(`${className}:updateOneRecordAttribute:`+
+      `recordId:${id}:`+
+      `attribute:${attribute}:`+
+      `data:${data}`)
+
     let record = await RecordModel.findById(id)
       .populate("metadata")
       .exec()
     
-    console.log(`DBG:Record Metadata _ID: ${record.metadata._id}`)
-    
     let recordMetadata = await RecordMetadataModel.findById(
       record.metadata._id)
-
-    console.log(`DBG:\n FOUND ${record.metadata._id}\n\n\
-      document:${recordMetadata}\n`)
 
     recordMetadata.attributes[attribute] = data.metadata.attributes[attribute]
 
     const updatedMetadataRecord = await recordMetadata.save()
-    console.log(`DBG:Updated Record Metadata:\
-     ${JSON.stringify(updatedMetadataRecord)}`)
+
+    winston.debug(`${className}:updateOneRecordAttribute:`+
+      `recordId:${id}:`+
+      `attribute:${attribute}`)
+    winston.verbose(`${className}:updateOneRecordAttribute:`+
+      `recordId:${id}`+
+      `attribute:${attribute}:`+
+      `${updatedMetadataRecord}`)
 
     return (updatedMetadataRecord)
   } catch (error) { 

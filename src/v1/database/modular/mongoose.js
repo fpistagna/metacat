@@ -1,11 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
-
-const RecordSchema = require('./Schema');
-const RecordModel = mongoose.model("Record", RecordSchema.RecordSchema);
-const RecordMetadataSchema = require('./RecordMetadata');
-const RecordMetadataModel = mongoose.model("RecordMetadata", RecordMetadataSchema.RecordMetadataSchema);
+const winston = require('../../../utils/logger');
 
 function connectDB() {
   const url = "mongodb://127.0.0.1:27017/test";
@@ -13,21 +9,22 @@ function connectDB() {
   try {
     mongoose.connect(url); } 
   catch (err) {
-    console.error(err.message);
-    process.exit(1); }
+    winston.error(err.message);
+    process.exit(1); 
+  }
 
   const dbConnection = mongoose.connection;
   dbConnection.once("open", (_) => {
-    console.log(`Database connected: ${url}`); });
+    winston.debug(`Database connected: ${url}`); 
+  });
  
   dbConnection.on("error", (err) => {
-    console.error(`connection error: ${err}`); });
+    winston.error(`connection error: ${err}`); 
+  });
   
   return;
 }
 
 module.exports = {
-  RecordModel,
-  RecordMetadataModel,
   connectDB
 }
