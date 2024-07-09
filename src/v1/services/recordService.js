@@ -91,31 +91,11 @@ async function _createRecordMetadata(metadata) {
   }
 }
 
-/*async function _createNewRecord(id, metadata) {
-  try {
-    return ({
-     record: {
-       id: uuid(),
-       doi: id
-     },
-     timestamps: {
-       createdAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
-       updatedAt: new Date().toLocaleString("en-US", { timeZone: "UTC" })
-     },
-     metadata: metadata    
-    })
-  } catch (e) {
-      throw new Error (`RecordService:_createNewRecord:${e}`, { cause: e })
-  }
-}*/
-
 const createNewRecord = async (data) => {
   try {
     winston.verbose(`${className}:createNewRecord:${JSON.stringify(data)}`)
 
     let recordMetadata = await _createRecordMetadata(data.metadata)
-/*    let newRecord = await _createNewRecord(data.metadata.id, recordMetadata)
-    let record = await Record.createNewRecord(newRecord)*/
     let record = await Record.createNewRecord({
       metadata: recordMetadata 
     })
@@ -148,7 +128,7 @@ const updateOneRecordAttribute = async (recordId, attribute, data) => {
     winston.verbose(`${className}:updateOneRecordAttribute:`+
       `recordId:${recordId}:`+
       `attribute:${attribute}:`+
-      `data:${data}`)
+      `data:${JSON.stringify(data)}`)
 
     const updatedRecord = await Record.updateOneRecordAttribute(
       recordId, 

@@ -1,8 +1,8 @@
 // In src/controllers/recordController.js
 
 const recordService = require("../services/recordService"),
-  ajv = require("../services/ajvService")
-  winston = require('../../utils/logger');
+  ajv = require("../services/ajvService"),
+  winston = require('../../utils/logger')
 
 const className = "recordController"
 /* ### Controller functions ### */

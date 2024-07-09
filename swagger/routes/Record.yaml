@@ -1,0 +1,98 @@
+components:
+  schemas:
+    Record:
+      type: object
+      required:
+        - metadata
+      properties:
+        metadata:
+          type: object
+          description: The Datacite Metadata object
+          required:
+            - id
+            - type
+            - attributes
+          properties:
+            id:
+              type: string
+              description: The unique id of the record (doi)
+            type:
+              type: string
+              description: The type of the id (eg. dois)
+            attributes:
+              type: object
+              required:
+                - doi
+                - identifiers
+                - creators
+                - titles
+                - publisher
+                - publicationYear
+              properties:
+                doi:
+                  type: string
+                  description: The unique DOI assigned to the record
+                identifiers:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - identifier
+                    properties:
+                      identifier:
+                        type: string
+                        description: The unique identifier
+                      identifierType:
+                        type: string
+                creators:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - nameType
+                    properties:
+                      name:
+                        type: string
+                      nameType:
+                        type: string
+                titles:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - title
+                    properties:
+                      title:
+                        type: string
+                publisher:
+                  type: object
+                  required:
+                    - name
+                  properties:
+                    name:
+                      type: string
+                publicationYear:
+                  type: number
+
+      example:
+        metadata: 
+          id: 10.13127/volc_hazard/etna_flank_lava_2023
+          type: dois
+          attributes:
+            doi: 10.13127/volc_hazard/etna_flank_lava_2023
+            identifiers:
+              - identifier: 10.13127/volc_hazard/etna_flank_lava_2023
+                identifierType: DOI
+              - identifier: oai:oedatarep-invenio-rdm.com:vcptk-7gs74
+                identifierType: OAI
+            creators:
+              - name: Cappello, Annalisa
+                nameType: Personale
+              - name: Bilotta, Giuseppe
+                nameType: Personal
+            titles:
+              - title: Lava flow hazard map from flank eruptions at Etna
+            publisher:
+              - name: Istituto Nazionale di Geofisica e Vulcanologia (INGV)
+            publicationYear: 2023

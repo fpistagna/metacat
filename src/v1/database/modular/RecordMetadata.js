@@ -73,6 +73,11 @@ const recordMetadataSchema = new Schema({
 
 })
 
+recordMetadataSchema.pre('save', function (next) {
+  this.id = this.attributes.doi
+  next()
+})
+
 const RecordMetadataModel = mongoose.model("RecordMetadata", recordMetadataSchema)
 
 const createMetadata = async (object) => {

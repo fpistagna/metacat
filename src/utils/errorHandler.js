@@ -1,15 +1,24 @@
 // errorHandler.js
-const errorHandler = (error, req, res, next) => {
+const winston = require('./logger'),
+  className = "errorHandler"
 
-  console.log(`errorHandler: ${error}`); // logging the error here
+const errorHandler = (error, req, res, next) => {
+  winston.error(`${className}:${error}\n${error.stack}`) // logging the error here
 
   switch (error.name) {
     case "RecordError": {
       switch(error.code) {
 
+        case 6:
+          return res.status(404).send({
+            type: error.name,
+            errorCode: error.code,
+            details: error.toString()
+          })
         case 7:
           return res.status(404).send({
             type: error.name,
+            errorCode: error.code,
             details: error.toString()
           })
         default: {
@@ -20,7 +29,7 @@ const errorHandler = (error, req, res, next) => {
         }
       }
     }
-    
+
     case "RecordCreationError": {
       switch(error.code) {
         case 8:
@@ -46,6 +55,16 @@ const errorHandler = (error, req, res, next) => {
 
     case "MetadataError": {
       switch(error.code) {
+        case 6:
+          return res.status(422).send({
+            type: error.name,
+            details: error.toString()
+          })
+        case 7:
+          return res.status(400).send({
+            type: error.name,
+            details: error.toString()
+          })
         case 9:
           return res.status(400).send({
             type: error.name,

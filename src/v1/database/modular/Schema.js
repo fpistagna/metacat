@@ -27,7 +27,6 @@ const recordSchema = new Schema({
   }
 })
 
-// Sets the createdAt parameter equal to the current time
 recordSchema.pre('save', function (next) {
   now = new Date()
   if(!this.timestamps.createdAt)

@@ -1,0 +1,129 @@
+tags:
+  name: Records
+  description: The records managing API V2
+/records:
+  get:
+    summary: Lists all the records
+    tags: [Records]
+    responses:
+      200:
+        description: The list of the records
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Record'
+  post:
+    summary: Create a new record
+    tags: [Records]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Record'
+    responses:
+      200:
+        description: The created record.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Record'
+      500:
+        description: Some server error
+/records/{id}:
+  get:
+    summary: Get the record by id
+    tags: [Records]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: The record id
+    responses:
+      200:
+        description: The record response by id
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Record'
+      404:
+        description: The record was not found
+  put:
+   summary: Update the record by the id
+   tags: [Records]
+   parameters:
+     - in: path
+       name: id
+       schema:
+         type: string
+       required: true
+       description: The record id
+   requestBody:
+     required: true
+     content:
+       application/json:
+         schema:
+           $ref: '#/components/schemas/Record'
+   responses:
+     200:
+       description: The record was updated
+       content:
+         application/json:
+           schema:
+             $ref: '#/components/schemas/Record'
+     404:
+       description: The record was not found
+     500:
+       description: Some error happened
+  delete:
+    summary: Remove the record by id
+    tags: [Records]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: The record id
+
+    responses:
+      200:
+        description: The record was deleted
+      404:
+        description: The record was not found
+/records/{id}/{attribute}:
+  patch:
+    summary: Patch and update the specified record's attribute
+    tags: [Records]
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: The record id
+      - in: path
+        name: attribute
+        schema:
+          type: string
+        required: true
+        description: The record's attribute to patch
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Record'
+    responses:
+      200:
+        description: The created record.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Record'
+      500:
+        description: Some server error
