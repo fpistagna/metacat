@@ -21,6 +21,21 @@ const getAllRecords = async () => {
   }
 }
 
+const getRecordByQuery = async (query) => {
+  try {
+    winston.verbose(`${className}:getRecordByQuery:`+
+    `query:${JSON.stringify(query)}`)
+
+    const records = await RecordMetadataModel.getRecordByQuery(query)
+
+    return records
+  } catch(e) {
+      throw new customError.RecordError (6,
+        'Error fetching Records from db using query..', 
+        { cause: e })
+    }
+}
+
 const getOneRecord = async (recordId) => {
   try {
     winston.verbose(`${className}:getOneRecord:`+
@@ -119,6 +134,7 @@ const updateOneRecordAttribute = async(id, attribute, data) => {
 module.exports = { 
   getAllRecords,
   getOneRecord,
+  getRecordByQuery,
   createNewRecord,
   updateOneRecordAttribute
 }

@@ -43,15 +43,22 @@ const recordMetadataSchema = new Schema({
 })
 
 recordMetadataSchema.pre('save', function (next) {
-  this.id = this.attributes.doi
-  next()
+	this.id = this.attributes.doi
+	next()
 })
+
+recordMetadataSchema.index( { "$**": "text" } )
 
 class RecordMetadataModel {
 	static model = mongoose.model("RecordMetadata", recordMetadataSchema)
 
 	static async getMetadataById(id) {
 		return await this.model.findById(id)
+	}
+
+	static async getRecordByQuery(query) {
+		winston.verbose(`${className}:getRecordByQuery:${JSON.stringify(query)}`)
+		return await this.model.find( { $text: { $search: query.q } } )
 	}
 
 	static async createMetadata(object) {
@@ -88,4 +95,4 @@ class RecordMetadataModel {
 	}
 }
 
-module.exports = { RecordMetadataModel }
+module.exports.RecordMetadataModel = RecordMetadataModel

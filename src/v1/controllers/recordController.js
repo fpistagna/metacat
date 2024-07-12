@@ -11,10 +11,13 @@ const getAllRecords = async (req, res, next) => {
   try {
     if (Object.keys(req.query).length > 0) {
 
-      winston.verbose(`${className}:getAllRecords:query:${req.query}`)
+      winston.verbose(`${className}:getAllRecords:query:${JSON.stringify(req.query)}`)
       
       const result = await recordService.getRecordByQuery(req.query)
-      res.respond(result)
+      if (result.length > 0)
+        res.respond(result)
+      else
+        res.respondNoContent()
     } else {
       const allRecords = await recordService.getAllRecords()
       

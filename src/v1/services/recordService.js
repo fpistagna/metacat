@@ -1,7 +1,6 @@
 // In src/services/recordService.js
 const Mongoose = require("../database/modular/mongoose"),
-  Record = require("../database/modular/Record"),
-  RecordMetadata = require("../database/modular/RecordMetadata")
+  Record = require("../database/modular/Record")
 
 const { v4: uuid } = require("uuid")
 const winston = require('../../utils/logger')
@@ -72,13 +71,13 @@ const getRecordAttribute = async(id, attribute) => {
 
 const getRecordByQuery = async (query) => {
   try {
-    winston.debug(`${className}:getRecordByQuery:query:${query}`)
+    winston.debug(`${className}:getRecordByQuery:query:${JSON.stringify(query)}`)
 
-    const record = await RecordMetadata.getRecordByQuery(query)
+    const records = await Record.getRecordByQuery(query)
     
-    winston.verbose(`${className}:getRecordByQuery:query:${record}`)
+    winston.verbose(`${className}:getRecordByQuery:query:${records.length}`)
 
-    return (record)
+    return (records)
   } catch(e) {
       if (e) {
         winston.error(`${className}:getRecordByQuery:${e}`)
