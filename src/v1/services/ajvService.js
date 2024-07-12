@@ -48,29 +48,46 @@ ajv.addSchema(titleSchema, "titles#");
 ajv.addSchema(publisherSchema, "publisher#");
 ajv.addSchema(publicationYearSchema, "attributes.publicationYear#");
 
+const winston = require('../../utils/logger')
+const className = "AJVService"
 
 module.exports.validator = (req, res, next) => {
   const validate = ajv.compile(schema);
-
   const valid = validate(req.body);
-  console.log(valid);
-  if (!valid)
-    /*return ({ "errors": validate.errors,
-      "code": validate(data)})*/
-    res.status(400).send({ status: "errors", error: validate.errors });
+
+  winston.debug(`${className}:validator:${valid}`)
+  winston.verbose(`${className}:validator:`+
+    `body:${JSON.stringify(req.body)}:`+
+    `validation:${valid}`)
+
+  if (!valid) {
+    winston.error(`${className}:validator:${valid}:`+
+      `${JSON.stringify(validate.errors)}`)
+    res.respond({ 
+      status: "error", 
+      error: validate.errors }, 404)
+  }
   else
-    //console.log(JSON.stringify(data, null, 4));
     next();
 }
 
 module.exports.patchValidator = (req, res, next) => {
   const schema = require("../../../schemas/patchRootSchema.json")
-
   const patchValidate = ajv.compile(schema);
   const valid = patchValidate(req.body);
-  console.log(valid);
-  if (!valid)
-    res.status(400).send({ status: "errors", error: patchValidate.errors });
+
+  winston.debug(`${className}:validator:${valid}`)
+  winston.verbose(`${className}:validator:`+
+    `body:${JSON.stringify(req.body)}:`+
+    `validation:${valid}`)
+
+  if (!valid) {
+    winston.error(`${className}:validator:${valid}:`+
+      `${JSON.stringify(validate.errors)}`)
+    res.respond({ 
+      status: "error", 
+      error: validate.errors }, 404)
+  }
   else
     next();
 }
@@ -81,8 +98,6 @@ module.exports.cliValidator = (data) => {
   const valid = validate(data);
   console.log(valid);
   if (!valid)
-    /*return ({ "errors": validate.errors,
-      "code": validate(data)})*/
     console.log({ status: "errors", error: validate.errors });
   else
     console.log({ status: "valid", data: JSON.stringify(data) });
