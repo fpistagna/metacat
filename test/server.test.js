@@ -3,7 +3,6 @@ const express = require('express'),
   logger = require('morgan'),
   responseHelper = require('express-response-helper')
 
-const v1Router = require("../src/v1/routes")
 const v1RecordRouter = require("../src/v1/routes/recordRoutes")
 const errorHandler = require("../src/utils/errorHandler")
 const responseHandler = require("../src/utils/responseHandler")
@@ -17,7 +16,6 @@ app.use(logger('dev'))
 
 app.use(responseHelper.helper())
 
-app.use("/api/v1", v1Router)
 app.use("/api/v1/records", v1RecordRouter)
 app.use(errorHandler)
 

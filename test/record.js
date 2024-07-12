@@ -1,11 +1,7 @@
 //During the test the env variable is set to test
 process.env.NODE_ENV = 'test';
 
-let Mongoose = require("../src/v1/database/modular/mongoose");
-const { RecordSchema, RecordModel, deleteAllRecords } = require('../src/v1/database/modular/Schema');
-
-//const RecordModel = Mongoose.RecordModel;
-const RecordMetadataModel = Mongoose.RecordMetadataModel;
+const { RecordModel } = require('../src/v1/database/modular/Schema');
 
 //Require the dev-dependencies
 let chai = require('chai');
@@ -18,7 +14,7 @@ chai.use(chaiHttp);
 //Our parent block
 describe('Records Chai Tests', () => {
   before('Delete All Records', async () => { //Before each test we empty the database
-    await RecordModel.deleteMany({});
+    await RecordModel.model.deleteMany({});
   });
 /*
   * Test the /GET route
@@ -49,7 +45,7 @@ describe('/GET Records', () => {
               res.should.have.status(400);
               res.body.should.be.a('object');
               res.body.should.have.property('status');
-              res.body.should.have.property('status').equal('errors');
+              res.body.should.have.property('status').equal('error');
               res.body.should.have.property('error');
               res.body.error[0].should.have.property('params');
               res.body.error[0].params.should.have.property('missingProperty');

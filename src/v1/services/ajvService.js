@@ -65,7 +65,7 @@ module.exports.validator = (req, res, next) => {
       `${JSON.stringify(validate.errors)}`)
     res.respond({ 
       status: "error", 
-      error: validate.errors }, 404)
+      error: validate.errors }, 400)
   }
   else
     next();

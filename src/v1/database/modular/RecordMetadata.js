@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const customError = require('../../../utils/customError')
 const winston = require('../../../utils/logger')
-const className = "(Model)RecordMetadata"
+const className = "Mongoose:RecordMetadata"
 
 const recordMetadataSchema = new Schema({
 	id: {
