@@ -32,7 +32,7 @@ const errorHandler = (error, req, res, next) => {
 
     case "RecordCreationError": {
       switch(error.code) {
-        case 8:
+        case 17:
           return res.status(400).send({
             type: error.name,
             details: error.toString()

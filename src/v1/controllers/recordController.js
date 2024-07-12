@@ -54,29 +54,24 @@ const getOneRecord = async (req, res, next) => {
 
 const getRecordAttribute = async (req, res, next) => {
   try {
-    const record = await recordService.getOneRecord(req.params.recordId)
+    const result = await recordService.getRecordAttribute(
+      req.params.recordId, req.params.attribute)
 
-    winston.verbose(`${className}:getRecordAttribute:record:${record}`)
+    winston.verbose(`${className}:getRecordAttribute:record:${result.record}`)
 
-    if (!record)
+    if (!result.record)
       res.respond({ recordId: req.params.recordId }, 404)
+    else if (!result.attribute)
+      res.respond({ attribute: req.params.attribute }, 404)
     else {
-      if (record.metadata.attributes.hasOwnProperty(req.params.attribute) ) {
-        const {[req.params.attribute]: attr} = record.metadata.attributes
+      winston.debug(`${className}:getRecordAttribute:`+
+        `recordId:${req.params.recordId}`+
+        `attribute:${result.attribute}`)
 
-        winston.debug(`${className}:getRecordAttribute:`+
-          `recordId:${req.params.recordId}`+
-          `attribute:${attr}`)
-
-        res.respond({
-          recordId: req.params.recordId,
-          attribute: attr
-        }, 200)
-      } else 
-        res.respond({ 
-          recordId: req.params.recordId,
-          message: "attribute not found"
-        }, 404)
+      res.respond({
+        recordId: req.params.recordId,
+        attribute: result.attribute
+      }, 200)
     }
   } catch (error) { 
       winston.error(`${className}:getRecordAttribute:${error}`)

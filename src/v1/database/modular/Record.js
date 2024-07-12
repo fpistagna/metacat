@@ -5,15 +5,11 @@ const { RecordModel }  = require('./Schema'),
   customError = require('../../../utils/customError')
 
 const winston = require('../../../utils/logger')
-const className = "(database)Record"
+const className = "Mongoose:Model:Record"
 
 const getAllRecords = async () => {
   try {
-    const records = await RecordModel.find(
-      {}, {limit: 10, sort: {'_id': -1}})
-      //.populate("metadata")
-      .exec()
-
+    const records = await RecordModel.getAllRecords()
     winston.debug(`${className}:getAllRecords:${records.length}`)
     winston.verbose(`${className}:getAllRecords:${records}`)
     
@@ -29,11 +25,8 @@ const getOneRecord = async (recordId) => {
   try {
     winston.verbose(`${className}:getOneRecord:`+
       `recordId:${recordId}`)
-    
-    const record = await RecordModel.findById(recordId)
-      .populate("metadata")
-      .exec()
 
+    const record = await RecordModel.getRecordWithId(recordId)    
     if (!record)
       throw Error
 
@@ -56,21 +49,20 @@ const createNewRecord = async (data) => {
     winston.verbose(`${className}:createNewRecord:withData:`+
       `${JSON.stringify(data)}`)
 
-    const record = await RecordModel.create(data)
-    if (!record)
-      throw new Error
+    const metadata = await RecordMetadataModel.createMetadata(data)
+    const record = await RecordModel.createRecordWithMetadata(metadata)
 
     winston.debug(`${className}:createNewRecord:${record.record.id}`)
     winston.verbose(`${className}:createNewRecord:${record}`)
 
     if (!record) {
-      winston.error(`${className}:createNewRecord:${e}`)
+      winston.error(`${className}:createNewRecord:${error}`)
       throw new Error ('Record:createNewRecord:RecordModel creation error')
     }
 
     return (record)
   } catch (error) {
-      throw new customError.RecordCreationError (8, 
+      throw new customError.RecordCreationError (17, 
         `Error creating new Record into the DB..` + error, 
         { cause: error })
   }
@@ -83,35 +75,36 @@ const updateOneRecordAttribute = async(id, attribute, data) => {
       `attribute:${attribute}:`+
       `data:${JSON.stringify(data)}`)
 
-    let record = await RecordModel.findById(id)
-      .populate("metadata")
-      .exec()
-    
+    let record = await RecordModel.getRecordWithId(id)
     if (!record) 
       throw new customError.RecordError (6, `Record ${id} not found`)
 
-    let recordMetadata = await RecordMetadataModel.findById(
-      record.metadata._id)
-    if (!recordMetadata) 
-      throw new customError.RecordError (5, `Metadata object` + 
-        ` for Record ${id} not found`)
+    const updatedMetadataRecord = await RecordMetadataModel
+    .updateMetadataAttribute(
+      record.metadata._id,
+      attribute,
+      data.metadata.attributes[attribute])
 
-    recordMetadata.attributes[attribute] = data.metadata.attributes[attribute]
-
-    const updatedMetadataRecord = await recordMetadata.save()
-
-    record.timestamps.updatedAt = new Date()
-    record.record.doi = updatedMetadataRecord.id
-    if (!await record.save())
-      throw Error
-
-    winston.debug(`${className}:updateOneRecordAttribute:`+
-      `recordId:${id}:`+
-      `attribute:${attribute}`)
     winston.verbose(`${className}:updateOneRecordAttribute:`+
-      `recordId:${id}`+
-      `attribute:${attribute}:`+
-      `${updatedMetadataRecord}`)        
+      `updatedMetadataRecord:${updatedMetadataRecord}`)
+
+    if (updatedMetadataRecord) {
+      const updatedRecord = await RecordModel.updateRecordMetadata(
+        record, 
+        updatedMetadataRecord)
+
+      if (!updatedRecord)
+        throw Error
+
+      winston.debug(`${className}:updateOneRecordAttribute:`+
+        `recordId:${id}:`+
+        `attribute:${attribute}`)
+      winston.verbose(`${className}:updateOneRecordAttribute:`+
+        `recordId:${id}:`+
+        `attribute:${attribute}:`+
+        `updatedMetadataRecord:${updatedMetadataRecord}:`+
+        `record:${updatedRecord}`)
+    }
 
     return (updatedMetadataRecord)
   } catch (error) {

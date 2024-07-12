@@ -1,5 +1,4 @@
 // In src/services/recordService.js
-//const Record = require("../database/Record")
 const Mongoose = require("../database/modular/mongoose"),
   Record = require("../database/modular/Record"),
   RecordMetadata = require("../database/modular/RecordMetadata")
@@ -42,7 +41,31 @@ const getOneRecord = async (recordId) => {
         winston.error(`${className}:getOneRecord:${e}`)
         throw e
       }
-      throw new Error (`RecordService:getOneRecords:\n ${e}`, 
+      throw new Error (`${className}:getOneRecords:${e}`, 
+        { cause: e })
+  }
+}
+
+const getRecordAttribute = async(id, attribute) => {
+  try {
+    winston.debug(`${className}:getRecordAttribute:`+
+      `recordId:${id}:`+
+      `attribute:${attribute}`)
+
+    const record = await Record.getOneRecord(id)
+    
+    if (record.metadata.attributes.hasOwnProperty(attribute)) {
+      const {[attribute]: attr} = record.metadata.attributes
+      return ({ record: record, attribute: attr })
+    } else
+      return ({ record: record } )
+
+  } catch(e) {
+      if (e) {
+        winston.error(`${className}:getRecordAttribute:${e}`)
+        throw e
+      }
+      throw new Error (`${className}:getRecordAttribute:${e}`, 
         { cause: e })
   }
 }
@@ -61,33 +84,8 @@ const getRecordByQuery = async (query) => {
         winston.error(`${className}:getRecordByQuery:${e}`)
         throw e
       }
-      throw new Error (`RecordService:getRecordByQuery:\n ${e}`, 
+      throw new Error (`${className}:getRecordByQuery:\n ${e}`, 
         { cause: e })
-  }
-}
-
-async function _createRecordMetadata(metadata) {
-  try {
-    winston.verbose(`${className}:_createRecordMetadata:${JSON.stringify(metadata)}`)
-
-    const recordMetadata = await RecordMetadata.createMetadata(
-      metadata)
-
-    winston.debug(`${className}:_createRecordMetadata:${recordMetadata.id}`)
-    winston.verbose(`${className}:_createRecordMetadata:${recordMetadata}`)
-
-    return (recordMetadata)
-  } catch (e) {
-      if (e) {
-        winston.error(`${className}:_createRecordMetadata:${e}`)
-        throw e
-      }
-      else 
-        throw new customError.RecordCreationError (
-          19, 
-          `RecordService:createRecordMetadata:${e}`, 
-          { cause: e }
-        )
   }
 }
 
@@ -95,10 +93,7 @@ const createNewRecord = async (data) => {
   try {
     winston.verbose(`${className}:createNewRecord:${JSON.stringify(data)}`)
 
-    let recordMetadata = await _createRecordMetadata(data.metadata)
-    let record = await Record.createNewRecord({
-      metadata: recordMetadata 
-    })
+    let record = await Record.createNewRecord(data)
 
     winston.debug(`${className}:createNewRecord:`+
       `uuid:${record.record.id}`+
@@ -113,7 +108,7 @@ const createNewRecord = async (data) => {
       }
       throw new customError.RecordCreationError (
         18, 
-        `RecordService:createNewRecord:${e}`, 
+        `${className}:createNewRecord:${e}`, 
         { cause: e }
       )
   }
@@ -143,7 +138,7 @@ const updateOneRecordAttribute = async (recordId, attribute, data) => {
         winston.error(`${className}:updateOneRecordAttribute:${e}`)
         throw e
       }
-      throw new Error (`RecordService:updateRecordAttribute:${e}`, 
+      throw new Error (`${className}:updateRecordAttribute:${e}`, 
         { cause: e })
   }
 }
@@ -155,6 +150,7 @@ const deleteOneRecord = () => {
 module.exports = {
   getAllRecords,
   getOneRecord,
+  getRecordAttribute,
   getRecordByQuery,
   createNewRecord,
   updateOneRecord,
