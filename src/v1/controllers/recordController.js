@@ -2,16 +2,15 @@
 
 const recordService = require("../services/recordService"),
   ajv = require("../services/ajvService"),
-  winston = require('../../utils/logger')
-
-const className = "recordController"
-/* ### Controller functions ### */
+  className = "recordController",
+  LoggerHelper = require('../../utils/loggerHelper'),
+  Logger = new LoggerHelper.Logger(className)
 
 const getAllRecords = async (req, res, next) => {
+  Logger.callerFunction = 'getAllRecords'
   try {
     if (Object.keys(req.query).length > 0) {
-
-      winston.verbose(`${className}:getAllRecords:query:${JSON.stringify(req.query)}`)
+      Logger.logs({ verbose: { query: req.query } })
       
       const result = await recordService.getRecordByQuery(req.query)
       if (result.length > 0)
@@ -19,10 +18,8 @@ const getAllRecords = async (req, res, next) => {
       else
         res.respondNoContent()
     } else {
-      const allRecords = await recordService.getAllRecords()
-      
-      winston.debug(`${className}:getAllRecords:`+
-        `length:${allRecords.length}`)
+      const allRecords = await recordService.getAllRecords()      
+      Logger.logs({ debug: { hits: allRecords.length } })
       
       if (!allRecords.length)
         res.respondNoContent()
@@ -30,17 +27,18 @@ const getAllRecords = async (req, res, next) => {
         res.respond(allRecords)
     }
   } catch (error) {
-      winston.error(`${className}:getAllRecords:${error}`)
+      Logger.error({ error: error })
       return next(error)
     }
 }
 
 const getOneRecord = async (req, res, next) => {
+  Logger.callerFunction = 'getOneRecord'
   try {
     const record = await recordService.getOneRecord(req.params.recordId)
 
-    winston.debug(`${className}:getOneRecord:record:uuid:${record.record.id}`)
-    winston.verbose(`${className}:getOneRecord:record:${record}`)
+    Logger.logs({ debug: { uuid: record.record.id }, 
+      verbose: { record: record } })
 
     if (!record)
       res.respond({ id: req.params.recordId }, 404)
@@ -50,49 +48,52 @@ const getOneRecord = async (req, res, next) => {
         data: record
       }, 200)
   } catch (error) { 
-      winston.error(`${className}:getOneRecord:${error}`)
+      Logger.error({ error: error })
       return next(error) 
     }
 }
 
 const getRecordAttribute = async (req, res, next) => {
+  Logger.callerFunction = 'getRecordAttribute'
   try {
-    const result = await recordService.getRecordAttribute(
-      req.params.recordId, req.params.attribute)
+    let rId = req.params.recordId
+    let rAttribute = req.params.attribute
 
-    winston.verbose(`${className}:getRecordAttribute:record:${result.record}`)
+    const result = await recordService.getRecordAttribute(rId, rAttribute)
+
+    Logger.logs({ verbose: { record: result.record } })
 
     if (!result.record)
-      res.respond({ recordId: req.params.recordId }, 404)
+      res.respond({ recordId: rId }, 404)
     else if (!result.attribute)
-      res.respond({ attribute: req.params.attribute }, 404)
+      res.respond({ attribute: rAttribute }, 404)
     else {
-      winston.debug(`${className}:getRecordAttribute:`+
-        `recordId:${req.params.recordId}`+
-        `attribute:${result.attribute}`)
+      Logger.logs({ debug: { recordId: rId, attribute: rAttribute } })
 
       res.respond({
-        recordId: req.params.recordId,
-        attribute: result.attribute
+        recordId: rId,
+        attribute: rAttribute,
+        values: result.attribute
       }, 200)
     }
   } catch (error) { 
-      winston.error(`${className}:getRecordAttribute:${error}`)
+      Logger.error({ error: error })
       return next(error) 
     } 
 }
 
 const createNewRecord = async (req, res, next) => {
+  Logger.callerFunction = 'createNewRecord'
   try {
     const record = await recordService.createNewRecord(req.body)
 
-    winston.debug(`${className}:createNewRecord:record:uuid:${record.record.id}`)
-    winston.verbose(`${className}:createNewRecord:record:${record}`)
+    Logger.logs({ debug: { recordUuid: record.record.id}, 
+      verbose: { record: record } })
 
     res.respondCreated(record)
   }
   catch (error) { 
-    winston.error(`${className}:createNewRecord:${error}`)
+    Logger.logs({ error: error })
     return next(error) }
 }
 
@@ -111,22 +112,25 @@ const updateOneRecord = async (req, res) => {
 }
 
 const updateOneRecordAttribute = async (req, res, next) => {
+  Logger.callerFunction = 'updateOneRecordAttribute'
   try {
-    const updatedRecord = await recordService.updateOneRecordAttribute(
-      req.params.recordId,
-      req.params.attribute,
-      req.body)
+    let rId = req.params.recordId,
+      rAttribute = req.params.attribute,
+      reqBody = req.body
 
-    winston.debug(`${className}:updateOneRecordAttribute:`+
-      `updatedRecord:${updatedRecord}`)
+    const updatedRecord = await recordService.updateOneRecordAttribute(
+      rId, rAttribute, reqBody)
+
+    Logger.logs({ debug: { updatedRecord: updatedRecord._id },
+      verbose: { updatedRecord: JSON.stringify(updatedRecord)}})
 
     res.respond({
-      recordId: req.params.recordId,
-      attribute: req.params.attribute,
+      recordId: rId,
+      attribute: rAttribute,
       status: "updated"
     }, 201)
-    } catch (error) { 
-        winston.error(`${className}:updateOneRecordAttribute:${error}`)
+    } catch (error) {
+        Logger.error({ error: error }) 
         return next(error) 
       }
 }
