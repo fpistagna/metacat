@@ -2,7 +2,7 @@
 const winston = require('./logger'),
   className = "errorHandler"
 
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, req, res) => {
   winston.error(`${className}:${error}\n${error.stack}`) // logging the error here
 
   switch (error.name) {
@@ -49,9 +49,10 @@ const errorHandler = (error, req, res, next) => {
             type: error.name,
             details: error.toString()
           })
-        default: { }
-      }  
+        default: { /* empty */ }
+      }
     }
+    break
 
     case "MetadataError": {
       switch(error.code) {
@@ -70,9 +71,10 @@ const errorHandler = (error, req, res, next) => {
             type: error.name,
             details: error.toString()
           })
-        default: { }
-      }  
+        default: { /* empty */ }
+      }
     }
+    break
 
     default: {
       console.log(`DBG:ERROR_HANDLER`)

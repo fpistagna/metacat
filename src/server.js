@@ -7,7 +7,6 @@ const express = require('express'),
 
 const v1RecordRouter = require("./v1/routes/recordRoutes")
 const errorHandler = require("./utils/errorHandler")
-const responseHandler = require("./utils/responseHandler")
 
 const app = express()
 const PORT = process.env.PORT || 3000;

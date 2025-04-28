@@ -1,5 +1,6 @@
 // In src/services/recordService.js
 const Record = require("../database/modular/Record")
+// eslint-disable-next-line no-unused-vars
 const { v4: uuid } = require("uuid")
 const className = "recordService",
   LoggerHelper = require('../../utils/loggerHelper'),
@@ -50,7 +51,7 @@ const getRecordAttribute = async(id, attribute) => {
     Logger.logs({ debug: { recordId: id, attribute: attribute }})
     const record = await Record.getOneRecord(id)
     
-    if (record.metadata.attributes.hasOwnProperty(attribute)) {
+    if (Object.prototype.hasOwnProperty.call(record.metadata.attributes, attribute)) {
       const {[attribute]: attr} = record.metadata.attributes
       return ({ record: record, attribute: attr })
     } else

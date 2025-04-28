@@ -1,5 +1,4 @@
 const winston = require('./logger')
-const className = "LoggerHelper"
 
 class Logger {
   constructor(className) {

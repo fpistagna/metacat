@@ -1,7 +1,6 @@
 // In src/controllers/recordController.js
 
 const recordService = require("../services/recordService"),
-  ajv = require("../services/ajvService"),
   className = "recordController",
   LoggerHelper = require('../../utils/loggerHelper'),
   Logger = new LoggerHelper.Logger(className)

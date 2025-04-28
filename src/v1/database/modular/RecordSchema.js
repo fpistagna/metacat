@@ -30,7 +30,7 @@ const recordSchema = new Schema({
 })
 
 recordSchema.pre('save', function (next) {
-  now = new Date()
+  let now = new Date()
   if(!this.timestamps.createdAt)
     this.timestamps.createdAt = now
 

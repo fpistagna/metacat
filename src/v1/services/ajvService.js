@@ -83,10 +83,10 @@ module.exports.patchValidator = (req, res, next) => {
 
   if (!valid) {
     winston.error(`${className}:validator:${valid}:`+
-      `${JSON.stringify(validate.errors)}`)
+      `${JSON.stringify(patchValidate.errors)}`)
     res.respond({ 
       status: "error", 
-      error: validate.errors }, 404)
+      error: patchValidate.errors }, 404)
   }
   else
     next();

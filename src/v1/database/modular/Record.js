@@ -1,4 +1,3 @@
-const Mongoose = require("./mongoose").connectDB()
 
 const { RecordModel }  = require('./RecordSchema'),
   { RecordMetadataModel } = require('./RecordMetadataSchema'),
@@ -52,10 +51,12 @@ const getOneRecord = async (recordId) => {
       `record:${record}`)
 
     return (record)
-  } catch (error) {
+  } catch (e) {
       throw new customError.RecordError (7, 
         `Error fetching from DB..` +
-        `Record id ${recordId} not found`)
+        `Record id ${recordId} not found`,
+        { cause: e }
+      )
   }
 }
 
@@ -67,15 +68,15 @@ const createNewRecord = async (data) => {
     const metadata = await RecordMetadataModel.createMetadata(data)
     const record = await RecordModel.createRecordWithMetadata(metadata)
 
-    winston.debug(`${className}:createNewRecord:${record.record.id}`)
-    winston.verbose(`${className}:createNewRecord:${record}`)
-
     if (!record) {
-      winston.error(`${className}:createNewRecord:${error}`)
+      winston.error(`${className}:createNewRecord:Error`)
       throw new Error ('Record:createNewRecord:RecordModel creation error')
+    } else {
+      winston.debug(`${className}:createNewRecord:${record.record.id}`)
+      winston.verbose(`${className}:createNewRecord:${record}`)
+      return (record)
+  
     }
-
-    return (record)
   } catch (error) {
       throw new customError.RecordCreationError (17, 
         `Error creating new Record into the DB..` + error, 
