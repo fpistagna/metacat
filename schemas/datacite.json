@@ -14,21 +14,26 @@
     "attributes": {
       "type": "object",
       "properties": {
-        "doi": { "$ref": "attributes.doi#" },
-        "prefix": { "$ref": "attributes.prefix#" },
-        "suffix": { "$ref": "attributes.suffix#" },
+        "doi": { "$ref": "doi#" },
         "identifiers": { "$ref": "identifiers#" },
         "creators": { "$ref": "creators#" },
         "titles": { "$ref": "titles#"},
         "publisher": { "$ref": "publisher#" },
-        "publicationYear": { "$ref": "attributes.publicationYear#" }
+        "publicationYear": { "$ref": "publicationYear#" },
+        "subjects": {"$ref": "subjects#" },
+        "resourceType": {"$ref": "resourceType#" },
+        "dates": {"$ref": "dates#" },
+        "contributors": {"$ref": "contributors#" },
+        "descriptions": {"$ref": "descriptions#" }
       },
       "required": [
+        "doi",
         "identifiers",
         "creators",
         "titles",
         "publisher",
-        "publicationYear"
+        "publicationYear",
+        "resourceType"
       ]
     }
   },

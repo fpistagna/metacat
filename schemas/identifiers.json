@@ -1,20 +1,23 @@
 {
-  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "identifiers#",
+  "description": "Alternate identifiers for the resource, other than the primary DOI.",
   "type": "array",
-  "uniqueItems": true,
-  "minItems": 1,
   "items": {
     "type": "object",
-    "required": [
-      "identifier"
-    ],
     "properties": {
       "identifier": {
         "type": "string",
         "minLength": 1
       },
-      "identifierType": { "enum": ["DOI", "oai", "Local accession number"] }
-    }
+      "identifierType": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "identifier",
+      "identifierType"
+    ]
   }
 }

@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "subjects#",
+  "type": "array",
+  "description": "Subjects, keywords, classification codes, or other terms describing the resource.",
+  "items": {
+    "type": "object",
+    "properties": {
+      "subject": {
+        "type": "string",
+        "minLength": 1
+      },
+      "subjectScheme": {
+        "type": "string"
+      },
+      "schemeUri": {
+        "type": "string",
+        "format": "uri"
+      },
+      "valueUri": {
+        "type": "string",
+        "format": "uri"
+      },
+      "lang": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "subject"
+    ]
+  }
+}

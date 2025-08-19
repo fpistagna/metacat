@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "resourceType#",
+  "type": "object",
+  "description": "The type of the resource. resourceTypeGeneral is a required term from a controlled list.",
+  "properties": {
+    "resourceTypeGeneral": {
+      "type": "string",
+      "enum": [
+        "Audiovisual",
+        "Book",
+        "BookChapter",
+        "Collection",
+        "ComputationalNotebook",
+        "ConferencePaper",
+        "ConferenceProceeding",
+        "DataPaper",
+        "Dataset",
+        "Dissertation",
+        "Event",
+        "Image",
+        "InteractiveResource",
+        "Journal",
+        "JournalArticle",
+        "Model",
+        "OutputManagementPlan",
+        "PeerReview",
+        "PhysicalObject",
+        "Preprint",
+        "Report",
+        "Service",
+        "Software",
+        "Sound",
+        "Standard",
+        "Text",
+        "Workflow",
+        "Other"
+      ]
+    },
+    "resourceType": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "resourceTypeGeneral"
+  ]
+}

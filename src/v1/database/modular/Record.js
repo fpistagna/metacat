@@ -1,4 +1,5 @@
 
+const Mongoose = require("./mongoose").connectDB()
 const { RecordModel }  = require('./RecordSchema'),
   { RecordMetadataModel } = require('./RecordMetadataSchema'),
   customError = require('../../../utils/customError')

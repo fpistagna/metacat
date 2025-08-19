@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dates#",
+  "description": "Different dates relevant to the resource.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "date": {
+        "type": "string",
+        "description": "The date or date range. Formats: YYYY, YYYY-MM-DD, or YYYY-MM-DD/YYYY-MM-DD."
+      },
+      "dateType": {
+        "type": "string",
+        "enum": [
+          "Accepted",
+          "Available",
+          "Collected",
+          "Copyrighted",
+          "Created",
+          "Issued",
+          "Submitted",
+          "Updated",
+          "Valid",
+          "Withdrawn",
+          "Other"
+        ]
+      },
+      "dateInformation": {
+        "type": "string",
+        "description": "Additional information about the date."
+      }
+    },
+    "required": [
+      "date",
+      "dateType"
+    ]
+  }
+}

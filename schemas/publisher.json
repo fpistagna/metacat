@@ -1,76 +1,33 @@
 {
-  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "publisher#",
+  "description": "The entity that holds, archives, or publishes the resource.",
   "type": "object",
-  "if": {
-    "required": [
-      "publisherIdentifier"
-    ],
-    "properties": {
-      "lang": {
-        "type": "string",
-        "minLength": 1
-      },
-      "name": {
-        "type": "string",
-        "minLength": 1
-      },
-      "schemeUri": {
-        "type": "string",
-        "minLength": 1
-      },
-      "publisherIdentifier": {
-        "type": "string",
-        "minLength": 1
-      },
-      "publisherIdentifierScheme": {
-        "type": "string",
-        "minLength": 1
-      }
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "publisherIdentifier": {
+      "type": "string"
+    },
+    "publisherIdentifierScheme": {
+      "type": "string"
+    },
+    "schemeUri": {
+      "type": "string",
+      "format": "uri"
+    },
+    "lang": {
+      "type": "string"
     }
   },
-  "then": {
-    "required": [
-      "name",
-      "publisherIdentifier",
+  "required": [
+    "name"
+  ],
+  "dependencies": {
+    "publisherIdentifier": [
       "publisherIdentifierScheme"
-    ],
-    "properties": {
-      "lang": {
-        "type": "string",
-        "minLength": 1
-      },
-      "name": {
-        "type": "string",
-        "minLength": 1
-      },
-      "schemeUri": {
-        "type": "string",
-        "minLength": 1
-      },
-      "publisherIdentifier": {
-        "type": "string",
-        "minLength": 1
-      },
-      "publisherIdentifierScheme": {
-        "type": "string",
-        "minLength": 1
-      }
-    }
-  },
-  "else": {
-    "required": [
-      "name"
-    ],
-    "properties": {
-      "lang": {
-        "type": "string",
-        "minLength": 1
-      },
-      "name": {
-        "type": "string",
-        "minLength": 1
-      }
-    }
+    ]
   }
 }

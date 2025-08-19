@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "attributes.doi#",
+  "description": "The full Digital Object Identifier (DOI) of the resource.",
+  "type": "string",
+  "pattern": "^10\\.\\d{4,9}/[-._;()/:A-Za-z0-9]+$"
+}

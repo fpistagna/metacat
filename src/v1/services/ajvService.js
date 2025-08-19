@@ -3,50 +3,43 @@
 /* Preload Schemas */
 const schema = require("../../../schemas/root.json"),
   metadataSchema = require("../../../schemas/datacite.json"),
-  doiSchema = require("../../../schemas/attributes.doi.json"),
-  prefixSchema = require("../../../schemas/attributes.prefix.json"),
-  suffixSchema = require("../../../schemas/attributes.suffix.json"),
+  doiSchema = require("../../../schemas/doi.json"),
   identifierSchema = require("../../../schemas/identifiers.json"),
   creatorSchema = require("../../../schemas/creators.json"),
   creatorAffiliationSchema = require("../../../schemas/creators.affiliation.json"),
   creatorNameIdenfierSchema = require("../../../schemas/creators.nameIdentifier.json"),
   titleSchema = require("../../../schemas/titles.json"),
   publisherSchema = require("../../../schemas/publisher.json"),
-  publicationYearSchema = require("../../../schemas/attributes.publicationYear.json");
+  publicationYearSchema = require("../../../schemas/publicationYear.json"),
+  subjectSchema = require("../../../schemas/subjects.json"),
+  resourceTypeSchema = require("../../../schemas/resourceType.json"),
+  dateSchema = require("../../../schemas/dates.json"),
+  contributorSchema = require("../../../schemas/contributors.json"),
+  descriptionSchema = require("../../../schemas/descriptions.json");
 
+const addFormats = require("ajv-formats");
 const Ajv = require("ajv"),
   ajv = new Ajv({
     strictRequired: true,
     removeAdditional: "all"
-  },
-  {
-    schemas: [ 
-      schema,
-      metadataSchema,
-      doiSchema,
-      prefixSchema,
-      suffixSchema,
-      identifierSchema,
-      creatorSchema,
-      creatorAffiliationSchema,
-      creatorNameIdenfierSchema,
-      titleSchema,
-      publisherSchema,
-      publicationYearSchema
-    ]
   });
 
+addFormats(ajv);
+
 ajv.addSchema(metadataSchema, "metadata#");
-ajv.addSchema(doiSchema, "attributes.doi#");
-ajv.addSchema(prefixSchema, "attributes.prefix#");
-ajv.addSchema(suffixSchema, "attributes.suffix#");
+ajv.addSchema(doiSchema, "doi#");
 ajv.addSchema(identifierSchema, "identifiers#");
 ajv.addSchema(creatorAffiliationSchema, "creators.affiliation#");
 ajv.addSchema(creatorNameIdenfierSchema, "creators.nameIdentifier#");
 ajv.addSchema(creatorSchema, "creators#");
 ajv.addSchema(titleSchema, "titles#");
 ajv.addSchema(publisherSchema, "publisher#");
-ajv.addSchema(publicationYearSchema, "attributes.publicationYear#");
+ajv.addSchema(publicationYearSchema, "publicationYear#");
+ajv.addSchema(subjectSchema, "subjects#");
+ajv.addSchema(resourceTypeSchema, "resourceType#");
+ajv.addSchema(dateSchema, "dates#");
+ajv.addSchema(contributorSchema, "contributors#");
+ajv.addSchema(descriptionSchema, "descriptions#");
 
 const winston = require('../../utils/logger')
 const className = "AJVService"

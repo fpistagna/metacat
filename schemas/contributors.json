@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "contributors#",
+  "description": "People or institutions responsible for contributing to the resource.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "contributorType": {
+        "type": "string",
+        "enum": [
+          "ContactPerson",
+          "DataCollector",
+          "DataCurator",
+          "DataManager",
+          "Distributor",
+          "Editor",
+          "HostingInstitution",
+          "Producer",
+          "ProjectLeader",
+          "ProjectManager",
+          "ProjectMember",
+          "RegistrationAgency",
+          "RegistrationAuthority",
+          "RelatedPerson",
+          "Researcher",
+          "ResearchGroup",
+          "RightsHolder",
+          "Sponsor",
+          "Supervisor",
+          "WorkPackageLeader",
+          "Other"
+        ]
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "nameType": {
+        "type": "string",
+        "enum": [
+          "Organizational",
+          "Personal"
+        ]
+      },
+      "givenName": {
+        "type": "string"
+      },
+      "familyName": {
+        "type": "string"
+      },
+      "nameIdentifiers": {
+        "$ref": "creators.nameIdentifier#"
+      },
+      "affiliation": {
+        "$ref": "creators.affiliation#"
+      }
+    },
+    "required": [
+      "name",
+      "contributorType"
+    ]
+  }
+}

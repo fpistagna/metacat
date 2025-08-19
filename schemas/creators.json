@@ -1,30 +1,38 @@
 {
-  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "creators#",
+  "description": "The main researchers involved in producing the data, or the authors of the publication.",
   "type": "array",
-  "uniqueItems": true,
   "minItems": 1,
   "items": {
     "type": "object",
-    "required": [
-      "name"
-    ],
     "properties": {
       "name": {
         "type": "string",
         "minLength": 1
       },
-      "nameType": { "enum": ["Organizational", "Personal"] },
-      "givenName": {
+      "nameType": {
         "type": "string",
-        "minLength": 1
+        "enum": [
+          "Organizational",
+          "Personal"
+        ]
+      },
+      "givenName": {
+        "type": "string"
       },
       "familyName": {
-        "type": "string",
-        "minLength": 1
+        "type": "string"
       },
-      "affiliation": { "$ref": "creators.affiliation#" },
-      "nameIdentifiers": { "$ref": "creators.nameIdentifier#"}
-    }
+      "nameIdentifiers": {
+        "$ref": "creators.nameIdentifier#"
+      },
+      "affiliation": {
+        "$ref": "creators.affiliation#"
+      }
+    },
+    "required": [
+      "name"
+    ]
   }
 }

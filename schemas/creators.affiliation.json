@@ -1,69 +1,33 @@
 {
-  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "creators.affiliation#",
+  "description": "The institutional or organizational affiliation of a creator.",
   "type": "array",
-  "uniqueItems": true,
   "items": {
     "type": "object",
-    "if": {
-      "required": [
-        "affiliationIdentifier"
-      ],
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "schemeUri": {
-          "type": "string",
-          "minLength": 1
-        },
-        "affiliationIdentifier": {
-          "type": "string",
-          "minLength": 1
-        },
-        "affiliationIdentifierScheme": {
-          "type": "string",
-          "minLength": 1
-        }
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "affiliationIdentifier": {
+        "type": "string"
+      },
+      "affiliationIdentifierScheme": {
+        "type": "string"
+      },
+      "schemeUri": {
+        "type": "string",
+        "format": "uri"
       }
     },
-    "then": {
-      "required": [
-        "name",
-        "schemeUri",
-        "affiliationIdentifier",
+    "required": [
+      "name"
+    ],
+    "dependencies": {
+      "affiliationIdentifier": [
         "affiliationIdentifierScheme"
-      ],
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "schemeUri": {
-          "type": "string",
-          "minLength": 1
-        },
-        "affiliationIdentifier": {
-          "type": "string",
-          "minLength": 1
-        },
-        "affiliationIdentifierScheme": {
-          "type": "string",
-          "minLength": 1
-        }
-      }
-    },
-    "else": {
-      "required": [
-        "name"
-      ],
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 1
-        }
-      }
+      ]
     }
   }
 }
