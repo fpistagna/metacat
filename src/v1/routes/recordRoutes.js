@@ -1,7 +1,7 @@
 // In src/v1/routes/recordRoutes.js
 const express = require("express");
 const recordController = require("../controllers/recordController");
-const { validator, patchValidator } = require("../services/ajvService");
+const { validator, attributePatchValidator } = require("../services/ajvService");
 const { paramsValidator, checkAttribute } = require("../../utils/paramsValidator")
 const { param } = require('express-validator');
 
@@ -26,7 +26,7 @@ router.patch("/:recordId/:attribute",
   param('attribute')
   .custom(checkAttribute),
   paramsValidator,
-  patchValidator, 
+  attributePatchValidator, 
   recordController.updateOneRecordAttribute);
 
 router.delete("/:recordId", 

@@ -1,23 +1,55 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "",
+  "description": "Schema for partially updating a record's metadata. All fields are optional, but at least one attribute must be provided.",
   "type": "object",
   "properties": {
-    "metadata": { 
+    "metadata": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
         "attributes": {
           "type": "object",
           "properties": {
-            "doi": { "$ref": "attributes.doi#" },
-            "prefix": { "$ref": "attributes.prefix#" },
-            "suffix": { "$ref": "attributes.suffix#" },
-            "identifiers": { "$ref": "identifiers#" },
-            "creators": { "$ref": "creators#" },
-            "titles": { "$ref": "titles#"},
-            "publisher": { "$ref": "publisher#" },
-            "publicationYear": { "$ref": "attributes.publicationYear#" }
-          }
+            "doi": {
+              "$ref": "doi#"
+            },
+            "identifiers": {
+              "$ref": "identifiers#"
+            },
+            "creators": {
+              "$ref": "creators#"
+            },
+            "titles": {
+              "$ref": "titles#"
+            },
+            "publisher": {
+              "$ref": "publisher#"
+            },
+            "publicationYear": {
+              "$ref": "publicationYear#"
+            },
+            "subjects": {
+              "$ref": "subjects#"
+            },
+            "contributors": {
+              "$ref": "contributors#"
+            },
+            "dates": {
+              "$ref": "dates#"
+            },
+            "resourceType": {
+              "$ref": "resourceType#"
+            },
+            "descriptions": {
+              "$ref": "descriptions#"
+            }
+          },
+          "minProperties": 1
         }
       }
     }

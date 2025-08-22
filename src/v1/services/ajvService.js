@@ -70,39 +70,59 @@ module.exports.validator = (req, res, next) => {
     next();
 }
 
-module.exports.patchValidator = (req, res, next) => {
-  Logger.callerFunction = 'validator';
-  const schema = require("../../../schemas/patchRootSchema.json");
-  const patchValidate = ajv.compile(schema);
-  const valid = patchValidate(req.body);
+module.exports.attributePatchValidator = (req, res, next) => {
+  Logger.callerFunction = 'attributePatchValidator';
+
+  const attributeName = req.params.attribute;
+
+  // Mappa i nomi degli attributi agli ID degli schemi AJV
+  const schemaIdMap = {
+    creators: 'creators#',
+    dates: 'dates#',
+    descriptions: 'descriptions#',
+    publicationYear: 'publicationYear#',
+    publisher: 'publisher#',
+    subjects: 'subjects#',
+    titles: 'titles#',
+    // Aggiungi qui le altre mappature man mano che le implementi
+  }
+
+  const schemaId = schemaIdMap[attributeName];
 
   Logger.logs({
-    debug: { valid: valid },
-    verbose: {
-      body: JSON.stringify(req.body),
-      valid: valid
+    debug: {
+      attribute: attributeName
     }
   });
-
-  if (!valid) {
-    Logger.error({ 
-      error: `valid:${valid}:${JSON.stringify(patchValidate.errors)}`
-    });
-    res.respond({ 
-      status: "error", 
-      error: patchValidate.errors }, 404)
+  // Se non troviamo uno schema per questo attributo, la richiesta non è valida
+  if (!schemaId) {
+    Logger.error( {
+      error: `Attribute '${attributeName}' cannot be updated. No Schema found ` 
+    })
+    return next(new customError.MetadataError(13,
+      `Attribute '${attributeName}' cannot be updated via this endpoint.`));
   }
-  else
-    next();
-}
 
-module.exports.cliValidator = (data) => {
-  const validate = ajv.compile(schema);
+  // Ottieni lo schema già compilato da AJV usando il suo ID
+  const validate = ajv.getSchema(schemaId);
+  // Valida il req.body DIRETTAMENTE contro lo schema specifico (es. creators#)
+  const valid = validate(req.body);
 
-  const valid = validate(data);
-  console.log(valid);
-  if (!valid)
-    console.log({ status: "errors", error: validate.errors });
-  else
-    console.log({ status: "valid", data: JSON.stringify(data) });
+  Logger.logs({
+    debug: { 
+      attribute: attributeName,
+      valid: valid 
+    }
+  })
+  if (!valid) {
+    Logger.error({
+      error: `Invalid payload for ${attributeName}: ${JSON.stringify(validate.errors)}`
+    })
+    return res.status(400).send({
+      status: "error",
+      error: validate.errors
+    })
+  }
+
+  next()
 }
