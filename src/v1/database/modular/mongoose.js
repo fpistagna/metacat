@@ -2,24 +2,28 @@
 
 const mongoose = require('mongoose');
 const winston = require('../../../utils/logger');
-
+const className = "Mongoose:RecordModel",
+  LoggerHelper = require('../../../utils/loggerHelper'),
+  Logger = new LoggerHelper.Logger(className);
+ 
 function connectDB() {
-  const url = "mongodb://127.0.0.1:27017/test";
+  Logger.callerFunction = 'connectDB';
+  const url = "mongodb://127.0.0.1:27017/arf0825";
  
   try {
     mongoose.connect(url); } 
   catch (err) {
-    winston.error(err.message);
+    Logger.error({ error: err });
     process.exit(1); 
   }
 
   const dbConnection = mongoose.connection;
   dbConnection.once("open", (_) => {
-    winston.debug(`Database connected: ${url}`); 
+    Logger.logs({ debug: { dbURL: url } })
   });
  
   dbConnection.on("error", (err) => {
-    winston.error(`connection error: ${err}`); 
+    Logger.error({ error: err })
   });
   
   return;

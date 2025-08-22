@@ -3,8 +3,9 @@
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
 const customError = require('../../../utils/customError');
-const winston = require('../../../utils/logger');
-const className = "Mongoose:RecordMetadata";
+const className = "Mongoose:RecordMetadataModel",
+  LoggerHelper = require('../../../utils/loggerHelper'),
+  Logger = new LoggerHelper.Logger(className);
 
 const NameIdentifierSchema = new Schema({
   nameIdentifier: { type: String, required: true },
@@ -259,37 +260,56 @@ class RecordMetadataModel {
   }
 
   static async getRecordByQuery(query) {
-    winston.verbose(`${className}:getRecordByQuery:${JSON.stringify(query)}`);
+    Logger.callerFunction = 'getRecordByQuery'
+    Logger.logs({ verbose: {
+        query: JSON.stringify(query) } })
     return await this.model.find({ $text: { $search: query.q } });
   }
 
-
-
   static async createMetadata(object) {
-    try {
-      winston.verbose(`${className}:createMetadata:${JSON.stringify(object)}`);
+    Logger.callerFunction = 'createMetadata'
 
-      // Crea una nuova istanza del modello usando l'oggetto passato
+    try {
+      Logger.logs({
+        verbose: {
+          metadata: JSON.stringify(object)
+        }
+      })
+
       const metadataObject = object.metadata;
       const newRecordMetadata = new this.model(metadataObject);
 
       // Salva il nuovo documento. Il middleware 'pre-save' si occuperà di sincronizzare l'ID.
       const savedRecord = await newRecordMetadata.save();
-
-      winston.debug(`${className}:createMetadata:id:${savedRecord._id}`);
-      winston.verbose(`${className}:createMetadata:${savedRecord}`);
+      Logger.logs({
+        debug: { id: savedRecord._id },
+        verbose: { 
+          id: savedRecord._id,
+          metadata: savedRecord
+        }
+      })
 
       return savedRecord;
-    } catch (e) {
-      winston.error(`${className}:createMetadata:${e}`);
-      // Se l'errore è di validazione, sarà molto più specifico ora!
-      throw new customError.MetadataError(9, e, { cause: e });
+    } 
+    catch (e) {
+      Logger.error({ error: e })
+      throw new customError.MetadataError(10, 
+        `Create Metadata Error: ${e.message}`, 
+        object.metadata.id, 
+        { cause: e });
     }
   }
 
   static async updateMetadataAttribute(id, key, value) {
+    Logger.callerFunction = 'updateMetadataAttribute'
     try {
-      winston.verbose(`${className}:updateMetadata:${id}:attribute:${key}:value:${JSON.stringify(value)}`);
+      Logger.logs({
+        verbose: {
+          id: id,
+          attribute: key,
+          value: JSON.stringify(value)
+        }
+      })
 
       const updateQuery = { $set: { [`attributes.${key}`]: value } };
 
@@ -300,11 +320,15 @@ class RecordMetadataModel {
         throw new Error(`Metadata with ID ${id} not found.`);
       }
 
-      winston.verbose(`${className}:updateMetadata:${JSON.stringify(updatedMetadata)}`);
+      Logger.logs({ verbose: { metadata: JSON.stringify(updatedMetadata) } })
+
       return updatedMetadata;
     } catch (e) {
-      winston.error(`${className}:updateMetadata:${e}`);
-      throw new customError.MetadataError(8, e, { cause: e });
+      Logger.error({ error: e });
+      throw new customError.MetadataError(11, 
+        `Update Metadata Error: ${e.message}`, 
+        { cause: e }
+      );
     }
   }
 }

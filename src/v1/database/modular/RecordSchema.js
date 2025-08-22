@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const customError = require('../../../utils/customError')
-const winston = require('../../../utils/logger')
-const className = "Mongoose:Record"
+const className = "Mongoose:RecordModel",
+  LoggerHelper = require('../../../utils/loggerHelper'),
+  Logger = new LoggerHelper.Logger(className)
 const { v4: uuid } = require("uuid")
 
 const recordSchema = new Schema({
@@ -23,7 +24,8 @@ const recordSchema = new Schema({
     updatedAt: Date,
   },
   metadata: {
-    type: Schema.Types.ObjectId,
+    // type: Schema.Types.ObjectId,
+    type: String,
     ref: 'RecordMetadata',
     required: true
   }
@@ -47,29 +49,53 @@ recordSchema.pre('save', function (next) {
 //module.exports.RecordModel = mongoose.model("Record", recordSchema);
 
 class RecordModel {
+
   static model = mongoose.model("Record", recordSchema)
 
   static getAllRecords() {
-    return this.model.find(
-          {}, {limit: 10, sort: {'_id': -1}})
-          //.populate("metadata")
-          .exec()
+    Logger.callerFunction = 'getAllRecords'
+    try {
+      return this.model.find(
+        {}, { limit: 10, sort: { '_id': -1 } })
+        //.populate("metadata")
+        .exec()
+    } catch (e) {
+      Logger.error({ error: e })
+      throw new customError.RecordError(
+        6, 
+        `${className}:getAllRecords:${e.message}`, 
+        { cause: e })
+    }
   }
 
-  static getRecordWithId(id) {
-    return this.model.findById(id)
-      .populate("metadata")
-      .exec()
+  static async getRecordWithId(id) {
+    Logger.callerFunction = 'getRecordWithId'
+    try {
+      let record = await this.model.findById(id).populate("metadata").exec()
+      
+      Logger.logs({ verbose: { record: record } })
+
+      return record
+    } catch (e) {
+      Logger.error({ error: e })
+      throw new customError.RecordError(
+        7, 
+        `${className}:getRecordWithId:${e.message}`, 
+        { cause: e })
+    }
   }
 
   static async createRecordWithMetadata(d) {
+    Logger.callerFunction = 'createRecordWithMetadata'
     try {
       return await this.model.create({metadata: d})  
     } catch (e) {
-      winston.error(`${className}:createMetadata:${e}`)
-      throw new customError.RecordCreationError (16, e, { cause: e })
+      Logger.error({ error: e }) 
+      throw new customError.RecordCreationError (
+        1, 
+        `${className}:createRecordWithMetadata:${e.message}`, 
+        { cause: e })
     }
-    
   }
 
   static async updateRecordMetadata(r, m) {

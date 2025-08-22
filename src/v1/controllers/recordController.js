@@ -23,7 +23,9 @@ const getAllRecords = async (req, res, next) => {
       if (!allRecords.length)
         res.respondNoContent()
       else
-        res.respond(allRecords)
+        res.respond({
+          data: allRecords
+        })
     }
   } catch (error) {
       Logger.error({ error: error })
@@ -92,7 +94,7 @@ const createNewRecord = async (req, res, next) => {
     res.respondCreated(record)
   }
   catch (error) { 
-    Logger.logs({ error: error })
+    Logger.error({ error: error })
     return next(error) }
 }
 

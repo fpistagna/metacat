@@ -41,21 +41,27 @@ ajv.addSchema(dateSchema, "dates#");
 ajv.addSchema(contributorSchema, "contributors#");
 ajv.addSchema(descriptionSchema, "descriptions#");
 
-const winston = require('../../utils/logger')
-const className = "AJVService"
+const className = "AJVService",
+  LoggerHelper = require('../../utils/loggerHelper'),
+  Logger = new LoggerHelper.Logger(className);
 
 module.exports.validator = (req, res, next) => {
+  Logger.callerFunction = 'validator';
+
   const validate = ajv.compile(schema);
   const valid = validate(req.body);
 
-  winston.debug(`${className}:validator:${valid}`)
-  winston.verbose(`${className}:validator:`+
-    `body:${JSON.stringify(req.body)}:`+
-    `validation:${valid}`)
+  Logger.logs({
+    debug: { valid: valid },
+    verbose: {
+      body: JSON.stringify(req.body),
+      valid: valid
+    }
+  });
 
   if (!valid) {
-    winston.error(`${className}:validator:${valid}:`+
-      `${JSON.stringify(validate.errors)}`)
+    Logger.error({ error: JSON.stringify(validate.errors) });
+
     res.respond({ 
       status: "error", 
       error: validate.errors }, 400)
@@ -65,18 +71,23 @@ module.exports.validator = (req, res, next) => {
 }
 
 module.exports.patchValidator = (req, res, next) => {
-  const schema = require("../../../schemas/patchRootSchema.json")
+  Logger.callerFunction = 'validator';
+  const schema = require("../../../schemas/patchRootSchema.json");
   const patchValidate = ajv.compile(schema);
   const valid = patchValidate(req.body);
 
-  winston.debug(`${className}:validator:${valid}`)
-  winston.verbose(`${className}:validator:`+
-    `body:${JSON.stringify(req.body)}:`+
-    `validation:${valid}`)
+  Logger.logs({
+    debug: { valid: valid },
+    verbose: {
+      body: JSON.stringify(req.body),
+      valid: valid
+    }
+  });
 
   if (!valid) {
-    winston.error(`${className}:validator:${valid}:`+
-      `${JSON.stringify(patchValidate.errors)}`)
+    Logger.error({ 
+      error: `valid:${valid}:${JSON.stringify(patchValidate.errors)}`
+    });
     res.respond({ 
       status: "error", 
       error: patchValidate.errors }, 404)
