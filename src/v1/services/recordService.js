@@ -1,11 +1,8 @@
 // In src/services/recordService.js
 const Record = require("../database/modular/Record")
-// eslint-disable-next-line no-unused-vars
-const { v4: uuid } = require("uuid")
 const className = "recordService",
   LoggerHelper = require('../../utils/loggerHelper'),
-  Logger = new LoggerHelper.Logger(className),
-  customError = require('../../utils/customError')
+  Logger = new LoggerHelper.Logger(className)
 
 const getAllRecords = async () => {
   Logger.callerFunction = 'getAllRecords'
@@ -17,12 +14,8 @@ const getAllRecords = async () => {
 
     return allRecords
   } catch (e) {
-      if (e) {
-        Logger.error({ error: e })
-        throw e
-      }
-      throw new Error (`RecordService:getAllRecords:${e}`, 
-        { cause: e })
+      Logger.error({ error: e })
+      throw e
   }
 }
 
@@ -36,12 +29,8 @@ const getOneRecord = async (recordId) => {
 
     return (record)
   } catch (e) {
-      if (e) {
-        Logger.error( { error: e })
-        throw e
-      }
-      throw new Error (`${className}:getOneRecords:${e}`, 
-        { cause: e })
+      Logger.error({ error: e })
+      throw e
   }
 }
 
@@ -57,13 +46,9 @@ const getRecordAttribute = async(id, attribute) => {
     } else
       return ({ record: record } )
 
-  } catch(e) {
-      if (e) {
-        Logger.error({ error: e })
-        throw e
-      }
-      throw new Error (`${className}:getRecordAttribute:${e}`, 
-        { cause: e })
+  } catch (e) {
+      Logger.error({ error: e })
+      throw e
   }
 }
 
@@ -77,13 +62,9 @@ const getRecordByQuery = async (query) => {
     Logger.logs({ verbose: { hits: records.length }})
     
     return (records)
-  } catch(e) {
-      if (e) {
-        Logger.error({ error: e })
-        throw e
-      }
-      throw new Error (`${className}:getRecordByQuery:\n ${e}`, 
-        { cause: e })
+  } catch (e) {
+      Logger.error({ error: e })
+      throw e
   }
 }
 
@@ -98,17 +79,10 @@ const createNewRecord = async (data) => {
       verbose: { record: record }})
 
     return(record)
-  } catch (e) {
-      if (e) {
-        Logger.error({ error: e })
-        throw e
-      }
-      throw new customError.RecordCreationError (
-        18, 
-        `${className}:createNewRecord:${e}`, 
-        { cause: e }
-      )
-  }
+  } catch (e) { 
+      Logger.error({ error: e })
+      throw e 
+    }
 }
 
 const updateOneRecord = () => {
@@ -129,12 +103,8 @@ const updateOneRecordAttribute = async (recordId, attribute, data) => {
     Logger.logs({ verbose: { updatedRecord: JSON.stringify(updatedRecord)}})    
     return (updatedRecord)
   } catch (e) {
-      if (e) {
-        Logger.error({ error: e })
-        throw e
-      }
-      throw new Error (`${className}:updateRecordAttribute:${e}`, 
-        { cause: e })
+      Logger.error({ error: e })
+      throw e
   }
 }
 

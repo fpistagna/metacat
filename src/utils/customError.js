@@ -1,41 +1,36 @@
 class ARFError extends Error {
-  constructor(code, message) {
-    const fullMsg = message ? `${code}: ${message}` : code
-    super(fullMsg)
-    this.name = 'MetadataError'
-    this.code = code
-    this.fullMsg = fullMsg
-    this.message = message
+  constructor(code, message, options = {}) {
+    super(message);
+    this.name = this.constructor.name;
+    this.code = code;
+
+    // Aggiunge eventuali proprietà extra passate nelle opzioni
+    Object.assign(this, options);
   }
-  
-  toString() {
-    return this.message
-  }  
 }
 
 class MetadataError extends ARFError {
-  constructor(code, message) {
-    super(code, message)
-    this.name = 'MetadataError'
+  constructor(code, message, { recordMetadataId }) {
+    super(code, message, { recordMetadataId });
   }
 }
 
-class RecordCreationError extends ARFError {
-  constructor(code, message) {
-    super(code, message)
-    this.name = 'RecordCreationError'
+class RecordError extends ARFError { 
+  constructor(code, message, { recordId }) {
+    super(code, message, { recordId });
   }
 }
 
-class RecordError extends ARFError {
-  constructor(code, message) {
-    super(code, message)
-    this.name = 'RecordError'
+class RecordCreationError extends ARFError { 
+  constructor(code, message, { mdObj }) {
+    super(code, message, { mdObj });
   }
 }
+class MongooseError extends ARFError { }
 
 module.exports = { 
   MetadataError,
   RecordError,
-  RecordCreationError
+  RecordCreationError,
+  MongooseError
 }

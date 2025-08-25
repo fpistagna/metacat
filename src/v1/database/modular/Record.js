@@ -1,4 +1,3 @@
-
 const Mongoose = require("./mongoose").connectDB()
 const { RecordModel }  = require('./RecordSchema'),
   { RecordMetadataModel } = require('./RecordMetadataSchema'),
@@ -154,7 +153,6 @@ const updateOneRecordAttribute = async(id, attribute, data) => {
     return (updatedMetadataRecord)
   } catch (e) {
       Logger.error( { error: e })
-        // winston.error(`${className}:updateOneRecordAttribute:${error}`)
       throw e
   }
 }

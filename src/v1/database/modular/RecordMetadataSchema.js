@@ -277,6 +277,12 @@ class RecordMetadataModel {
       })
 
       const metadataObject = object.metadata;
+      // Se l'oggetto Metadata esiste già creiamo una nuova eccezzione/errore
+      if (await this.getMetadataById(object.metadata.id))
+        throw new customError.MetadataError(10,
+          `Create Metadata Error: ${object.metadata.id} already exist in DB.`,
+          object.metadata.id);
+        
       const newRecordMetadata = new this.model(metadataObject);
 
       // Salva il nuovo documento. Il middleware 'pre-save' si occuperà di sincronizzare l'ID.
@@ -293,10 +299,7 @@ class RecordMetadataModel {
     } 
     catch (e) {
       Logger.error({ error: e })
-      throw new customError.MetadataError(10, 
-        `Create Metadata Error: ${e.message}`, 
-        object.metadata.id, 
-        { cause: e });
+      throw e
     }
   }
 
@@ -315,20 +318,16 @@ class RecordMetadataModel {
 
       const updatedMetadata = await this.model.findByIdAndUpdate(id, updateQuery, { new: true, runValidators: true });
 
-      if (!updatedMetadata) {
-        // Gestisci il caso in cui non viene trovato alcun documento con quell'ID
-        throw new Error(`Metadata with ID ${id} not found.`);
-      }
+      if (!updatedMetadata)
+        throw new customError.MetadataError(11,
+          `Update Metadata Error: ${id} did not updated successfully.`);
 
-      Logger.logs({ verbose: { metadata: JSON.stringify(updatedMetadata) } })
+      Logger.logs({ verbose: { metadata: JSON.stringify(updatedMetadata) } });
 
       return updatedMetadata;
     } catch (e) {
-      Logger.error({ error: e });
-      throw new customError.MetadataError(11, 
-        `Update Metadata Error: ${e.message}`, 
-        { cause: e }
-      );
+        Logger.error({ error: e });
+        throw e;
     }
   }
 }

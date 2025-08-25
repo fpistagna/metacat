@@ -1,89 +1,65 @@
-// errorHandler.js
-const winston = require('./logger'),
-  className = "errorHandler"
+const className = "errorHandler",
+  LoggerHelper = require('./loggerHelper'),
+  Logger = new LoggerHelper.Logger(className);
 
-const errorHandler = (error, req, res) => {
-  winston.error(`${className}:${error}\n${error.stack}`) // logging the error here
-
-  switch (error.name) {
-    case "RecordError": {
-      switch(error.code) {
-
-        case 6:
-          return res.status(404).send({
-            type: error.name,
-            errorCode: error.code,
-            details: error.toString()
-          })
-        case 7:
-          return res.status(404).send({
-            type: error.name,
-            errorCode: error.code,
-            details: error.toString()
-          })
-        default: {
-          return res.status(500).send({
-            type: error.name,
-            details: error.toString()
-          })
-        }
-      }
-    }
-
-    case "RecordCreationError": {
-      switch(error.code) {
-        case 17:
-          return res.status(400).send({
-            type: error.name,
-            details: error.toString()
-          })
-
-        case 18:
-          return res.status(400).send({
-            type: error.name,
-            details: error.toString()
-          })
-
-        case 19:
-          return res.status(400).send({
-            type: error.name,
-            details: error.toString()
-          })
-        default: { /* empty */ }
-      }
-    }
-    break
-
-    case "MetadataError": {
-      switch(error.code) {
-        case 6:
-          return res.status(422).send({
-            type: error.name,
-            details: error.toString()
-          })
-        case 7:
-          return res.status(400).send({
-            type: error.name,
-            details: error.toString()
-          })
-        case 9:
-          return res.status(400).send({
-            type: error.name,
-            details: error.toString()
-          })
-        default: { /* empty */ }
-      }
-    }
-    break
-
-    default: {
-      console.log(`DBG:ERROR_HANDLER`)
-      return res.status(500).send({
-        type: error.name,
-        details: error.toString()
-      })
-    }
+// MAPPA DEGLI ERRORI
+// Associa errori personalizzati a stati HTTP e messaggi.
+const ERROR_MAP = {
+  RecordError: {
+    6: { status: 404, message: 'Record not found.' },
+    7: { status: 404, message: (err) => `No Record found with id ${err.recordId}.` },
+    8: { status: 404, message: (err) => `The provided ID '${err.recordId}' has an invalid format.` },
+    default: { status: 500, message: 'An unexpected record error occurred.' }
+  },
+  RecordCreationError: {
+    1: { status: 400, message: 'Invalid data for record creation.' },
+    2: { status: 400, message: 'A similar record might already exist.' },
+    default: { status: 500, message: 'An unexpected error occurred during record creation.' }
+  },
+  MetadataError: {
+    10: { status: 409, message: (err) => `Record ID ${err.recordMetadataId} already exists.` }, // 409 Conflict è più indicato
+    11: { status: 400, message: 'Invalid metadata provided.' },
+    12: { status: 422, message: 'Unprocessable entity. Attribute not allowed.' },
+    13: { status: 422, message: 'Unprocessable entity during patch operation.' },
+    default: { status: 500, message: 'An unexpected metadata error occurred.' }
+  },
+  MongooseError: {
+    default: { status: 500, message: 'A database-level error occurred.' }
+  },
+  // Errore di default per tutti gli altri casi non mappati
+  default: {
+    default: { status: 500, message: 'An unexpected server error occurred.' }
   }
+};
+
+const errorHandler = (error, req, res, next) => {
+  Logger.callerFunction = 'errorHandler';
+  // Logga l'oggetto errore completo
+  Logger.error({ 
+    error: { 
+      name: error.name, 
+      code: error.code, 
+      message: error.message, 
+      stack: error.stack 
+    } 
+  });
+
+  if (res.headersSent) {
+    return next(error);
+  }
+
+  // Trova la configurazione per l'errore attuale, o usa il default
+  const errorConfig = (ERROR_MAP[error.name] || ERROR_MAP.default);
+  const config = errorConfig[error.code] || errorConfig.default;
+
+  // Calcola il messaggio. Se è una funzione, la esegue.
+  const message = typeof config.message === 'function' ? config.message(error) : error.message || config.message;
+
+  res.status(config.status).send({
+    type: error.name,
+    errorCode: error.code,
+    details: message
+  });
 };
 
 module.exports = errorHandler;

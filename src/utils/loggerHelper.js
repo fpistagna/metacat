@@ -40,7 +40,8 @@ class Logger {
 
   errorString(error) {
     let retString = `${this.className}:${this.callerName}`
-    retString += `:${error}`
+    retString += `:${error.message}`
+    retString += error.stack
     return retString
   }
 

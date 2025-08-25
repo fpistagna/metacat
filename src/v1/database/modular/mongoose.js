@@ -14,6 +14,8 @@ function connectDB() {
     mongoose.connect(url); } 
   catch (err) {
     Logger.error({ error: err });
+    throw new customError.MongooseError(20,
+          `Error connecting to DB... :_(`);
     process.exit(1); 
   }
 

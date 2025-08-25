@@ -52,49 +52,61 @@ class RecordModel {
 
   static model = mongoose.model("Record", recordSchema)
 
-  static getAllRecords() {
+  static async getAllRecords() {
     Logger.callerFunction = 'getAllRecords'
     try {
-      return this.model.find(
+      let records = await this.model.find(
         {}, { limit: 10, sort: { '_id': -1 } })
         //.populate("metadata")
         .exec()
+      if (!records)
+        throw new customError.RecordError(6,
+          `Get Records failed.`, { cause: e })
+      Logger.logs({ verbose: { records: records.count } })
+
+      return records
     } catch (e) {
       Logger.error({ error: e })
-      throw new customError.RecordError(
-        6, 
-        `${className}:getAllRecords:${e.message}`, 
-        { cause: e })
+      throw e
     }
   }
 
   static async getRecordWithId(id) {
     Logger.callerFunction = 'getRecordWithId'
     try {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        // Lancia un errore personalizzato per formato non valido
+        throw new customError.RecordError(8, // -> Ti suggerisco un nuovo codice di errore
+          `The provided ID '${id}' has an invalid format.`, { recordId: id });
+      }
       let record = await this.model.findById(id).populate("metadata").exec()
-      
-      Logger.logs({ verbose: { record: record } })
+      if (!record)
+        // Lancia l'errore personalizzato per record non trovato
+        throw new customError.RecordError(7,
+          `No Record found with id ${id}`, { recordId: id })
 
+      Logger.logs({ verbose: { record: record } })
       return record
     } catch (e) {
       Logger.error({ error: e })
-      throw new customError.RecordError(
-        7, 
-        `${className}:getRecordWithId:${e.message}`, 
-        { cause: e })
+      throw e
     }
   }
 
-  static async createRecordWithMetadata(d) {
+  static async createRecordWithMetadata(md) {
     Logger.callerFunction = 'createRecordWithMetadata'
     try {
-      return await this.model.create({metadata: d})  
+      let r = await this.model.create({ metadata: md })
+      if (!r)
+        throw new customError.RecordCreationError(1,
+          `Failed to create new record \n${r}\n with provided metadata\n${md}.`,
+          { mdObj: md })
+      
+      return r
+      return await this.model.create({metadata: md})  
     } catch (e) {
       Logger.error({ error: e }) 
-      throw new customError.RecordCreationError (
-        1, 
-        `${className}:createRecordWithMetadata:${e.message}`, 
-        { cause: e })
+      throw e
     }
   }
 
