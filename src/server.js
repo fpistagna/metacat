@@ -8,6 +8,17 @@ const express = require('express'),
 const v1RecordRouter = require("./v1/routes/recordRoutes")
 const errorHandler = require("./utils/errorHandler")
 
+const { connectDB } = require('./v1/database/modular/mongoose')
+const dbConn = async () => {
+  try { await connectDB() } 
+  catch (error) {
+    //  extra, connectDB should have already exited process
+    console.error("Fatal error during server startup:", error);
+    process.exit(1);
+  }
+}
+dbConn()
+
 const app = express()
 const PORT = process.env.PORT || 3000;
 

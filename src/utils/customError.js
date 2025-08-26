@@ -16,8 +16,8 @@ class MetadataError extends ARFError {
 }
 
 class RecordError extends ARFError { 
-  constructor(code, message, { recordId }) {
-    super(code, message, { recordId });
+  constructor(code, message, { recordId, query }) {
+    super(code, message, { recordId, query });
   }
 }
 

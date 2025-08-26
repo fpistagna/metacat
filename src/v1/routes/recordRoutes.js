@@ -8,28 +8,28 @@ const { param } = require('express-validator');
 const router = express.Router();
 
 router.get("/", 
-  recordController.getAllRecords);
+  recordController.records);
 
 router.get("/:recordId", 
-  recordController.getOneRecord);
+  recordController.record);
 
 router.get("/:recordId/:attribute", 
-  recordController.getRecordAttribute);
+  recordController.recordAttribute);
 
 router.post("/", 
-  validator, recordController.createNewRecord);
+  validator, recordController.createRecord);
 
 router.patch("/:recordId", 
-  validator, recordController.updateOneRecord);
+  validator, recordController.updateRecord);
 
 router.patch("/:recordId/:attribute", 
   param('attribute')
   .custom(checkAttribute),
   paramsValidator,
   attributePatchValidator, 
-  recordController.updateOneRecordAttribute);
+  recordController.updateRecordAttribute);
 
 router.delete("/:recordId", 
-  recordController.deleteOneRecord);
+  recordController.deleteRecord);
 
 module.exports = router;

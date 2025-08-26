@@ -5,16 +5,17 @@ const className = "errorHandler",
 // MAPPA DEGLI ERRORI
 // Associa errori personalizzati a stati HTTP e messaggi.
 const ERROR_MAP = {
-  RecordError: {
-    6: { status: 404, message: 'Record not found.' },
-    7: { status: 404, message: (err) => `No Record found with id ${err.recordId}.` },
-    8: { status: 404, message: (err) => `The provided ID '${err.recordId}' has an invalid format.` },
-    default: { status: 500, message: 'An unexpected record error occurred.' }
-  },
   RecordCreationError: {
     1: { status: 400, message: 'Invalid data for record creation.' },
     2: { status: 400, message: 'A similar record might already exist.' },
     default: { status: 500, message: 'An unexpected error occurred during record creation.' }
+  },
+  RecordError: {
+    6: { status: 404, message: 'Record not found.' },
+    7: { status: 404, message: (err) => `No Record found with id ${err.recordId}.` },
+    8: { status: 404, message: (err) => `The provided ID '${err.recordId}' has an invalid format.` },
+    9: { status: 404, message: (err) => `No Records matching query ${err.query}` },
+    default: { status: 500, message: 'An unexpected record error occurred.' }
   },
   MetadataError: {
     10: { status: 409, message: (err) => `Record ID ${err.recordMetadataId} already exists.` }, // 409 Conflict è più indicato
@@ -24,6 +25,7 @@ const ERROR_MAP = {
     default: { status: 500, message: 'An unexpected metadata error occurred.' }
   },
   MongooseError: {
+    20: { status: 500, message: `Error connecting to database.` },
     default: { status: 500, message: 'A database-level error occurred.' }
   },
   // Errore di default per tutti gli altri casi non mappati

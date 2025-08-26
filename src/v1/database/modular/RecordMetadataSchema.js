@@ -1,24 +1,26 @@
 // FILE: RecordMetadataSchema.js
 
-const mongoose = require('mongoose');
-const { Schema } = require('mongoose');
-const customError = require('../../../utils/customError');
+const mongoose = require('mongoose')
+const { Schema } = require('mongoose')
+const customError = require('../../../utils/customError')
 const className = "Mongoose:RecordMetadataModel",
   LoggerHelper = require('../../../utils/loggerHelper'),
-  Logger = new LoggerHelper.Logger(className);
+  Logger = new LoggerHelper.Logger(className)
+const { withAsyncHandler } = require('../../../utils/asyncHandler')
+const { withLogging } = require('../../../utils/loggerWrapper')
 
 const NameIdentifierSchema = new Schema({
   nameIdentifier: { type: String, required: true },
   nameIdentifierScheme: { type: String, required: true },
   schemeUri: String
-}, { _id: false });
+}, { _id: false })
 
 const AffiliationSchema = new Schema({
   name: { type: String, required: true },
   affiliationIdentifier: String,
   affiliationIdentifierScheme: String,
   schemeUri: String
-}, { _id: false });
+}, { _id: false })
 
 const PublisherSchema = new Schema({
   name: { type: String, required: true },
@@ -26,7 +28,7 @@ const PublisherSchema = new Schema({
   publisherIdentifierScheme: String,
   schemeUri: String,
   lang: String
-}, { _id: false });
+}, { _id: false })
 
 const TitleSchema = new Schema({
   title: { type: String, required: true },
@@ -35,7 +37,7 @@ const TitleSchema = new Schema({
     enum: ['AlternativeTitle', 'Subtitle', 'TranslatedTitle', 'Other']
   },
   lang: String
-}, { _id: false });
+}, { _id: false })
 
 const SubjectSchema = new Schema({
   subject: { type: String, required: true },
@@ -43,7 +45,7 @@ const SubjectSchema = new Schema({
   schemeUri: String,
   valueUri: String,
   lang: String
-}, { _id: false });
+}, { _id: false })
 
 const DateSchema = new Schema({
   date: { type: String, required: true }, // Formato YYYY, YYYY-MM-DD, o intervallo YYYY/YYYY
@@ -53,7 +55,7 @@ const DateSchema = new Schema({
     enum: ['Accepted', 'Available', 'Collected', 'Copyrighted', 'Created', 'Issued', 'Submitted', 'Updated', 'Valid', 'Withdrawn', 'Other']
   },
   dateInformation: String
-}, { _id: false });
+}, { _id: false })
 
 const DescriptionSchema = new Schema({
   description: { type: String, required: true },
@@ -63,7 +65,7 @@ const DescriptionSchema = new Schema({
     enum: ['Abstract', 'Methods', 'SeriesInformation', 'TableOfContents', 'TechnicalInfo', 'Other']
   },
   lang: String
-}, { _id: false });
+}, { _id: false })
 
 const RightsSchema = new Schema({
   rights: { type: String, required: true },
@@ -72,7 +74,7 @@ const RightsSchema = new Schema({
   rightsIdentifierScheme: String,
   schemeUri: String,
   lang: String
-}, { _id: false });
+}, { _id: false })
 
 const FundingReferenceSchema = new Schema({
   funderName: { type: String, required: true },
@@ -86,30 +88,30 @@ const FundingReferenceSchema = new Schema({
   awardNumber: String,
   awardUri: String,
   awardTitle: String
-}, { _id: false });
+}, { _id: false })
 
 const GeoLocationPointSchema = new Schema({
   pointLongitude: { type: Number, required: true },
   pointLatitude: { type: Number, required: true }
-}, { _id: false });
+}, { _id: false })
 
 const GeoLocationBoxSchema = new Schema({
   westBoundLongitude: { type: Number, required: true },
   eastBoundLongitude: { type: Number, required: true },
   southBoundLatitude: { type: Number, required: true },
   northBoundLatitude: { type: Number, required: true },
-}, { _id: false });
+}, { _id: false })
 
 const GeoLocationPolygonSchema = new Schema({
   polygonPoints: { type: [GeoLocationPointSchema], required: true }
-}, { _id: false });
+}, { _id: false })
 
 const GeoLocationSchema = new Schema({
   geoLocationPlace: String,
   geoLocationPoint: GeoLocationPointSchema,
   geoLocationBox: GeoLocationBoxSchema,
   geoLocationPolygons: [GeoLocationPolygonSchema]
-}, { _id: false });
+}, { _id: false })
 
 const recordMetadataSchema = new Schema({
   // L'ID del documento in MongoDB sarà il DOI.
@@ -235,101 +237,87 @@ const recordMetadataSchema = new Schema({
   timestamps: false, // Disabilitiamo i timestamps automatici di Mongoose (createdAt, updatedAt)
   // Usiamo il DOI come _id del documento
   _id: false
-});
+})
 
 // Middleware di Mongoose per assicurarsi che l'ID e il DOI siano sincronizzati prima di ogni salvataggio.
 recordMetadataSchema.pre('save', function (next) {
   // Imposta l'_id del documento uguale al DOI definito negli attributi
-  this._id = this.attributes.doi;
-  next();
-});
+  this._id = this.attributes.doi
+  next()
+})
 
 // Crea un indice di testo su tutti i campi di tipo stringa per la ricerca full-text
-recordMetadataSchema.index({ "$**": "text" });
+recordMetadataSchema.index({ "$**": "text" })
 
 // =================================================================
 // CLASSE MODELLO
-// La logica di interazione con il database rimane la stessa.
 // =================================================================
 
 class RecordMetadataModel {
-  static model = mongoose.model("RecordMetadata", recordMetadataSchema);
+  static model = mongoose.model("RecordMetadata", recordMetadataSchema)
 
   static async getMetadataById(id) {
-    return await this.model.findById(id);
+    return await this.model.findById(id)
   }
 
-  static async getRecordByQuery(query) {
-    Logger.callerFunction = 'getRecordByQuery'
-    Logger.logs({ verbose: {
-        query: JSON.stringify(query) } })
-    return await this.model.find({ $text: { $search: query.q } });
+  static async _recordByQuery(query) {
+    Logger.logs({ verbose: { query: JSON.stringify(query) } })
+    return await this.model.find({ $text: { $search: query.q } })
   }
 
-  static async createMetadata(object) {
-    Logger.callerFunction = 'createMetadata'
+  static async _createMetadata(object) {
+    Logger.logs({ verbose: { metadata: JSON.stringify(object) } })
 
-    try {
-      Logger.logs({
-        verbose: {
-          metadata: JSON.stringify(object)
-        }
-      })
-
-      const metadataObject = object.metadata;
-      // Se l'oggetto Metadata esiste già creiamo una nuova eccezzione/errore
-      if (await this.getMetadataById(object.metadata.id))
-        throw new customError.MetadataError(10,
-          `Create Metadata Error: ${object.metadata.id} already exist in DB.`,
-          object.metadata.id);
+    const metadataObject = object.metadata
+    // Se l'oggetto Metadata esiste già creiamo una nuova eccezzione/errore
+    if (await this.getMetadataById(object.metadata.id))
+      throw new customError.MetadataError(10,
+        `Create Metadata Error: ${object.metadata.id} already exist in DB.`,
+        { recordMetadataId: object.metadata.id })
         
-      const newRecordMetadata = new this.model(metadataObject);
+    const newRecordMetadata = new this.model(metadataObject)
 
-      // Salva il nuovo documento. Il middleware 'pre-save' si occuperà di sincronizzare l'ID.
-      const savedRecord = await newRecordMetadata.save();
-      Logger.logs({
+    // Salva il nuovo documento. Il middleware 'pre-save' si occuperà di sincronizzare l'ID.
+    const savedRecord = await newRecordMetadata.save()
+    Logger.logs({
         debug: { id: savedRecord._id },
         verbose: { 
           id: savedRecord._id,
-          metadata: savedRecord
-        }
-      })
+          metadata: savedRecord }
+    })
 
-      return savedRecord;
-    } 
-    catch (e) {
-      Logger.error({ error: e })
-      throw e
-    }
+    return savedRecord
   }
 
-  static async updateMetadataAttribute(id, key, value) {
-    Logger.callerFunction = 'updateMetadataAttribute'
-    try {
-      Logger.logs({
-        verbose: {
-          id: id,
-          attribute: key,
-          value: JSON.stringify(value)
-        }
-      })
+  static async _updateMetadataAttribute(id, key, value) {
+    Logger.logs({
+      verbose: {
+        id: id,
+        attribute: key,
+        value: JSON.stringify(value)
+      }
+    })
 
-      const updateQuery = { $set: { [`attributes.${key}`]: value } };
+    const updateQuery = { $set: { [`attributes.${key}`]: value } }
 
-      const updatedMetadata = await this.model.findByIdAndUpdate(id, updateQuery, { new: true, runValidators: true });
+    const updatedMetadata = await this.model.findByIdAndUpdate(
+      id, 
+      updateQuery, 
+      { new: true, runValidators: true })
 
-      if (!updatedMetadata)
-        throw new customError.MetadataError(11,
-          `Update Metadata Error: ${id} did not updated successfully.`);
+    if (!updatedMetadata)
+      throw new customError.MetadataError(11,
+        `Update Metadata Error: ${id} did not updated successfully.`)
 
-      Logger.logs({ verbose: { metadata: JSON.stringify(updatedMetadata) } });
+    Logger.logs({ verbose: { metadata: JSON.stringify(updatedMetadata) } })
 
-      return updatedMetadata;
-    } catch (e) {
-        Logger.error({ error: e });
-        throw e;
-    }
+    return updatedMetadata
   }
 }
 
-module.exports.RecordMetadataModel = RecordMetadataModel;
+RecordMetadataModel.recordByQuery = withAsyncHandler(withLogging(RecordMetadataModel._recordByQuery, Logger))
+RecordMetadataModel.createMetadata = withAsyncHandler(withLogging(RecordMetadataModel._createMetadata, Logger))
+RecordMetadataModel.updateMetadataAttribute = withAsyncHandler(withLogging(RecordMetadataModel._updateMetadataAttribute, Logger))
+
+
+module.exports.RecordMetadataModel = RecordMetadataModel
