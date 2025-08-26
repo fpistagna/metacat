@@ -7,7 +7,7 @@ const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
 const _records = async () => {
-  const allRecords = await Record.getAllRecords()
+  const allRecords = await Record.records()
 
   Logger.logs({ debug: { allRecordsCount: allRecords.length },
     verbose: { allRecords: allRecords } })
@@ -16,7 +16,7 @@ const _records = async () => {
 }
 
 const _record = async (recordId) => {
-  const record = await Record.getOneRecord(recordId)
+  const record = await Record.record(recordId)
 
   Logger.logs({ debug: { recordId: recordId }, 
     verbose: { recordId: recordId, record: record }})
@@ -26,7 +26,7 @@ const _record = async (recordId) => {
 
 const _recordAttribute = async(id, attribute) => {
   Logger.logs({ debug: { recordId: id, attribute: attribute }})
-  const record = await Record.getOneRecord(id)
+  const record = await Record.record(id)
     
   if (Object.prototype.hasOwnProperty.call(record.metadata.attributes, attribute)) {
     const {[attribute]: attr} = record.metadata.attributes
@@ -38,7 +38,7 @@ const _recordAttribute = async(id, attribute) => {
 const _recordByQuery = async (query) => {
   Logger.logs({ debug: { query: JSON.stringify(query) }})
     
-  const records = await Record.getRecordByQuery(query)
+  const records = await Record.recordByQuery(query)
     
   Logger.logs({ verbose: { hits: records.length }})
     
@@ -48,7 +48,7 @@ const _recordByQuery = async (query) => {
 const _createRecord = async (data) => {
   Logger.logs({ verbose: { metadata: JSON.stringify(data) }})
     
-  let record = await Record.createNewRecord(data)
+  let record = await Record.createRecord(data)
 
   Logger.logs({ debug: { uuid: record.record.id, doi: record.record.doi},
     verbose: { record: record }})
@@ -64,7 +64,7 @@ const _updateRecordAttribute = async (recordId, attribute, data) => {
   Logger.logs({ verbose: { recordId: recordId, attribute: attribute,
     metadata: JSON.stringify(data) } })
     // TODO: Check if attribute is the same as defined in data
-  const updatedRecord = await Record.updateOneRecordAttribute(
+  const updatedRecord = await Record.updateRecordAttribute(
     recordId, 
     attribute, 
     data)

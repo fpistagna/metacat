@@ -9,7 +9,7 @@ const className = "Model:Record",
 const { withAsyncHandler } = require('../../../utils/asyncHandler')
 const { withLogging } = require('../../../utils/loggerWrapper')
 
-const _getAllRecords = async () => {
+const _records = async () => {
   const records = await RecordModel.records()
   if (!records)
     throw new customError.RecordError(6, `Records retrieval failed.`)
@@ -20,7 +20,7 @@ const _getAllRecords = async () => {
   return records
 }
 
-const _getRecordByQuery = async (query) => {
+const _recordByQuery = async (query) => {
   Logger.logs({ verbose: { query: JSON.stringify(query) } })
 
   const records = await RecordMetadataModel.recordByQuery(query)
@@ -33,7 +33,7 @@ const _getRecordByQuery = async (query) => {
   return records
 }
 
-const _getOneRecord = async (recordId) => {
+const _record = async (recordId) => {
   Logger.logs({ verbose: { recordId: recordId } })
 
   const record = await RecordModel.recordWithId(recordId)
@@ -48,7 +48,7 @@ const _getOneRecord = async (recordId) => {
   return record
 }
 
-const createNewRecord = async (data) => {
+const _createRecord = async (data) => {
   Logger.logs({ verbose: { data: JSON.stringify(data) } })
 
   const metadata = await RecordMetadataModel.createMetadata(data)
@@ -63,7 +63,7 @@ const createNewRecord = async (data) => {
   return record
 }
 
-const updateOneRecordAttribute = async(id, attribute, data) => {
+const _updateRecordAttribute = async(id, attribute, data) => {
   Logger.logs({
     verbose: {
       recordId: id,
@@ -106,14 +106,16 @@ const updateOneRecordAttribute = async(id, attribute, data) => {
   return (updatedMetadataRecord)
 }
 
-const getAllRecords = withAsyncHandler(withLogging(_getAllRecords, Logger));
-const getRecordByQuery = withAsyncHandler(withLogging(_getRecordByQuery, Logger));
-const getOneRecord = withAsyncHandler(withLogging(_getOneRecord, Logger));
+const records = withAsyncHandler(withLogging(_records, Logger));
+const recordByQuery = withAsyncHandler(withLogging(_recordByQuery, Logger));
+const record = withAsyncHandler(withLogging(_record, Logger));
+const createRecord = withAsyncHandler(withLogging(_createRecord, Logger));
+const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger));
 
 module.exports = { 
-  getAllRecords,
-  getOneRecord,
-  getRecordByQuery,
-  createNewRecord,
-  updateOneRecordAttribute
+  records,
+  record,
+  recordByQuery,
+  createRecord,
+  updateRecordAttribute
 }
