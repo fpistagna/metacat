@@ -6,6 +6,8 @@ const express = require('express'),
   swaggerHelper = require('../swagger/swagger')
 
 const v1RecordRouter = require("./v1/routes/recordRoutes")
+const v1AuthRouter = require("./v1/routes/authRoutes")
+
 const errorHandler = require("./utils/errorHandler")
 
 
@@ -24,6 +26,7 @@ app.use("/api-docs",
   swaggerHelper.swaggerUi.serve,
   swaggerHelper.swaggerUi.setup(swaggerHelper.specs)
 )
+app.use("/api/v1/auth", v1AuthRouter)
 
 app.use(errorHandler)
 

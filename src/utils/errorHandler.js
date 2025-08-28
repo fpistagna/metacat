@@ -28,6 +28,13 @@ const ERROR_MAP = {
     20: { status: 500, message: `Error connecting to database.` },
     default: { status: 500, message: 'A database-level error occurred.' }
   },
+  UserError: {
+    30: { status: 400, message: (err) => `User with email ${err.email} already exists.`},
+    31: { status: 400, message: 'Invalid credentials.' },
+    32: { status: 400, message: 'Wrong password.' },
+    33: { status: 401, message: 'No token, authorization denied.' },
+    34: { status: 401, message: 'Token is not valid.' }
+  },
   // Errore di default per tutti gli altri casi non mappati
   default: {
     default: { status: 500, message: 'An unexpected server error occurred.' }

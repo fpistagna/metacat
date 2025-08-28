@@ -26,11 +26,19 @@ class RecordCreationError extends ARFError {
     super(code, message, { mdObj });
   }
 }
+
+class UserError extends ARFError {
+  constructor(code, message, { email }) {
+    super(code, message, { email });
+  }
+}
+
 class MongooseError extends ARFError { }
 
 module.exports = { 
   MetadataError,
   RecordError,
   RecordCreationError,
-  MongooseError
+  MongooseError,
+  UserError
 }
