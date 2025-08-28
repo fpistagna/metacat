@@ -1,0 +1,138 @@
+{
+  "metadata": 
+  {
+    "id": "10.3456/test_doi/a_sample_test_2025",
+    "type": "dois",
+
+    "attributes": {
+      "identifiers": [
+        {
+          "identifier": "10.3456/test_doi/a_sample_test_2025",
+          "identifierType": "DOI"
+        },
+        {
+          "identifier": "oai:test-arf:vxxtk-7xx74",
+          "identifierType": "oai"
+        }
+      ],
+      "doi": "10.3456/test_doi/a_sample_test_2025",
+      "creators": [
+        {
+          "affiliation": [
+            {
+              "name": "A Sample Istitution"
+            }
+          ],
+          "familyName": "Smith",
+          "givenName": "Annah",
+          "name": "Smith, Annah",
+          "nameIdentifiers": [
+            {
+              "nameIdentifier": "0000-0001-0002-0003",
+              "nameIdentifierScheme": "ORCID"
+            }
+          ],
+          "nameType": "Personal"
+        },
+        {
+          "affiliation": [
+            {
+              "name": "A Sample Istitution"
+            }
+          ],
+          "familyName": "Biloh",
+          "givenName": "Joseph",
+          "name": "Biloh, Joseph",
+          "nameIdentifiers": [
+            {
+              "nameIdentifier": "0004-0005-0006-0007",
+              "nameIdentifierScheme": "ORCID"
+            }
+          ],
+          "nameType": "Personal"
+        },
+        {
+          "affiliation": [
+            {
+              "name": "A Sample Istitution"
+            }
+          ],
+          "familyName": "Brancalas",
+          "givenName": "Esteban",
+          "name": "Brancalas, Esteban",
+          "nameIdentifiers": [
+            {
+              "nameIdentifier": "0000-0008-0009-0010",
+              "nameIdentifierScheme": "ORCID"
+            }
+          ],
+          "nameType": "Personal"
+        },
+        {
+          "affiliation": [
+            {
+              "name": "A Sample Istitution"
+            }
+          ],
+          "familyName": "Hooks",
+          "givenName": "Tanya",
+          "name": "Hooks, Tanya",
+          "nameIdentifiers": [
+            {
+              "nameIdentifier": "0000-0011-9910-9912",
+              "nameIdentifierScheme": "ORCID"
+            }
+          ],
+          "nameType": "Personal"
+        },
+        {
+          "affiliation": [
+            {
+              "name": "A Sample Istitution"
+            }
+          ],
+          "familyName": "Bullets",
+          "givenName": "Christie",
+          "name": "Bullets, Christie",
+          "nameIdentifiers": [
+            {
+              "nameIdentifier": "0000-0011-9911-9912",
+              "nameIdentifierScheme": "ORCID"
+            }
+          ],
+          "nameType": "Personal"
+        },
+        {
+          "affiliation": [
+            {
+              "name": "A Sample Istitution"
+            }
+          ],
+          "familyName": "Little Sugar",
+          "givenName": "Franz",
+          "name": "Little Sugar, Franz",
+          "nameIdentifiers": [
+            {
+              "nameIdentifier": "0000-0011-9920-9921",
+              "nameIdentifierScheme": "ORCID"
+            }
+          ],
+          "nameType": "Personal"
+        }
+      ],
+      "publicationYear": "2023",
+      "publisher": {
+        "name": "A Sample Istitution"
+      },
+      "titles": [
+        {
+          "title": "Just a Sample title for a Sample Record Metadata"
+        }
+      ],
+      "resourceType": {
+        "resourceTypeGeneral": "Dataset",
+        "resourceType": "Example ResourceType"
+      }
+    }
+  }
+}

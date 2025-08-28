@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "id": "10.12345/test_sample/sample_test_2025",
+    "type": "dois",
+    "attributes": {
+      "doi": "10.12345/test_sample/sample_test_2025",
+      "creators": [
+        {
+          "name": "Hat, Hannah",
+          "nameType": "Personal"
+        },
+        {
+          "name": "Biloh, Joseph",
+          "nameType": "Personal"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifier": "10.12345/test_sample/sample_test_2025",
+          "identifierType": "DOI"
+        },
+        {
+          "identifier": "oai:arf:vcxxk-7xx74",
+          "identifierType": "oai"
+        }
+      ],
+      "publicationYear": 2023,
+      "titles": [
+        {
+          "title": "Just a Simple Title for a Sample Test"
+        }
+      ]
+    }
+  }
+}
