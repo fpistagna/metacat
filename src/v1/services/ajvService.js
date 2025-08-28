@@ -60,7 +60,7 @@ module.exports.validator = (req, res, next) => {
   });
 
   if (!valid) {
-    Logger.error({ error: JSON.stringify(validate.errors) });
+    Logger.error({ error: { message: JSON.stringify(validate.errors) } });
 
     res.respond({ 
       status: "error", 

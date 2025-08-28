@@ -41,7 +41,8 @@ class Logger {
   errorString(error) {
     let retString = `${this.className}:${this.callerName}`
     retString += `:${error.message}`
-    retString += error.stack
+    if (error.stack !== undefined)
+      retString += error.stack
     return retString
   }
 
