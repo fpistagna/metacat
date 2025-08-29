@@ -129,6 +129,10 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# Certificati SSL locali
+localhost.key
+localhost.crt
+
 #sample_data
 sample_data/
 
