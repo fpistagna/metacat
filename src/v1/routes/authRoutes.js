@@ -5,5 +5,7 @@ const { withAsyncHandler } = require('../../utils/asyncHandler');
 
 router.post('/register', withAsyncHandler(authController.register));
 router.post('/login', withAsyncHandler(authController.login));
+router.get('/orcid', authController.redirectToOrcid);
+router.post('/orcid/callback', withAsyncHandler(authController.orcidCallback));
 
 module.exports = router;

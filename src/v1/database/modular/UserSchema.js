@@ -18,8 +18,13 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    required: true,
+    //required: true,
     select: false // FONDAMENTALE: non restituisce la password nelle query di default
+  },
+  orcid: {
+    type: String,
+    unique: true,
+    sparse: true // Ottimo per permettere valori nulli multipli
   },
   role: {
     type: String,

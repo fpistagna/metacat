@@ -33,7 +33,11 @@ const ERROR_MAP = {
     31: { status: 400, message: 'Invalid credentials.' },
     32: { status: 400, message: 'Wrong password.' },
     33: { status: 401, message: 'No token, authorization denied.' },
-    34: { status: 401, message: 'Token is not valid.' }
+    34: { status: 401, message: 'Token is not valid.' },
+    35: { status: 400, message: 'Authorization code is missing.' },
+    36: { status: 400, message: 'Failed to retrieve ORCID iD.' },
+    37: { status: 500, message: 'ORCID server error.' },
+    38: { status: 500, message: 'Network error during ORCID token exchange.' }
   },
   // Errore di default per tutti gli altri casi non mappati
   default: {

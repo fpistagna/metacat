@@ -7,7 +7,7 @@ const className = "Mongoose:RecordModel",
  
 async function connectDB() {
   Logger.callerFunction = 'connectDB'
-  const url = process.env.DATABASE_URL || "mongodb://127.0.0.1:27017/arf0825" 
+  const url = process.env.DATABASE_URL 
   
   try {
     await mongoose.connect(url) 
