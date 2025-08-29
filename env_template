@@ -1,0 +1,15 @@
+# Variabili per il Server
+#NODE_ENV=development 
+NODE_ENV=verbose
+PORT=3000
+
+# Variabili per il Database
+DATABASE_URL=mongodb://127.0.0.1:27017/arf0825
+
+# Segreto per JWT (usa una stringa lunga, casuale e complessa)
+JWT_SECRET=IL_TUO_SEGRETO_LUNGO_E_CASUALE_PER_JWT
+
+# Credenziali per ORCID Sandbox
+ORCID_CLIENT_ID=APP-xxxxxxxxxxxxxxxx
+ORCID_CLIENT_SECRET=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+ORCID_REDIRECT_URI=https://<host>/api/v1/auth/orcid/callback
