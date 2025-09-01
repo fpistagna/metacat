@@ -48,11 +48,11 @@ const _record = async (recordId) => {
   return record
 }
 
-const _createRecord = async (data) => {
+const _createRecord = async (data, ownerId) => {
   Logger.logs({ verbose: { data: JSON.stringify(data) } })
 
   const metadata = await RecordMetadataModel.createMetadata(data)
-  const record = await RecordModel.createRecordWithMetadata(metadata)
+  const record = await RecordModel.createRecordWithMetadata(metadata, ownerId)
   if (!record)
     throw new customError.RecordCreationError(2, 
       'Record creation failed after metadata was saved.')
@@ -106,16 +106,22 @@ const _updateRecordAttribute = async(id, attribute, data) => {
   return (updatedMetadataRecord)
 }
 
+const _publishRecord = async (recordId) => {
+  return await RecordModel.publishRecord(recordId);
+};
+
 const records = withAsyncHandler(withLogging(_records, Logger));
 const recordByQuery = withAsyncHandler(withLogging(_recordByQuery, Logger));
 const record = withAsyncHandler(withLogging(_record, Logger));
 const createRecord = withAsyncHandler(withLogging(_createRecord, Logger));
 const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger));
+const publishRecord = withAsyncHandler(withLogging(_publishRecord, Logger));
 
 module.exports = { 
   records,
   record,
   recordByQuery,
   createRecord,
-  updateRecordAttribute
+  updateRecordAttribute,
+  publishRecord
 }
