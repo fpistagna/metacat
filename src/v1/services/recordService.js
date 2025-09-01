@@ -6,14 +6,45 @@ const className = "recordService",
 const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
-const _records = async () => {
-  const allRecords = await Record.records()
+// const _records = async () => {
+//   const allRecords = await Record.records()
 
-  Logger.logs({ debug: { allRecordsCount: allRecords.length },
-    verbose: { allRecords: allRecords } })
+//   Logger.logs({ debug: { allRecordsCount: allRecords.length },
+//     verbose: { allRecords: allRecords } })
 
-  return allRecords
-}
+//   return allRecords
+// }
+
+const _records = async (queryParams, user) => {
+  // 1. Definiamo la query di base: solo record pubblicati
+  const query = { published: true };
+
+  // 2. Se un utente è loggato, modifichiamo la query
+  if (user) {
+    // Admin e Curator possono vedere tutto (a meno che non filtrino diversamente)
+    if (['admin', 'curator'].includes(user.role)) {
+      // Se non c'è un filtro specifico `published` nella querystring, non filtriamo per stato
+      if (queryParams.published === undefined) {
+        delete query.published;
+      }
+    } else {
+      // Un 'user' normale vede i record pubblicati O le proprie bozze
+      query.$or = [
+        { published: true },
+        { owner: user.id, published: false }
+      ];
+      delete query.published; // Rimuoviamo la condizione base perché ora è gestita da $or
+    }
+  }
+
+  // Aggiungi qui la logica per la ricerca full-text se presente
+  if (queryParams.q) {
+    query.$text = { $search: queryParams.q };
+  }
+
+  const allRecords = await Record.records(query); // Passiamo la query al DAO
+  return allRecords;
+};
 
 const _record = async (recordId) => {
   const record = await Record.record(recordId)
@@ -45,10 +76,11 @@ const _recordByQuery = async (query) => {
   return records
 }
 
-const _createRecord = async (data) => {
+const _createRecord = async (data, user) => {
   Logger.logs({ verbose: { metadata: JSON.stringify(data) }})
-    
-  let record = await Record.createRecord(data)
+
+  const ownerId = user.id;
+  const record = await Record.createRecord(data, ownerId)
 
   Logger.logs({ debug: { uuid: record.record.id, doi: record.record.doi},
     verbose: { record: record }})
@@ -77,6 +109,11 @@ const _deleteRecord = () => {
   return
 }
 
+const _publishRecord = async (recordId) => {
+  const updatedRecord = await Record.publishRecord(recordId);
+  return updatedRecord;
+}
+
 const records = withAsyncHandler(withLogging(_records, Logger))
 const record = withAsyncHandler(withLogging(_record, Logger))
 const recordAttribute = withAsyncHandler(withLogging(_recordAttribute, Logger))
@@ -85,6 +122,7 @@ const createRecord = withAsyncHandler(withLogging(_createRecord, Logger))
 const updateRecord = withAsyncHandler(withLogging(_updateRecord, Logger))
 const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger))
 const deleteRecord = withAsyncHandler(withLogging(_deleteRecord, Logger))
+const publishRecord = withAsyncHandler(withLogging(_publishRecord, Logger))
 
 module.exports = {
   records,
@@ -95,4 +133,5 @@ module.exports = {
   updateRecord,
   updateRecordAttribute,
   deleteRecord,
+  publishRecord
 }

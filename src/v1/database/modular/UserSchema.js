@@ -24,13 +24,17 @@ const userSchema = new Schema({
   orcid: {
     type: String,
     unique: true,
-    sparse: true // Ottimo per permettere valori nulli multipli
+    sparse: true // allows multiple null values
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'curator'], // Prepara il terreno per l'autorizzazione
+    enum: ['user', 'admin', 'curator'],
     default: 'user'
-  }
+  },
+  records: [{
+    type: String,
+    ref: 'Record'
+  }]
 }, { timestamps: true }); // Aggiunge createdAt e updatedAt
 
 // Middleware di Mongoose: esegue l'hash della password PRIMA di salvare l'utente

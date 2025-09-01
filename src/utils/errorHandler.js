@@ -15,6 +15,8 @@ const ERROR_MAP = {
     7: { status: 404, message: (err) => `No Record found with id ${err.recordId}.` },
     8: { status: 404, message: (err) => `The provided ID '${err.recordId}' has an invalid format.` },
     9: { status: 404, message: (err) => `No Records matching query ${err.query}` },
+    106: { status: 400, message: (err) => `Record with id ${err.recordId} is already published.` },
+    107: { status: 401, message: 'Forbidden: Cannot modify a published record.' },
     default: { status: 500, message: 'An unexpected record error occurred.' }
   },
   MetadataError: {
@@ -37,7 +39,9 @@ const ERROR_MAP = {
     35: { status: 400, message: 'Authorization code is missing.' },
     36: { status: 400, message: 'Failed to retrieve ORCID iD.' },
     37: { status: 500, message: 'ORCID server error.' },
-    38: { status: 500, message: 'Network error during ORCID token exchange.' }
+    38: { status: 500, message: 'Network error during ORCID token exchange.' },
+    39: { status: 403, message: 'Forbidden: You do not have the required role.' },
+    40: { status: 403, message: 'Forbidden: You are not the owner of this resource nor have the required role.' }
   },
   // Errore di default per tutti gli altri casi non mappati
   default: {

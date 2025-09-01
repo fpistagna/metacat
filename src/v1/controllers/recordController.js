@@ -8,23 +8,22 @@ const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
 const _records = async (req, res, next) => {
-  if (Object.keys(req.query).length > 0) {
-    Logger.logs({ verbose: { query: req.query } })
+  // if (Object.keys(req.query).length > 0) {
+  //   Logger.logs({ verbose: { query: req.query } })
     
-    const result = await recordService.recordByQuery(req.query)
-    if (result.length > 0)
-      res.respond(result)
-    else
-      res.respondNoContent()
-  } else {
-    const allRecords = await recordService.records()      
+  //   const result = await recordService.recordByQuery(req.query)
+  //   if (result.length > 0)
+  //     res.respond(result)
+  //   else
+  //     res.respondNoContent()
+  // } else {
+    
+    const allRecords = await recordService.records(req.query, req.user)      
     Logger.logs({ debug: { hits: allRecords.length } })
     
-    if (!allRecords.length)
-      res.respondNoContent()
-    else
-      res.respond({ data: allRecords })
-  }
+    if (!allRecords.length) res.respondNoContent()
+    else res.respond({ data: allRecords })
+  // }
 }
 
 const _record = async (req, res, next) => {
@@ -80,7 +79,7 @@ const _recordAttribute = async (req, res, next) => {
 const _createRecord = async (req, res, next) => {
   Logger.callerFunction = 'createNewRecord'
   try {
-    const record = await recordService.createRecord(req.body)
+    const record = await recordService.createRecord(req.body, req.user)
 
     Logger.logs({ debug: { recordUuid: record.record.id}, 
       verbose: { record: record } })
@@ -135,6 +134,17 @@ const _deleteRecord = (req, res) => {
   res.send("Delete an existing record")
 }
 
+const _publishRecord = async (req, res, next) => {
+  const { recordId } = req.params;
+  const updatedRecord = await recordService.publishRecord(recordId);
+
+  res.respond({
+    status: 'success',
+    message: 'Record published successfully.',
+    data: updatedRecord
+  }, 200);
+};
+
 const records = withAsyncHandler(withLogging(_records, Logger));
 const record = withAsyncHandler(withLogging(_record, Logger))
 const recordAttribute = withAsyncHandler(withLogging(_recordAttribute, Logger))
@@ -142,6 +152,7 @@ const createRecord = withAsyncHandler(withLogging(_createRecord, Logger))
 const updateRecord = withAsyncHandler(withLogging(_updateRecord, Logger))
 const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger))
 const deleteRecord = withAsyncHandler(withLogging(_deleteRecord, Logger))
+const publishRecord = withAsyncHandler(withLogging(_publishRecord, Logger))
 
 module.exports = {
   records,
@@ -151,4 +162,5 @@ module.exports = {
   updateRecord,
   updateRecordAttribute,
   deleteRecord,
+  publishRecord
 }

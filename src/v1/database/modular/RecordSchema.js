@@ -30,6 +30,17 @@ const recordSchema = new Schema({
     type: String,
     ref: 'RecordMetadata',
     required: true
+  },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    index: true // Indicizzato per ricerche veloci sui record di un utente
+  },
+  published: {
+    type: Boolean,
+    default: false,
+    required: true
   }
 })
 
@@ -52,18 +63,27 @@ class RecordModel {
 
   static model = mongoose.model("Record", recordSchema)
 
-  static async _records() {
+  // static async _records() {
+  //   let count = await this.model.countDocuments()
+  //   let records = await this.model.find(
+  //     {}, { limit: 10, sort: { '_id': -1 } })
+  //     //.populate("metadata")
+  //     .exec()
+  //   if (!records)
+  //     throw new customError.RecordError(6, `Get Records failed.`)
+  //   Logger.logs({ verbose: { hits: count, records: records } })
+  //   return records
+  // }
+  
+  static async _records(query = {}) { // Accetta un oggetto query opzionale
     let count = await this.model.countDocuments()
-    let records = await this.model.find(
-      {}, { limit: 10, sort: { '_id': -1 } })
-      //.populate("metadata")
-      .exec()
+    const records = await this.model.find(query, { limit: 10, sort: { '_id': -1 } }).exec();
     if (!records)
       throw new customError.RecordError(6, `Get Records failed.`)
     Logger.logs({ verbose: { hits: count, records: records } })
-    return records
+    return records;
   }
-
+  
   static async _recordWithId(id) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       // Lancia un errore personalizzato per formato non valido
@@ -80,8 +100,8 @@ class RecordModel {
     return record
   }
 
-  static async _createRecordWithMetadata(md) {
-    let r = await this.model.create({ metadata: md })
+  static async _createRecordWithMetadata(md, oid) {
+    const r = await this.model.create({ metadata: md, owner: oid })
     if (!r)
       throw new customError.RecordCreationError(1,
         `Failed to create new record \n${r}\n with provided metadata\n${md}.`,
@@ -94,11 +114,29 @@ class RecordModel {
     r.metadata = m
     return await r.save()
   }
+
+  static async _publishRecord(recordId) {
+    // Usiamo il metodo che già gestisce la validazione dell'ID e il "not found"
+    const record = await this._recordWithId(recordId);
+
+    // Controllo di business logic: non si può ri-pubblicare un record già pubblicato
+    if (record.published) {
+      throw new customError.RecordError(106, `Record with id ${recordId} is already published.`, 
+        { recordId: recordId });
+    }
+
+    record.published = true;
+    await record.save();
+
+    Logger.logs({ debug: { recordId: recordId, status: 'published' } });
+    return record;
+  }
 }
 
 RecordModel.records = withAsyncHandler(withLogging(RecordModel._records, Logger))
 RecordModel.recordWithId = withAsyncHandler(withLogging(RecordModel._recordWithId, Logger))
 RecordModel.createRecordWithMetadata = withAsyncHandler(withLogging(RecordModel._createRecordWithMetadata, Logger))
 RecordModel.updateRecordMetadata = withAsyncHandler(withLogging(RecordModel._updateRecordMetadata, Logger))
+RecordModel.publishRecord = withAsyncHandler(withLogging(RecordModel._publishRecord, Logger))
 
 module.exports.RecordModel = RecordModel
