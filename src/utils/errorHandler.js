@@ -14,7 +14,7 @@ const ERROR_MAP = {
     6: { status: 404, message: 'Record not found.' },
     7: { status: 404, message: (err) => `No Record found with id ${err.recordId}.` },
     8: { status: 404, message: (err) => `The provided ID '${err.recordId}' has an invalid format.` },
-    9: { status: 404, message: (err) => `No Records matching query ${err.query}` },
+    9: { status: 404, message: (err) => `No Records matching query '${err.query}'` },
     106: { status: 400, message: (err) => `Record with id ${err.recordId} is already published.` },
     107: { status: 401, message: 'Forbidden: Cannot modify a published record.' },
     default: { status: 500, message: 'An unexpected record error occurred.' }

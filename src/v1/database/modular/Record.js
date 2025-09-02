@@ -27,8 +27,8 @@ const _recordByQuery = async (query) => {
   Logger.logs({ debug: { records: records.length }, verbose: { records: records }})
   if (records.length === 0)
     throw new customError.RecordError(9,
-      `No Records matching query ${JSON.stringify(query)}`, 
-      { query: JSON.stringify(query) })
+      `No Records matching query \"${query.q}\".`, 
+      { query: query.q })
 
   return records
 }

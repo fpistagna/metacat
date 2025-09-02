@@ -4,7 +4,7 @@ const recordController = require("../controllers/recordController");
 const { validator, attributePatchValidator } = require("../services/ajvService");
 const { paramsValidator, checkAttribute } = require("../../utils/paramsValidator");
 const { param } = require('express-validator');
-const authMiddleware = require('../middlewares/authMiddleware');
+const authenticationMiddleware = require('../middlewares/authenticationMiddleware');
 const { checkRole, checkOwnershipOrRole } = require('../middlewares/authorizationMiddleware');
 
 const router = express.Router();
@@ -19,29 +19,29 @@ router.get("/:recordId/:attribute",
   recordController.recordAttribute);
 
 router.post("/", 
-  authMiddleware, validator, recordController.createRecord);
+  authenticationMiddleware, validator, recordController.createRecord);
 
 router.patch("/:recordId", 
-  authMiddleware, 
+  authenticationMiddleware, 
   checkOwnershipOrRole(['admin', 'curator']),
   validator, recordController.updateRecord);
 
 router.patch("/:recordId/:attribute", 
   param('attribute')
   .custom(checkAttribute),
-  authMiddleware,
+  authenticationMiddleware,
   paramsValidator,
   attributePatchValidator, 
   recordController.updateRecordAttribute);
 
 router.delete("/:recordId", 
-  authMiddleware, checkOwnershipOrRole(['admin', 'curator']),
+  authenticationMiddleware, checkOwnershipOrRole(['admin', 'curator']),
   recordController.deleteRecord);
 
 // Rotta per pubblicare un record (solo per admin e curator)
 router.post(
   "/:recordId/publish",
-  authMiddleware,
+  authenticationMiddleware,
   checkRole(['admin', 'curator']),
   recordController.publishRecord
 );
