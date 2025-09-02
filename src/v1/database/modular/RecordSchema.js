@@ -63,18 +63,6 @@ class RecordModel {
 
   static model = mongoose.model("Record", recordSchema)
 
-  // static async _records() {
-  //   let count = await this.model.countDocuments()
-  //   let records = await this.model.find(
-  //     {}, { limit: 10, sort: { '_id': -1 } })
-  //     //.populate("metadata")
-  //     .exec()
-  //   if (!records)
-  //     throw new customError.RecordError(6, `Get Records failed.`)
-  //   Logger.logs({ verbose: { hits: count, records: records } })
-  //   return records
-  // }
-  
   static async _records(query = {}) { // Accetta un oggetto query opzionale
     let count = await this.model.countDocuments()
     const records = await this.model.find(query, { limit: 10, sort: { '_id': -1 } }).exec();
@@ -87,7 +75,7 @@ class RecordModel {
   static async _recordWithId(id) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       // Lancia un errore personalizzato per formato non valido
-      throw new customError.RecordError(8, // -> Ti suggerisco un nuovo codice di errore
+      throw new customError.RecordError(8,
         `The provided ID '${id}' has an invalid format.`, { recordId: id })
     }
     let record = await this.model.findById(id).populate("metadata").exec()
@@ -106,7 +94,8 @@ class RecordModel {
       throw new customError.RecordCreationError(1,
         `Failed to create new record \n${r}\n with provided metadata\n${md}.`,
         { mdObj: md })
-      
+
+    Logger.logs({ verbose: { record: r }})
     return r
   }
 

@@ -8,26 +8,27 @@ const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
 const _records = async (req, res, next) => {
-  // if (Object.keys(req.query).length > 0) {
-  //   Logger.logs({ verbose: { query: req.query } })
+  try {
+    if (Object.keys(req.query).length > 0) {
+      Logger.logs({ verbose: { query: JSON.stringify(req.query) } })
     
-  //   const result = await recordService.recordByQuery(req.query)
-  //   if (result.length > 0)
-  //     res.respond(result)
-  //   else
-  //     res.respondNoContent()
-  // } else {
-    
-    const allRecords = await recordService.records(req.query, req.user)      
-    Logger.logs({ debug: { hits: allRecords.length } })
-    
-    if (!allRecords.length) res.respondNoContent()
-    else res.respond({ data: allRecords })
-  // }
+      const result = await recordService.recordByQuery(req.query)
+      if (result.length > 0)  res.respond(result)
+      else  res.respondNoContent()
+    } else {    
+      const allRecords = await recordService.records(req.query, req.user)      
+      Logger.logs({ debug: { hits: allRecords.length } })
+      
+      if (!allRecords.length) res.respondNoContent()
+      else res.respond({ data: allRecords })
+    }
+  } catch (error) {
+    Logger.error({ error: error })
+    return next(error)
+  }
 }
 
 const _record = async (req, res, next) => {
-  Logger.callerFunction = 'getOneRecord'
   try {
     const record = await recordService.record(req.params.recordId)
 
@@ -48,47 +49,35 @@ const _record = async (req, res, next) => {
 }
 
 const _recordAttribute = async (req, res, next) => {
-  Logger.callerFunction = 'getRecordAttribute'
-  try {
-    let rId = req.params.recordId
-    let rAttribute = req.params.attribute
+  let rId = req.params.recordId
+  let rAttribute = req.params.attribute
 
-    const result = await recordService.recordAttribute(rId, rAttribute)
+  const result = await recordService.recordAttribute(rId, rAttribute)
 
-    Logger.logs({ verbose: { record: result.record } })
+  Logger.logs({ verbose: { record: result.record } })
 
-    if (!result.record)
-      res.respond({ recordId: rId }, 404)
-    else if (!result.attribute)
-      res.respond({ attribute: rAttribute }, 404)
-    else {
-      Logger.logs({ debug: { recordId: rId, attribute: rAttribute } })
+  if (!result.record)
+    res.respond({ recordId: rId }, 404)
+  else if (!result.attribute)
+    res.respond({ attribute: rAttribute }, 404)
+  else {
+    Logger.logs({ debug: { recordId: rId, attribute: rAttribute } })
 
-      res.respond({
-        recordId: rId,
-        attribute: rAttribute,
-        values: result.attribute
-      }, 200)
-    }
-  } catch (error) { 
-      Logger.error({ error: error })
-      return next(error) 
-    } 
+    res.respond({
+      recordId: rId,
+      attribute: rAttribute,
+      values: result.attribute
+    }, 200)
+  }
 }
 
 const _createRecord = async (req, res, next) => {
-  Logger.callerFunction = 'createNewRecord'
-  try {
-    const record = await recordService.createRecord(req.body, req.user)
+  const record = await recordService.createRecord(req.body, req.user)
 
-    Logger.logs({ debug: { recordUuid: record.record.id}, 
-      verbose: { record: record } })
+  Logger.logs({ debug: { recordUuid: record.record.id}, 
+    verbose: { record: record } })
 
-    res.respondCreated(record)
-  }
-  catch (error) { 
-    Logger.error({ error: error })
-    return next(error) }
+  res.respondCreated(record)
 }
 
 const _updateRecord = async (req, res) => {
@@ -106,27 +95,21 @@ const _updateRecord = async (req, res) => {
 }
 
 const _updateRecordAttribute = async (req, res, next) => {
-  Logger.callerFunction = 'updateOneRecordAttribute'
-  try {
-    let rId = req.params.recordId,
-      rAttribute = req.params.attribute,
-      reqBody = req.body
+  let rId = req.params.recordId,
+    rAttribute = req.params.attribute,
+    reqBody = req.body
 
-    const updatedRecord = await recordService.updateRecordAttribute(
-      rId, rAttribute, reqBody)
+  const updatedRecord = await recordService.updateRecordAttribute(
+    rId, rAttribute, reqBody)
 
-    Logger.logs({ debug: { updatedRecord: updatedRecord._id },
-      verbose: { updatedRecord: JSON.stringify(updatedRecord)}})
+  Logger.logs({ debug: { updatedRecord: updatedRecord._id },
+    verbose: { updatedRecord: JSON.stringify(updatedRecord)}})
 
-    res.respond({
-      recordId: rId,
-      attribute: rAttribute,
-      status: "updated"
-    }, 201)
-    } catch (error) {
-        Logger.error({ error: error }) 
-        return next(error) 
-      }
+  res.respond({
+    recordId: rId,
+    attribute: rAttribute,
+    status: "updated"
+  }, 201)
 }
 
 const _deleteRecord = (req, res) => {
