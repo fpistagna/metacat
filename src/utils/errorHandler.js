@@ -26,6 +26,7 @@ const ERROR_MAP = {
     11: { status: 400, message: 'Invalid metadata provided.' },
     12: { status: 422, message: 'Unprocessable entity. Attribute not allowed.' },
     13: { status: 422, message: 'Unprocessable entity during patch operation.' },
+    14: { status: 500, message: (err) => `Error while deleting RecordMetadata ID ${err.recordMetadataId}.`},
     default: { status: 500, message: 'An unexpected metadata error occurred.' }
   },
   MongooseError: {
