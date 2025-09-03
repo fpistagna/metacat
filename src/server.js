@@ -9,6 +9,7 @@ const express = require('express'),
 
 const v1RecordRouter = require("./v1/routes/recordRoutes")
 const v1AuthRouter = require("./v1/routes/authRoutes")
+const v1UserRouter = require("./v1/routes/userRoutes")
 
 const errorHandler = require("./utils/errorHandler")
 
@@ -24,6 +25,7 @@ app.use(morgan('dev', { stream: {
 app.use(responseHelper.helper())
 
 app.use("/api/v1/records", v1RecordRouter)
+app.use("/api/v1", v1UserRouter)
 app.use("/api-docs",
   swaggerHelper.swaggerUi.serve,
   swaggerHelper.swaggerUi.setup(swaggerHelper.specs)

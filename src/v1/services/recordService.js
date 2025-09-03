@@ -110,8 +110,29 @@ const _deleteRecord = () => {
 }
 
 const _publishRecord = async (recordId) => {
-  const updatedRecord = await Record.publishRecord(recordId);
-  return updatedRecord;
+  Logger.logs({ verbose: { recordId: recordId } })
+
+  const pr = await Record.publishRecord(recordId);
+  return pr;
+}
+
+const _getRecordsByOwner = async (ownerId, queryParams) => {
+  const query = { owner: ownerId }
+
+  if (queryParams.published === 'true') 
+    query.published = true
+  else if (queryParams.published === 'false')
+    query.published = false
+
+  // if 'published' is not specified, the query will not filter on this field,
+  // showing both draft and published records.
+
+  Logger.logs({ debug: { query: query },
+    verbose: { query: query, owner: ownerId, queryParams: queryParams } })
+
+  // delegate to the model/DAO methods to perform search
+  const records = await Record.records(query)
+  return records
 }
 
 const records = withAsyncHandler(withLogging(_records, Logger))
