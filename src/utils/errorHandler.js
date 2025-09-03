@@ -17,10 +17,12 @@ const ERROR_MAP = {
     9: { status: 404, message: (err) => `No Records matching query '${err.query}'` },
     106: { status: 400, message: (err) => `Record with id ${err.recordId} is already published.` },
     107: { status: 401, message: 'Forbidden: Cannot modify a published record.' },
+    108: { status: 500, message: (err) => `Error while deleting Record ID ${err.recordId}`},
+    109: {status: 500, message: (err) => `Error saving Record id ${err.recordId} while publishing it.`},
     default: { status: 500, message: 'An unexpected record error occurred.' }
   },
   MetadataError: {
-    10: { status: 409, message: (err) => `Record ID ${err.recordMetadataId} already exists.` }, // 409 Conflict è più indicato
+    10: { status: 409, message: (err) => `Record ID ${err.recordMetadataId} already exists.` },
     11: { status: 400, message: 'Invalid metadata provided.' },
     12: { status: 422, message: 'Unprocessable entity. Attribute not allowed.' },
     13: { status: 422, message: 'Unprocessable entity during patch operation.' },
