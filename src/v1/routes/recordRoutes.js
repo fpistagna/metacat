@@ -35,7 +35,7 @@ router.patch("/:recordId/:attribute",
   recordController.updateRecordAttribute);
 
 router.delete("/:recordId", 
-  authenticationMiddleware, checkOwnershipOrRole(['admin', 'curator']),
+  authenticationMiddleware, checkRole(['admin']),
   recordController.deleteRecord);
 
 // Rotta per pubblicare un record (solo per admin e curator)

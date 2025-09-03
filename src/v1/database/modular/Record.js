@@ -9,6 +9,8 @@ const className = "Model:Record",
 const { withAsyncHandler } = require('../../../utils/asyncHandler')
 const { withLogging } = require('../../../utils/loggerWrapper')
 
+/* ##### DAO (Data Access Object) methods #### */
+
 const _records = async () => {
   const records = await RecordModel.records()
   if (!records)
@@ -107,15 +109,42 @@ const _updateRecordAttribute = async(id, attribute, data) => {
 }
 
 const _publishRecord = async (recordId) => {
-  return await RecordModel.publishRecord(recordId);
-};
+  Logger.logs({ verbose: { recordId: recordId } })
+  const r = await RecordModel.publishRecord(recordId) 
+  if (!r)
+    throw new customError.RecordError(109, 
+      `Error saving Record id ${recordId} while publishing it.`,
+    { recordId: recordId})
+  return r
+}
 
-const records = withAsyncHandler(withLogging(_records, Logger));
-const recordByQuery = withAsyncHandler(withLogging(_recordByQuery, Logger));
-const record = withAsyncHandler(withLogging(_record, Logger));
-const createRecord = withAsyncHandler(withLogging(_createRecord, Logger));
-const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger));
-const publishRecord = withAsyncHandler(withLogging(_publishRecord, Logger));
+const _deleteRecord = async (recordId) => {
+  Logger.logs({ debug: { recordId: recordId } })
+  
+  const r = await RecordModel.recordWithId(recordId)
+  if (!r)
+    throw new customError.RecordError(6, `Record ${recordId} not found`)
+
+  const m = await RecordMetadataModel.model.findByIdAndDelete(r.metadata._id)
+  if (!m)
+    throw new customError.MetadataError(14, 
+      `Error while deleting RecordMetadata ID ${r.metadata._id}.`,
+      { recordMetadataId: r.metadata._id })
+  
+  let dr = await RecordModel.model.findByIdAndDelete(recordId)
+  if (!dr)
+    throw new customError.RecordError(108,
+      `Error while deleting Record ID ${err.recordId}`,
+    { recordId: recordID})
+}
+
+const records = withAsyncHandler(withLogging(_records, Logger))
+const recordByQuery = withAsyncHandler(withLogging(_recordByQuery, Logger))
+const record = withAsyncHandler(withLogging(_record, Logger))
+const createRecord = withAsyncHandler(withLogging(_createRecord, Logger))
+const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger))
+const publishRecord = withAsyncHandler(withLogging(_publishRecord, Logger))
+const deleteRecord = withAsyncHandler(withLogging(_deleteRecord, Logger))
 
 module.exports = { 
   records,
@@ -123,5 +152,6 @@ module.exports = {
   recordByQuery,
   createRecord,
   updateRecordAttribute,
-  publishRecord
+  publishRecord,
+  deleteRecord
 }

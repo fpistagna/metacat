@@ -105,8 +105,8 @@ const _updateRecordAttribute = async (recordId, attribute, data) => {
   return updatedRecord
 }
 
-const _deleteRecord = () => {
-  return
+const _deleteRecord = async (recordId) => {
+  await Record.deleteRecord(recordId)
 }
 
 const _publishRecord = async (recordId) => {
@@ -144,6 +144,7 @@ const updateRecord = withAsyncHandler(withLogging(_updateRecord, Logger))
 const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger))
 const deleteRecord = withAsyncHandler(withLogging(_deleteRecord, Logger))
 const publishRecord = withAsyncHandler(withLogging(_publishRecord, Logger))
+const getRecordsByOwner = withAsyncHandler(withLogging(_getRecordsByOwner, Logger))
 
 module.exports = {
   records,
@@ -154,5 +155,6 @@ module.exports = {
   updateRecord,
   updateRecordAttribute,
   deleteRecord,
-  publishRecord
+  publishRecord,
+  getRecordsByOwner
 }
