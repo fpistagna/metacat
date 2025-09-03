@@ -1,5 +1,5 @@
 const swaggerJsdoc = require("swagger-jsdoc"),
-  swaggerUi = require("swagger-ui-express")
+  swaggerUi = require("swagger-ui-express");
 
 const options = {
   definition: {
@@ -8,29 +8,49 @@ const options = {
       title: "ARF Express API with Swagger",
       version: "0.1.0",
       description:
-        "This is a simple CRUD API application - lovely ♥️ defined Simplistic - made with Express and documented with Swagger",
+        "This is a simple CRUD API application for DataCite metadata, with JWT authentication.",
       license: {
         name: "MIT",
         url: "https://spdx.org/licenses/MIT.html",
       },
       contact: {
-        name: "FPista",
-        url: "https://github.com/fpistagna",
+        name: "Fabrizio Pistagna",
+        url: "https://github.com/fpistagna/arf",
         email: "fabrizio.pistagna@ingv.it",
       },
     },
     servers: [
       {
-        url: "http://localhost:3000/api/v1",
+        url: "https://localhost",
+        description: "Local development server (via Nginx proxy)"
       },
+      {
+        url: "http://localhost:3000/api/v1",
+        description: "Local development server"
+      }
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "Enter JWT token"
+        }
+      }
+    },
+    security: [
+      {
+        bearerAuth: []
+      }
+    ]
   },
   apis: ["./swagger/routes/*.yaml"],
-}
+};
 
-const specs = swaggerJsdoc(options)
+const specs = swaggerJsdoc(options);
 
 module.exports = {
   specs,
   swaggerUi
-}
+};

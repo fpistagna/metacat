@@ -1,0 +1,103 @@
+# swagger/routes/auth.yaml
+
+# Gruppo di endpoint per l'interfaccia Swagger
+tags:
+  - name: Authentication
+    description: Operazioni di registrazione e login degli utenti.
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Registra un nuovo utente.
+      description: Crea un nuovo utente nel sistema fornendo username, email e password. Se la registrazione ha successo, restituisce un token JWT.
+      
+      # --- PUNTO CHIAVE ---
+      # Un array vuoto per 'security' sovrascrive l'impostazione globale
+      # e rende questo endpoint PUBBLICO (non richiede autenticazione).
+      security: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "testuser"
+                email:
+                  type: string
+                  format: email
+                  example: "test@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "A-Strong-Password-123!"
+              required:
+                - username
+                - email
+                - password
+
+      responses:
+        '201':
+          description: Utente registrato con successo. Viene restituito un token JWT.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '400':
+          description: Dati non validi o utente già esistente.
+        '500':
+          description: Errore del server.
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Esegue il login di un utente esistente.
+      description: Autentica un utente con email e password e restituisce un token JWT se le credenziali sono corrette.
+
+      # Anche questo endpoint è pubblico.
+      security: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "test@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "A-Strong-Password-123!"
+              required:
+                - email
+                - password
+
+      responses:
+        '200':
+          description: Login effettuato con successo. Viene restituito un token JWT.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '400':
+          description: Credenziali non valide.
+        '500':
+          description: Errore del server.
