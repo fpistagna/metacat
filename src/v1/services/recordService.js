@@ -2,7 +2,8 @@
 const Record = require("../database/modular/Record")
 const className = "recordService",
   LoggerHelper = require('../../utils/loggerHelper'),
-  Logger = new LoggerHelper.Logger(className)
+  Logger = new LoggerHelper.Logger(className),
+  customError = require('../../utils/customError')
 const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
@@ -46,13 +47,30 @@ const _records = async (queryParams, user) => {
   return allRecords;
 };
 
-const _record = async (recordId) => {
+const _record = async (recordId, user) => {
   const record = await Record.record(recordId)
 
   Logger.logs({ debug: { recordId: recordId }, 
     verbose: { recordId: recordId, record: record }})
+  
+  if (record.published) 
+    return record
 
-  return record
+  if (!user)
+    // Se non è pubblicato e non c'è utente via token, accesso negato
+    throw new customError.UserError(33, 
+      `Record id ${recordId} is not published (${record.published}) ` +
+      `and No correct token provided. Authorization denied.`)
+  
+  const isOwner = record.owner.toString() === user.id
+  const isPrivileged = ['admin', 'curator'].includes(user.role)
+
+  if (isOwner || isPrivileged)
+    return record // Se è il proprietario o un curatore/admin, può vederlo
+
+  // Se l'utente è loggato ma non ha i permessi, accesso negato
+  throw new customError.UserError(40, 
+    'Forbidden: no permissions to view this resource.')
 }
 
 const _recordAttribute = async(id, attribute) => {

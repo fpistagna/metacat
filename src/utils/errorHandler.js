@@ -1,4 +1,4 @@
-const className = "errorHandler",
+const className = "Handler:error",
   LoggerHelper = require('./loggerHelper'),
   Logger = new LoggerHelper.Logger(className);
 
@@ -22,9 +22,9 @@ const ERROR_MAP = {
     default: { status: 500, message: 'An unexpected record error occurred.' }
   },
   MetadataError: {
-    10: { status: 409, message: (err) => `Record ID ${err.recordMetadataId} already exists.` },
-    11: { status: 400, message: 'Invalid metadata provided.' },
-    12: { status: 422, message: 'Unprocessable entity. Attribute not allowed.' },
+    10: { status: 409, message: (err) => `Metadata Record Id ${err.recordMetadataId} already exists.` },
+    11: { status: 403, message: 'Invalid metadata provided.' },
+    12: { status: 422, message: (err) => `Attribute '${err.attr}' is not included in the allowed attributes (${err.attrs}).` },
     13: { status: 422, message: 'Unprocessable entity during patch operation.' },
     14: { status: 500, message: (err) => `Error while deleting RecordMetadata ID ${err.recordMetadataId}.`},
     default: { status: 500, message: 'An unexpected metadata error occurred.' }
@@ -35,16 +35,21 @@ const ERROR_MAP = {
   },
   UserError: {
     30: { status: 400, message: (err) => `User with email ${err.email} already exists.`},
-    31: { status: 400, message: 'Invalid credentials.' },
-    32: { status: 400, message: 'Wrong password.' },
+    31: { status: 403, message: (err) => `Invalid credentials (${err.email}).` },
+    32: { status: 403, message: 'Wrong password.' },
     33: { status: 401, message: 'No token, authorization denied.' },
     34: { status: 401, message: 'Token is not valid.' },
-    35: { status: 400, message: 'Authorization code is missing.' },
+    35: { status: 400, message: 'User identified by provided token no longer exists.' },
     36: { status: 400, message: 'Failed to retrieve ORCID iD.' },
     37: { status: 500, message: 'ORCID server error.' },
     38: { status: 500, message: 'Network error during ORCID token exchange.' },
-    39: { status: 403, message: 'Forbidden: You do not have the required role.' },
-    40: { status: 403, message: 'Forbidden: You are not the owner of this resource nor have the required role.' }
+    39: { status: 403, message: (err) => `Forbidden: Your role (${err.role}) does not have the required permission.` },
+    40: { status: 403, message: 'Forbidden: You are not the owner of this resource nor have the required role.' },
+    default: { status: 500, message: 'A user-level error occurred.' }
+  },
+  ValidationError: {
+    50: { status: 403, message: (err) => `Invalid input provided: '${err.instancePath}' - ${err.message}` },
+    default: { status: 500, message: 'A validation-level error occurred.'}
   },
   // Errore di default per tutti gli altri casi non mappati
   default: {
@@ -53,7 +58,7 @@ const ERROR_MAP = {
 };
 
 const errorHandler = (error, req, res, next) => {
-  Logger.callerFunction = 'errorHandler';
+  Logger.callerFunction = `errorHandler:${error.name}`;
   // Logga l'oggetto errore completo
   Logger.error({ 
     error: { 
@@ -72,13 +77,22 @@ const errorHandler = (error, req, res, next) => {
   const errorConfig = (ERROR_MAP[error.name] || ERROR_MAP.default);
   const config = errorConfig[error.code] || errorConfig.default;
 
-  // Calcola il messaggio. Se è una funzione, la esegue.
-  const message = typeof config.message === 'function' ? config.message(error) : error.message || config.message;
+  // const message = typeof config.message === 'function' 
+  //   ? config.message(error) 
+  //   : error.message || config.message;
+
+  const message = typeof config.message === 'function'
+    ? config.message(error)
+    : config.message;
+
+  // Il messaggio DETTAGLIATO originale viene solo loggato, mai inviato.
+  const privateMessage = error.message;
+  Logger.error({ error: { privateMessage: privateMessage } });
 
   res.status(config.status).send({
     type: error.name,
     errorCode: error.code,
-    details: message
+    message: message
   });
 };
 

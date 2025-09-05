@@ -4,7 +4,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const authenticationMiddleware = require('../middlewares/authenticationMiddleware');
+const { authenticationMiddleware } = require('../middlewares/authenticationMiddleware');
 const { withAsyncHandler } = require('../../utils/asyncHandler');
 
 const meRouter = express.Router();

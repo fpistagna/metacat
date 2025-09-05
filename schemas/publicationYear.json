@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "attributes.publicationYear#",
+  "$id": "publicationYear#",
   "description": "The year when the resource was or will be made publicly available.",
   "type": "string",
   "pattern": "^[0-9]{4}$"

@@ -11,8 +11,8 @@ const { withLogging } = require('../../../utils/loggerWrapper')
 
 /* ##### DAO (Data Access Object) methods #### */
 
-const _records = async () => {
-  const records = await RecordModel.records()
+const _records = async (query) => {
+  const records = await RecordModel.records(query)
   if (!records)
     throw new customError.RecordError(6, `Records retrieval failed.`)
   Logger.logs({

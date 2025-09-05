@@ -10,7 +10,9 @@ const signToken = (userId) => {
 const registerUser = async ({ username, email, password }) => {
   let user = await UserModel.findOne({ email });
   if (user) {
-    throw new customError.UserError(30, `User with email ${email} already exists.`, { email: email });
+    throw new customError.UserError(30, 
+      `User with email ${email} already exists.`, 
+      { email: email });
   }
 
   user = new UserModel({ username, email, password });
@@ -23,12 +25,14 @@ const loginUser = async ({ email, password }) => {
   // +password forza Mongoose a restituire il campo password, che abbiamo nascosto con select: false
   const user = await UserModel.findOne({ email }).select('+password');
   if (!user) {
-    throw new customError.UserError(31, 'Invalid credentials.');
+    throw new customError.UserError(31, `Invalid credentials (${email}).`,
+      { email: email });
   }
 
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    throw new customError.RecordError(32, 'Wrong password.');
+    throw new customError.UserError(32, `Wrong password (${password}) ` +
+      `for user ${user.username}, email ${user.email}`);
   }
 
   return signToken(user.id);
@@ -85,10 +89,11 @@ const handleOrcidCallback = async (authorizationCode) => {
 
       // Lancia un nostro errore personalizzato con i dettagli di ORCID
       const orcidErrorDetails = JSON.stringify(error.response.data);
-      throw new customError.UserError(37, `ORCID server error: ${orcidErrorDetails}`, {email: ''});
+      throw new customError.UserError(37, `ORCID server error: ${orcidErrorDetails}`);
     }
     // Altrimenti, è un errore di rete (es. il server non risponde)
-    throw new customError.UserError(38, `Network error during ORCID token exchange: ${error.message}`, {email: ''});
+    throw new customError.UserError(38, 
+      `Network error during ORCID token exchange: ${error.message}`);
   }
 };
 

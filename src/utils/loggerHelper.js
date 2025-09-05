@@ -40,9 +40,10 @@ class Logger {
 
   errorString(error) {
     let retString = `${this.className}:${this.callerName}`
-    retString += `:${error.message}`
+    retString += `\nerror.message:${error.message}`
+    retString += `\nerror.code:${error.code}`
     if (error.stack !== undefined)
-      retString += error.stack
+      retString += `\nerror.stack: ${error.stack}`
     return retString
   }
 
@@ -59,6 +60,5 @@ class Logger {
     winston.error(this.errorString(errObj.error))
   }
 }
-
 
 module.exports.Logger = Logger

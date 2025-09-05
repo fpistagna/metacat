@@ -16,32 +16,39 @@ module.exports.paramsValidator = (req, res, next) => {
   })
 
   if (!result.isEmpty()) {
-    throw new customError.MetadataError(12, 
-      `${result.errors[0].value} - `+
-    	`${result.errors[0].msg}`)
+    throw new customError.MetadataError(12,
+      `Attribute '${result.errors[0].value}' is not included in the Attributes list ` +
+      `["doi", "identifiers", "creators", "titles", ` +
+      `"publisher", "publicationYear", "descriptions"]`,
+      {
+        attr: result.errors[0].value,
+        attrs: `doi, identifiers, creators, titles, ` +
+          `publisher, publicationYear, descriptions`
+      })
+    // throw new customError.MetadataError(12, 
+    //   `${result.errors[0].value} - `+
+    // 	`${result.errors[0].msg}`)
   }
   next()
 }
 
 module.exports.checkAttribute = async (a) => {
-  Logger.callerFunction = 'paramsValidator'
+  Logger.callerFunction = 'checkAttribute'
 
-  Logger.logs({
-    verbose: {
-      checkAttribute: a
-    }
-  })
+  Logger.logs({ verbose: { Attribute: a } })
 
   if(! await ["doi", "identifiers", "creators", "titles", 
       "publisher", "publicationYear", "descriptions"].includes(a)) {
 
-    Logger.logs({
-      verbose: {
-        checkAttribute: `${a} notAllowed`
-      }
-    })
-    throw new customError.MetadataError(12, 
-      `Attribute ${a} not allowed`)
-    //return false
+    Logger.logs({ verbose: { checkAttribute: `Attribute '${a}' not allowed` } })
+
+    throw new customError.MetadataError(12)
+    // throw new customError.MetadataError(12, 
+    //   `Attribute '${a}' is not included in the Attributes list ` + 
+    //   `["doi", "identifiers", "creators", "titles", ` +
+    //   `"publisher", "publicationYear", "descriptions"]`,
+    // { attr: a, 
+    //   attrs: `["doi", "identifiers", "creators", "titles", ` +
+    //     `"publisher", "publicationYear", "descriptions"]` })
   }
 }

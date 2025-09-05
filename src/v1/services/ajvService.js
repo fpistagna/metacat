@@ -1,79 +1,63 @@
-'use strict';
-
-/* Preload Schemas */
-const schema = require("../../../schemas/root.json"),
-  metadataSchema = require("../../../schemas/datacite.json"),
-  doiSchema = require("../../../schemas/doi.json"),
-  identifierSchema = require("../../../schemas/identifiers.json"),
-  creatorSchema = require("../../../schemas/creators.json"),
-  creatorAffiliationSchema = require("../../../schemas/creators.affiliation.json"),
-  creatorNameIdenfierSchema = require("../../../schemas/creators.nameIdentifier.json"),
-  titleSchema = require("../../../schemas/titles.json"),
-  publisherSchema = require("../../../schemas/publisher.json"),
-  publicationYearSchema = require("../../../schemas/publicationYear.json"),
-  subjectSchema = require("../../../schemas/subjects.json"),
-  resourceTypeSchema = require("../../../schemas/resourceType.json"),
-  dateSchema = require("../../../schemas/dates.json"),
-  contributorSchema = require("../../../schemas/contributors.json"),
-  descriptionSchema = require("../../../schemas/descriptions.json");
-
-const addFormats = require("ajv-formats");
-const Ajv = require("ajv"),
-  ajv = new Ajv({
-    strictRequired: true,
-    removeAdditional: "all"
-  });
-
-addFormats(ajv);
-
-ajv.addSchema(metadataSchema, "metadata#");
-ajv.addSchema(doiSchema, "doi#");
-ajv.addSchema(identifierSchema, "identifiers#");
-ajv.addSchema(creatorAffiliationSchema, "creators.affiliation#");
-ajv.addSchema(creatorNameIdenfierSchema, "creators.nameIdentifier#");
-ajv.addSchema(creatorSchema, "creators#");
-ajv.addSchema(titleSchema, "titles#");
-ajv.addSchema(publisherSchema, "publisher#");
-ajv.addSchema(publicationYearSchema, "publicationYear#");
-ajv.addSchema(subjectSchema, "subjects#");
-ajv.addSchema(resourceTypeSchema, "resourceType#");
-ajv.addSchema(dateSchema, "dates#");
-ajv.addSchema(contributorSchema, "contributors#");
-ajv.addSchema(descriptionSchema, "descriptions#");
+'use strict'
 
 const className = "AJVService",
   LoggerHelper = require('../../utils/loggerHelper'),
-  Logger = new LoggerHelper.Logger(className);
+  Logger = new LoggerHelper.Logger(className),
+  customError = require('../../utils/customError')
 
-module.exports.validator = (req, res, next) => {
-  Logger.callerFunction = 'validator';
+const addFormats = require("ajv-formats")
+const Ajv = require("ajv")
 
-  const validate = ajv.compile(schema);
-  const valid = validate(req.body);
+const ajv = new Ajv({ strictRequired: true, removeAdditional: "all" })
+addFormats(ajv)
 
-  Logger.logs({
-    debug: { valid: valid },
-    verbose: {
-      body: JSON.stringify(req.body),
-      valid: valid
+const fs = require('fs')
+const path = require('path')
+
+const schemasDirectory = path.join(__dirname, '../../../schemas')
+
+fs.readdirSync(schemasDirectory).forEach(file => {
+  if (file.endsWith('.json')) {
+    const schemaPath = path.join(schemasDirectory, file)
+    const schema = require(schemaPath)
+    // Usiamo l'$id definito all'interno dello schema come chiave per AJV
+    if (schema.$id) {
+      ajv.addSchema(schema, schema.$id)
+      Logger.logs({ debug: { message: `Schema loaded: ${schema.$id}` } })
     }
-  });
-
-  if (!valid) {
-    Logger.error({ error: { message: JSON.stringify(validate.errors) } });
-
-    res.respond({ 
-      status: "error", 
-      error: validate.errors }, 400)
   }
-  else
-    next();
+})
+
+module.exports.validator = (schemaName) => {
+  Logger.logs({ debug: { schemaName: schemaName } })
+  const schemaId = `${schemaName}#`
+  const validate = ajv.getSchema(schemaId)
+
+  if (!validate) {
+    throw new Error(`Schema with id ${schemaName} not found.`)
+  }
+
+  return (req, res, next) => {
+    Logger.callerFunction = `validator:${schemaName}`
+    const valid = validate(req.body)
+
+    if (!valid) {
+      Logger.error({ error: { message: JSON.stringify(validate.errors) } })
+      // Usiamo il nostro gestore di errori
+      throw new customError.ValidationError(50, 
+        validate.errors[0].message, 
+        { instancePath: validate.errors[0].instancePath,
+          message: validate.errors[0].message
+         })
+    }
+    next()
+  }
 }
 
 module.exports.attributePatchValidator = (req, res, next) => {
-  Logger.callerFunction = 'attributePatchValidator';
+  Logger.callerFunction = 'attributePatchValidator'
 
-  const attributeName = req.params.attribute;
+  const attributeName = req.params.attribute
 
   // Mappa i nomi degli attributi agli ID degli schemi AJV
   const schemaIdMap = {
@@ -87,26 +71,26 @@ module.exports.attributePatchValidator = (req, res, next) => {
     // Aggiungi qui le altre mappature man mano che le implementi
   }
 
-  const schemaId = schemaIdMap[attributeName];
+  const schemaId = schemaIdMap[attributeName]
 
   Logger.logs({
     debug: {
       attribute: attributeName
     }
-  });
+  })
   // Se non troviamo uno schema per questo attributo, la richiesta non è valida
   if (!schemaId) {
     Logger.error( {
       error: `Attribute '${attributeName}' cannot be updated. No Schema found ` 
     })
     return next(new customError.MetadataError(13,
-      `Attribute '${attributeName}' cannot be updated via this endpoint.`));
+      `Attribute '${attributeName}' cannot be updated via this endpoint.`))
   }
 
   // Ottieni lo schema già compilato da AJV usando il suo ID
-  const validate = ajv.getSchema(schemaId);
+  const validate = ajv.getSchema(schemaId)
   // Valida il req.body DIRETTAMENTE contro lo schema specifico (es. creators#)
-  const valid = validate(req.body);
+  const valid = validate(req.body)
 
   Logger.logs({
     debug: { 
@@ -118,10 +102,12 @@ module.exports.attributePatchValidator = (req, res, next) => {
     Logger.error({
       error: `Invalid payload for ${attributeName}: ${JSON.stringify(validate.errors)}`
     })
-    return res.status(400).send({
-      status: "error",
-      error: validate.errors
-    })
+    throw new customError.ValidationError(50,
+      validate.errors[0].message,
+      {
+        instancePath: validate.errors[0].instancePath,
+        message: validate.errors[0].message
+      })
   }
 
   next()
