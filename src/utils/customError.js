@@ -9,36 +9,18 @@ class ARFError extends Error {
   }
 }
 
-class MetadataError extends ARFError {
-  constructor(code, message, { recordMetadataId }) {
-    super(code, message, { recordMetadataId });
-  }
-}
-
-class RecordError extends ARFError { 
-  constructor(code, message, { recordId, query }) {
-    super(code, message, { recordId, query });
-  }
-}
-
-class RecordCreationError extends ARFError { 
-  constructor(code, message, { mdObj }) {
-    super(code, message, { mdObj });
-  }
-}
-
-class UserError extends ARFError {
-  constructor(code, message, { email }) {
-    super(code, message, { email });
-  }
-}
-
+class MetadataError extends ARFError { }
+class RecordError extends ARFError { }
+class RecordCreationError extends ARFError { }
 class MongooseError extends ARFError { }
+class UserError extends ARFError { }
+class ValidationError extends ARFError { }
 
 module.exports = { 
   MetadataError,
   RecordError,
   RecordCreationError,
   MongooseError,
-  UserError
+  UserError,
+  ValidationError
 }

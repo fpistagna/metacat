@@ -307,7 +307,8 @@ class RecordMetadataModel {
 
     if (!updatedMetadata)
       throw new customError.MetadataError(11,
-        `Update Metadata Error: ${id} did not updated successfully.`)
+        `Update Metadata Error: ${id} did not updated successfully.`,
+        { recordMetadataId: null })
 
     Logger.logs({ verbose: { metadata: JSON.stringify(updatedMetadata) } })
 

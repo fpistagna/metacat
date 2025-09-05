@@ -20,7 +20,7 @@ const _records = async (req, res, next) => {
       Logger.logs({ debug: { hits: allRecords.length } })
       
       if (!allRecords.length) res.respondNoContent()
-      else res.respond({ data: allRecords })
+      else res.respond({ data: allRecords, hits: allRecords.length })
     }
   } catch (error) {
     Logger.error({ error: error })
@@ -30,7 +30,7 @@ const _records = async (req, res, next) => {
 
 const _record = async (req, res, next) => {
   try {
-    const record = await recordService.record(req.params.recordId)
+    const record = await recordService.record(req.params.recordId, req.user)
 
     Logger.logs({ debug: { uuid: record.record.id }, 
       verbose: { record: record } })
@@ -38,10 +38,7 @@ const _record = async (req, res, next) => {
     if (!record)
       res.respond({ id: req.params.recordId }, 404)
     else 
-      res.respond({
-        id: req.params.recordId,
-        data: record
-      }, 200)
+      res.respond({ id: req.params.recordId, data: record }, 200)
   } catch (error) { 
       Logger.error({ error: error })
       return next(error) 
