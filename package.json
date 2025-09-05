@@ -5,7 +5,9 @@
   "main": "./src/server.js",
   "scripts": {
     "start": "clear && ./node_modules/nodemon/bin/nodemon.js ./src/server.js",
-    "test": "mocha ./test/record.js",
+    "test:record": "mocha ./test/record.js",
+    "test:auth": "mocha ./test/auth.test.js",
+    "test:user": "mocha ./test/user.test.js",
     "error": "echo \"Error: no test specified\" && exit 1",
     "ajv": "node ajv.js"
   },
