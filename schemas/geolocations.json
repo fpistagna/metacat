@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "geoLocations#",
+  "description": "Spatial region or named place where the data was gathered or about which the data is focused.",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/geoLocation"
+  },
+  "definitions": {
+    "geoLocationPoint": {
+      "type": "object",
+      "properties": {
+        "pointLongitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "pointLatitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        }
+      },
+      "required": [
+        "pointLongitude",
+        "pointLatitude"
+      ]
+    },
+    "geoLocationBox": {
+      "type": "object",
+      "properties": {
+        "westBoundLongitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "eastBoundLongitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "southBoundLatitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "northBoundLatitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        }
+      },
+      "required": [
+        "westBoundLongitude",
+        "eastBoundLongitude",
+        "southBoundLatitude",
+        "northBoundLatitude"
+      ]
+    },
+    "geoLocationPolygon": {
+      "type": "object",
+      "properties": {
+        "polygonPoints": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "$ref": "#/definitions/geoLocationPoint"
+          }
+        }
+      },
+      "required": [
+        "polygonPoints"
+      ]
+    },
+    "geoLocation": {
+      "type": "object",
+      "properties": {
+        "geoLocationPlace": {
+          "type": "string"
+        },
+        "geoLocationPoint": {
+          "$ref": "#/definitions/geoLocationPoint"
+        },
+        "geoLocationBox": {
+          "$ref": "#/definitions/geoLocationBox"
+        },
+        "geoLocationPolygons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/geoLocationPolygon"
+          }
+        }
+      },
+      "minProperties": 1
+    }
+  }
+}

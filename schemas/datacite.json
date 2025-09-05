@@ -21,11 +21,16 @@
         "titles": { "$ref": "titles#"},
         "publisher": { "$ref": "publisher#" },
         "publicationYear": { "$ref": "publicationYear#" },
-        "subjects": {"$ref": "subjects#" },
-        "resourceType": {"$ref": "resourceType#" },
-        "dates": {"$ref": "dates#" },
-        "contributors": {"$ref": "contributors#" },
-        "descriptions": {"$ref": "descriptions#" }
+        "subjects": { "$ref": "subjects#" },
+        "resourceType": { "$ref": "resourceType#" },
+        "dates": { "$ref": "dates#" },
+        "contributors": { "$ref": "contributors#" },
+        "descriptions": { "$ref": "descriptions#" },
+        "geoLocations": { "$ref": "geoLocations#" },
+        "fundingReferences": { "$ref": "fundingReferences#" },
+        "formats": {"$ref": "formats#" },
+        "sizes": {"$ref": "sizes#" },
+        "language": {"$ref": "language#" }
       },
       "required": [
         "doi",

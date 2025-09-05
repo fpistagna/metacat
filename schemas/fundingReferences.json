@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "fundingReferences#",
+  "description": "Information about financial support (funding) for the resource being registered.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "funderName": {
+        "type": "string",
+        "description": "The name of the funding agency.",
+        "minLength": 1
+      },
+      "funderIdentifier": {
+        "type": "object",
+        "description": "A unique identifier for the funder.",
+        "properties": {
+          "funderIdentifier": {
+            "type": "string"
+          },
+          "funderIdentifierType": {
+            "type": "string",
+            "enum": [
+              "ISNI",
+              "GRID",
+              "Crossref Funder ID",
+              "ROR",
+              "Other"
+            ]
+          }
+        },
+        "required": [
+          "funderIdentifier",
+          "funderIdentifierType"
+        ]
+      },
+      "awardNumber": {
+        "type": "string",
+        "description": "The code assigned by the funder to a specific award (grant)."
+      },
+      "awardUri": {
+        "type": "string",
+        "description": "The URI leading to a page provided by the funder for more information about the award (grant).",
+        "format": "uri"
+      },
+      "awardTitle": {
+        "type": "string",
+        "description": "The title of the award (grant)."
+      }
+    },
+    "required": [
+      "funderName"
+    ]
+  }
+}

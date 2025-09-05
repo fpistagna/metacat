@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "language#",
+  "description": "The primary language of the resource, using IETF BCP 47 language tags.",
+  "type": "string",
+  "pattern": "^[a-zA-Z]{2,3}(-[a-zA-Z]{2,4})?$"
+}
