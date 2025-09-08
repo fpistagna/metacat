@@ -5,9 +5,13 @@
   "main": "./src/server.js",
   "scripts": {
     "start": "clear && ./node_modules/nodemon/bin/nodemon.js ./src/server.js",
-    "test:record": "mocha ./test/record.js",
-    "test:auth": "mocha ./test/auth.test.js",
-    "test:user": "mocha ./test/user.test.js",
+    "test:record": "mocha -r dotenv/config ./test/record.js",
+    "test:auth": "mocha -r dotenv/config ./test/auth.test.js",
+    "test:user": "mocha -r dotenv/config ./test/user.test.js",
+    "test:migration:user": "mocha -r dotenv/config ./test/migrations.user.test.js",
+    "migrate:create": "node scripts/migrate.js create",
+    "migrate:up": "node scripts/migrate.js up",
+    "migrate:down": "node scripts/migrate.js down",
     "error": "echo \"Error: no test specified\" && exit 1",
     "ajv": "node ajv.js"
   },
@@ -32,6 +36,7 @@
     "morgan": "^1.10.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
+    "umzug": "^3.8.2",
     "uuid": "^9.0.1",
     "winston": "^3.13.0"
   },
