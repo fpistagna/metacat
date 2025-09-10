@@ -28,18 +28,12 @@ after(async () => {
   await mongoose.disconnect();
 });
 
-
-// ----- INIZIO DELLA SUITE DI TEST -----
 describe('Authentication API (/api/v1/auth)', () => {
 
-  // Pulisce la collezione prima di ogni test per garantire l'isolamento
   beforeEach(async () => {
     await UserModel.deleteMany({});
   });
 
-  /*
-   * Test della rotta /register
-   */
   describe('POST /register', () => {
     it('it should register a new user successfully', async () => {
       const newUser = {
@@ -79,9 +73,6 @@ describe('Authentication API (/api/v1/auth)', () => {
     });
   });
 
-  /*
-   * Test della rotta /login
-   */
   describe('POST /login', () => {
     // Creiamo un utente di test prima di eseguire i test di login
     beforeEach(async () => {

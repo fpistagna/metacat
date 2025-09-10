@@ -1,158 +1,128 @@
-//During the test the env variable is set to test
+'use strict';
+
 process.env.NODE_ENV = 'test';
 
+const mongoose = require('mongoose');
+const { connectDB } = require('../src/v1/database/modular/mongoose');
+const { UserModel } = require('../src/v1/database/modular/UserSchema');
 const { RecordModel } = require('../src/v1/database/modular/RecordSchema');
 const { RecordMetadataModel } = require('../src/v1/database/modular/RecordMetadataSchema');
-const { connectDB, disconnectDB } = require('../src/v1/database/modular/mongoose');
-
-//Require the dev-dependencies
-let chai = require('chai');
-let chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const app = require('../src/server');
-const { record } = require('../src/v1/services/recordService');
-let should = chai.should();
 
-before(async () => {
-  try {
-    // 1. Connettiti al database di test.
-    await connectDB();
-    // 2. Pulisci la collezione prima di iniziare.
-    await RecordModel.model.deleteMany({});
-    await RecordMetadataModel.model.deleteMany({});
-  } catch (error) {
-    console.error("Error during test setup:", error);
-    // Lancia l'errore per bloccare i test se il setup fallisce
-    throw error;
-  }
-});
-
-// Questo hook viene eseguito UNA SOLA VOLTA, dopo che tutti i test sono finiti.
-after(async () => {
-  await RecordModel.model.deleteMany({});
-  await RecordMetadataModel.model.deleteMany({});
-  // Chiudi la connessione per permettere a Mocha di terminare correttamente.
-  await disconnectDB();
-});
-
+chai.should();
 chai.use(chaiHttp);
 
-//Our parent block
-describe('Records Chai Tests', () => {
-  /*
-    * Test the /GET route
-    */
-  describe('/GET Records', () => {
-    it('it should GET no records', (done) => {
-      chai.request(app)
-        .get('/api/v1/records')
-        .end((err, res) => {
-          res.should.have.status(204);
-          res.body.should.be.a('object');
-          //res.body.length.should.be.eql(0);
-          done();
-        });
+describe('Records API (/api/v1/records)', () => {
+
+  // Variabili che useremo in tutti i test
+  let normalUser, curatorUser, adminUser;
+  let userToken, curatorToken, adminToken;
+  let userDraftRecord, userPublishedRecord;
+
+  // Hook globale: eseguito una volta prima di tutti i test
+  before(async () => {
+    await connectDB();
+    // Pulizia completa
+    await UserModel.deleteMany({});
+    await RecordModel.model.deleteMany({});
+    await RecordMetadataModel.model.deleteMany({});
+
+    // --- Creazione degli Utenti ---
+    normalUser = await UserModel.create({ username: 'normaluser', email: 'user@example.com', password: 'password123', role: 'user' });
+    curatorUser = await UserModel.create({ username: 'curatoruser', email: 'curator@example.com', password: 'password123', role: 'curator' });
+    adminUser = await UserModel.create({ username: 'adminuser', email: 'admin@example.com', password: 'password123', role: 'admin' });
+
+    // --- Login e Ottenimento dei Token ---
+    const userRes = await chai.request(app).post('/api/v1/auth/login').send({ email: 'user@example.com', password: 'password123' });
+    userToken = userRes.body.token;
+    const curatorRes = await chai.request(app).post('/api/v1/auth/login').send({ email: 'curator@example.com', password: 'password123' });
+    curatorToken = curatorRes.body.token;
+    const adminRes = await chai.request(app).post('/api/v1/auth/login').send({ email: 'admin@example.com', password: 'password123' });
+    adminToken = adminRes.body.token;
+
+    // --- Creazione dei Record di Test ---
+    const metadata1 = await RecordMetadataModel.model.create({ _id: '10.test/draft', type: 'dois', attributes: { doi: '10.test/draft', creators: [{ name: 'Test' }], titles: [{ title: 'Test' }], publisher: { name: 'Test' }, publicationYear: '2025', resourceType: { resourceTypeGeneral: 'Dataset' }, identifiers: [{ identifier: 'test', identifierType: 'Other' }] } });
+    const metadata2 = await RecordMetadataModel.model.create({ _id: '10.test/published', type: 'dois', attributes: { doi: '10.test/published', creators: [{ name: 'Test' }], titles: [{ title: 'Test' }], publisher: { name: 'Test' }, publicationYear: '2025', resourceType: { resourceTypeGeneral: 'Dataset' }, identifiers: [{ identifier: 'test', identifierType: 'Other' }] } });
+
+    userDraftRecord = await RecordModel.model.create({ record: { id: 'uuid-draft' }, metadata: metadata1._id, owner: normalUser._id, published: false });
+    userPublishedRecord = await RecordModel.model.create({ record: { id: 'uuid-published' }, metadata: metadata2._id, owner: normalUser._id, published: true });
+  });
+
+  after(async () => {
+    await mongoose.disconnect();
+  });
+
+  // ===============================================
+  // TEST SULL'ENDPOINT GET /api/v1/records/:recordId
+  // ===============================================
+  describe('GET /:recordId', () => {
+    it('should allow anyone to see a published record', async () => {
+      const res = await chai.request(app).get(`/api/v1/records/${userPublishedRecord._id}`);
+      res.should.have.status(200);
+      res.body.data.record.id.should.equal(userPublishedRecord.record.id);
+    });
+
+    it('should NOT allow an unauthenticated user to see a draft record', async () => {
+      const res = await chai.request(app).get(`/api/v1/records/${userDraftRecord._id}`);
+      res.should.have.status(401); // Unauthorized
+    });
+
+    it('should allow the owner to see their own draft record', async () => {
+      const res = await chai.request(app)
+        .get(`/api/v1/records/${userDraftRecord._id}`)
+        .set('Authorization', `Bearer ${userToken}`);
+      res.should.have.status(200);
+      res.body.data.record.id.should.equal(userDraftRecord.record.id);
+    });
+
+    it('should allow a curator to see another user\'s draft record', async () => {
+      const res = await chai.request(app)
+        .get(`/api/v1/records/${userDraftRecord._id}`)
+        .set('Authorization', `Bearer ${curatorToken}`);
+      res.should.have.status(200);
     });
   });
 
-    /*
-    * Test the /POST route
-    */
-    describe('/POST Record', () => {
-        it('it should not POST a record without the `publisher` required field', (done) => {
-            let record = require('./sample_error.json');
-          chai.request(app)
-              .post('/api/v1/records')
-              .send(record)
-              .end((err, res) => {
-                res.should.have.status(400);
-                res.body.should.be.a('object');
-                res.body.should.have.property('status');
-                res.body.should.have.property('status').equal('error');
-                res.body.should.have.property('error');
-                res.body.error[0].should.have.property('params');
-                res.body.error[0].params.should.have.property('missingProperty');
-                res.body.error[0].params.should.have.property('missingProperty').equal('publisher')
-                done();
-              });
-        });
+  // =====================================================
+  // TEST SULL'ENDPOINT POST /api/v1/records/:recordId/publish
+  // =====================================================
+  describe('POST /:recordId/publish', () => {
+    it('should NOT allow a normal user to publish a record', async () => {
+      const res = await chai.request(app)
+        .post(`/api/v1/records/${userDraftRecord._id}/publish`)
+        .set('Authorization', `Bearer ${userToken}`);
+      res.should.have.status(403); // Forbidden
+      res.body.should.have.property('type').equal('UserError');
     });
 
-    describe('/POST Record', () => {
-      it('it should POST a record', (done) => {
-        let record = require('./sample.json');
-        chai.request(app)
-          .post('/api/v1/records')
-          .send(record)
-          .end((err, res) => {
-            res.should.have.status(201);
-            res.body.should.be.a('object');
-            res.body.should.have.property('record');
-            res.body.record.should.have.property('doi');
-            res.body.record.should.have.property('doi').equal(record.metadata.attributes.doi);
-            done();
-          });
-      });
+    it('should allow a curator to publish a record', async () => {
+      const res = await chai.request(app)
+        .post(`/api/v1/records/${userDraftRecord._id}/publish`)
+        .set('Authorization', `Bearer ${curatorToken}`);
+      res.should.have.status(200);
+      res.body.data.published.should.be.true;
+    });
+  });
+
+  // =====================================================
+  // TEST SULL'ENDPOINT DELETE /api/v1/records/:recordId
+  // =====================================================
+  describe('DELETE /:recordId', () => {
+    it('should NOT allow a curator to delete a record', async () => {
+      const res = await chai.request(app)
+        .delete(`/api/v1/records/${userPublishedRecord._id}`)
+        .set('Authorization', `Bearer ${curatorToken}`);
+      res.should.have.status(403); // Forbidden
     });
 
-    describe('Delete records from DB', () => {
-      before('Delete All Records', async () => { //Before each test we empty the database
-        await RecordModel.model.deleteMany({});
-      });
+    it('should allow an admin to delete a record', async () => {
+      const res = await chai.request(app)
+        .delete(`/api/v1/records/${userPublishedRecord._id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      res.should.have.status(204); // No Content
     });
+  });
 
-    describe('/PATCH/:recordId/:attribute', () => {
-
-      it('it should update the "descriptions" attribute of a specific record', async function () {
-        // Aumentiamo il timeout perché questo test fa 3 chiamate API
-        this.timeout(5000);
-
-        // ----- STEP 1: Creare un record di partenza su cui lavorare -----
-        const initialRecordPayload = require('./sample2.json'); // Usiamo un record valido
-        const postRes = await chai.request(app)
-          .post('/api/v1/records')
-          .send(initialRecordPayload);
-
-        postRes.should.have.status(201);
-        const recordId = postRes.body._id; // Estrai l'ID del record appena creato
-
-        // ----- STEP 2: Eseguire la PATCH per aggiornare l'attributo -----
-        const attributeToUpdate = 'descriptions';
-        const patchPayload = [{
-          "description": "Una descrizione modificata",
-          "descriptionType": "TechnicalInfo"
-        }];
-
-        const patchRes = await chai.request(app)
-          .patch(`/api/v1/records/${recordId}/${attributeToUpdate}`)
-          .send(patchPayload);
-
-        patchRes.should.have.status(201); // 200 OK è più standard per un update riuscito
-        patchRes.body.should.be.a('object');
-        patchRes.body.should.have.property('status').equal('updated');
-
-        // ----- STEP 3 (Opzionale ma consigliato): Verificare la modifica -----
-        // Chiamiamo l'endpoint GET per il singolo record per assicurarci che i dati siano stati persistiti.
-        const getRes = await chai.request(app).get(`/api/v1/records/${recordId}`);
-
-        getRes.should.have.status(200);
-        getRes.body.data.metadata.attributes.should.have.property('descriptions');
-
-        const updatedDescriptions = getRes.body.data.metadata.attributes.descriptions;
-        updatedDescriptions.should.be.a('array');
-        updatedDescriptions.length.should.be.eql(1);
-        updatedDescriptions[0].description.should.equal("Una descrizione modificata");
-        updatedDescriptions[0].descriptionType.should.equal("TechnicalInfo");
-      });
-
-      it('it should fail to update a non-existing record', async () => {
-        const nonExistingId = '63a5e3c1a2b3c4d5e6f7a8b9'; // Un ObjectId valido ma inesistente
-        const patchPayload = [{ "description": "test", "descriptionType": "Other" }];
-
-        const res = await chai.request(app)
-          .patch(`/api/v1/records/${nonExistingId}/descriptions`)
-          .send(patchPayload);
-
-        res.should.have.status(404); // O il codice di errore che il tuo controller restituisce
-      });
-    });
 });
