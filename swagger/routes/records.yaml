@@ -1,0 +1,146 @@
+tags:
+  - name: Records
+    description: Operazioni per la gestione dei record di metadati.
+
+paths:
+  /records:
+    get:
+      tags: [Records]
+      summary: Restituisce una lista di record pubblicati.
+      description: "Endpoint pubblico che restituisce una lista paginata di tutti i record con stato `published: true`. Gli utenti loggati potrebbero vedere anche le proprie bozze."
+      security: [] # Endpoint pubblico, ma la logica interna cambia se l'utente è loggato
+      parameters:
+        - in: query
+          name: published
+          schema:
+            type: boolean
+          description: Filtra per stato di pubblicazione (utile per admin/curator).
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Esegue una ricerca full-text sui campi indicizzati.
+      responses:
+        '200': { description: "Una lista di record." }
+        '204': { description: "Nessun record trovato." }
+
+    post:
+      tags: [Records]
+      summary: Crea un nuovo record di metadati.
+      description: "Crea un nuovo record come bozza (`published: false`), associandolo all'utente autenticato. Richiede un token JWT valido."
+      security:
+        - bearerAuth: [] # Endpoint protetto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  $ref: '#/components/schemas/DataCiteMetadata'
+      responses:
+        '201': { description: "Record creato con successo." }
+        '400': { description: "Dati non validi." }
+        '401': { description: "Token di autenticazione mancante o non valido." }
+
+  /records/{recordId}:
+    get:
+      tags: [Records]
+      summary: Recupera un singolo record tramite il suo ID.
+      description: Se il record è pubblicato, è accessibile a tutti. Se è una bozza, è accessibile solo al proprietario o a utenti con ruolo `curator` o `admin`.
+      security: [] # La sicurezza è gestita dalla logica interna, non a livello di rotta
+      parameters:
+        - in: path
+          name: recordId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': { description: "Record trovato." }
+        '401': { description: "Autenticazione richiesta per vedere questa bozza." }
+        '403': { description: "Permessi insufficienti per vedere questa bozza." }
+        '404': { description: "Record non trovato." }
+
+    delete:
+      tags: [Records]
+      summary: "Cancella un record (solo Admin)."
+      description: Rimuove permanentemente un record e i suoi metadati associati. Operazione riservata agli amministratori.
+      security:
+        - bearerAuth: [] # Endpoint protetto
+      parameters:
+        - in: path
+          name: recordId
+          required: true
+          schema:
+            type: string
+      responses:
+        '204': { description: "Record cancellato con successo." }
+        '403': { description: "Permessi insufficienti." }
+        '404': { description: "Record non trovato." }
+
+  /records/{recordId}/publish:
+    post:
+      tags: [Records]
+      summary: "Pubblica un record (solo Admin/Curator)."
+      description: "Imposta lo stato del record a `published: true`, rendendolo visibile pubblicamente. Operazione riservata a curatori e amministratori."
+      security:
+        - bearerAuth: [] # Endpoint protetto
+      parameters:
+        - in: path
+          name: recordId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': { description: "Record pubblicato con successo." }
+        '403': { description: "Permessi insufficienti." }
+        '404': { description: "Record non trovato." }
+
+  /records/{recordId}/{attribute}:
+    patch:
+      tags: [Records]
+      summary: Aggiorna un singolo attributo di un record.
+      description: |
+        Permette di modificare un singolo attributo (es. `creators`, `titles`) di un record specifico.
+        **Regole di Permesso:**
+        - Un `user` può modificare solo i propri record e solo se non sono ancora pubblicati.
+        - `curator` e `admin` possono modificare qualsiasi record.
+      security:
+        - bearerAuth: [] # Endpoint protetto
+      parameters:
+        - in: path
+          name: recordId
+          required: true
+          schema:
+            type: string
+          description: L'ID del record da aggiornare.
+        - in: path
+          name: attribute
+          required: true
+          schema:
+            type: string
+            # Elenchiamo gli attributi modificabili per una migliore documentazione interattiva
+            enum: [doi, identifiers, creators, titles, publisher, publicationYear, descriptions, subjects, dates, resourceType]
+          description: Il nome dell'attributo da aggiornare.
+      requestBody:
+        required: true
+        description: "Il nuovo valore per l'attributo specificato. La struttura del corpo della richiesta deve corrispondere allo schema di quell'attributo (es. un array di oggetti per 'creators')."
+        content:
+          application/json:
+            schema:
+              # Usiamo uno schema generico perché la struttura dipende dal parametro 'attribute'
+              type: object 
+              example: [{ "name": "Nuovo Autore" }]
+
+      responses:
+        '200':
+          description: Attributo aggiornato con successo.
+        '400':
+          description: "Dati non validi per l'attributo specificato (es. il corpo della richiesta non rispetta lo schema)."
+        '401':
+          description: Token di autenticazione mancante o non valido.
+        '403':
+          description: "Permessi insufficienti (es. un utente prova a modificare un record non suo o già pubblicato)."
+        '404':
+          description: Record non trovato.

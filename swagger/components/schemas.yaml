@@ -1,0 +1,124 @@
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "RecordError"
+        errorCode:
+          type: integer
+          example: 7
+        details:
+          type: string
+          example: "No Record found with id 123."
+
+    Creator:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Smith, Annah"
+        nameType:
+          type: string
+          enum: [Personal, Organizational]
+          example: "Personal"
+        givenName:
+          type: string
+          example: "Annah"
+        familyName:
+          type: string
+          example: "Smith"
+        nameIdentifiers:
+          type: array
+          items:
+            type: object
+            properties:
+              nameIdentifier:
+                type: string
+                example: "0000-0001-0002-0003"
+              nameIdentifierScheme:
+                type: string
+                example: "ORCID"
+        affiliation:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "A Sample Istitution"
+      required:
+        - name
+    
+    DataCiteAttributes:
+      type: object
+      properties:
+        doi:
+          type: string
+          example: "10.3456/test_doi/a_sample_test_2025"
+        identifiers:
+          type: array
+          items:
+            type: object
+            properties:
+              identifier:
+                type: string
+              identifierType:
+                type: string
+        creators:
+          type: array
+          items:
+            $ref: '#/components/schemas/Creator'
+        titles:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "Just a Sample title for a Sample Record Metadata"
+        publisher:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "A Sample Istitution"
+        publicationYear:
+          type: string
+          example: "2023"
+        resourceType:
+          type: object
+          properties:
+            resourceTypeGeneral:
+              type: string
+              example: "Dataset"
+            resourceType:
+              type: string
+              example: "Example ResourceType"
+        # Add optionals (subjects, geolocations, etc.)
+      required:
+        - doi
+        - creators
+        - titles
+        - publisher
+        - publicationYear
+        - resourceType
+        - identifiers
+
+    # Complete schema for Medadata Object
+    DataCiteMetadata:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "10.3456/test_doi/a_sample_test_2025"
+        type:
+          type: string
+          example: "dois"
+        attributes:
+          $ref: '#/components/schemas/DataCiteAttributes'
+      required:
+        - id
+        - type
+        - attributes
