@@ -28,7 +28,7 @@ fs.readdirSync(schemasDirectory).forEach(file => {
   }
 })
 
-module.exports.validator = (schemaName) => {
+const validator = (schemaName) => {
   Logger.logs({ debug: { schemaName: schemaName } })
   const schemaId = `${schemaName}#`
   const validate = ajv.getSchema(schemaId)
@@ -54,7 +54,7 @@ module.exports.validator = (schemaName) => {
   }
 }
 
-module.exports.attributePatchValidator = (req, res, next) => {
+const attributePatchValidator = (req, res, next) => {
   Logger.callerFunction = 'attributePatchValidator'
 
   const attributeName = req.params.attribute
@@ -111,4 +111,10 @@ module.exports.attributePatchValidator = (req, res, next) => {
   }
 
   next()
+}
+
+module.exports = { 
+  ajv,
+  validator,
+  attributePatchValidator
 }

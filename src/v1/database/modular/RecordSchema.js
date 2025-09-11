@@ -65,7 +65,11 @@ class RecordModel {
 
   static async _records(query = {}) { // Accetta un oggetto query opzionale
     let count = await this.model.countDocuments()
-    const records = await this.model.find(query, { limit: 10, sort: { '_id': -1 } }).exec();
+    // const records = await this.model.find(query, { limit: 10, sort: { '_id': -1 } }).exec();
+    const records = await this.model.find(query)
+      .limit(10)
+      .sort({ '_id': -1 })
+      .exec();
     if (!records)
       throw new customError.RecordError(6, `Get Records failed.`)
     Logger.logs({ verbose: { hits: count, records: records } })
