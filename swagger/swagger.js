@@ -21,12 +21,12 @@ const options = {
     },
     servers: [
       {
-        url: "https://localhost",
-        description: "Local development server (via Nginx proxy)"
-      },
-      {
         url: "http://localhost:3000/api/v1",
         description: "Local development server"
+      },
+      {
+        url: "https://localhost",
+        description: "Local development server (via Nginx proxy)"
       }
     ],
     components: {
@@ -45,7 +45,7 @@ const options = {
       }
     ]
   },
-  apis: ["./swagger/routes/*.yaml"],
+  apis: ["./swagger/routes/*.yaml", "./swagger/components/*.yaml"],
 };
 
 const specs = swaggerJsdoc(options);

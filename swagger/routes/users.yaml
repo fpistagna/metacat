@@ -1,0 +1,22 @@
+tags:
+  - name: User
+    description: Operazioni relative all'utente autenticato.
+
+paths:
+  /me/records:
+    get:
+      tags: [User, Records]
+      summary: Restituisce i record dell'utente autenticato.
+      description: Recupera una lista di tutti i record posseduti dall'utente che effettua la richiesta. È possibile filtrare per stato di pubblicazione.
+      security:
+        - bearerAuth: [] # Endpoint protetto
+      parameters:
+        - in: query
+          name: published
+          schema:
+            type: boolean
+          description: "Filtra per stato: `true` per i pubblicati, `false` per le bozze. Se omesso, restituisce entrambi."
+      responses:
+        '200': { description: "Una lista di record dell'utente." }
+        '204': { description: "L'utente non ha nessun record." }
+        '401': { description: "Token di autenticazione mancante o non valido." }
