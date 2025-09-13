@@ -8,20 +8,13 @@ const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
 const _records = async (req, res, next) => {
+  Logger.logs({ verbose: { query: JSON.stringify(req.query), user: req.user } })
   try {
-    if (Object.keys(req.query).length > 0) {
-      Logger.logs({ verbose: { query: JSON.stringify(req.query) } })
-    
-      const result = await recordService.recordByQuery(req.query)
-      if (result.length > 0)  res.respond(result)
-      else  res.respondNoContent()
-    } else {    
-      const allRecords = await recordService.records(req.query, req.user)      
-      Logger.logs({ debug: { hits: allRecords.length } })
+    const allRecords = await recordService.records(req.query, req.user)
+    Logger.logs({ debug: { hits: allRecords.length } })
       
-      if (!allRecords.length) res.respondNoContent()
-      else res.respond({ data: allRecords, hits: allRecords.length })
-    }
+    if (!allRecords.length) res.respondNoContent()
+    else res.respond({ data: allRecords, hits: allRecords.length })
   } catch (error) {
     Logger.error({ error: error })
     return next(error)

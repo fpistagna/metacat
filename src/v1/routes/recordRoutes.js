@@ -10,6 +10,7 @@ const { checkRole, checkOwnershipOrRole } = require('../middlewares/authorizatio
 const router = express.Router();
 
 router.get("/", 
+  optionalAuthentication,
   recordController.records);
 
 router.get("/:recordId", 

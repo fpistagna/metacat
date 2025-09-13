@@ -7,36 +7,32 @@ const className = "recordService",
 const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
-// const _records = async () => {
-//   const allRecords = await Record.records()
-
-//   Logger.logs({ debug: { allRecordsCount: allRecords.length },
-//     verbose: { allRecords: allRecords } })
-
-//   return allRecords
-// }
-
 const _records = async (queryParams, user) => {
+  Logger.logs({ verbose: { user: user, queryParams: JSON.stringify(queryParams) } })
   // 1. Definiamo la query di base: solo record pubblicati
   const query = { published: true };
 
   // 2. Se un utente è loggato, modifichiamo la query
   if (user) {
+    Logger.logs({ verbose: { userRole: user.role }})
     // Admin e Curator possono vedere tutto (a meno che non filtrino diversamente)
     if (['admin', 'curator'].includes(user.role)) {
+      // Admin/Curator: possono filtrare liberamente
+      // if (queryParams.published === 'true') query.published = true;
+      if (queryParams.published === 'false') query.published = false;
       // Se non c'è un filtro specifico `published` nella querystring, non filtriamo per stato
-      if (queryParams.published === undefined) {
-        delete query.published;
-      }
-    } else {
-      // Un 'user' normale vede i record pubblicati O le proprie bozze
-      query.$or = [
-        { published: true },
-        { owner: user.id, published: false }
-      ];
-      delete query.published; // Rimuoviamo la condizione base perché ora è gestita da $or
+      // if (queryParams.published === undefined) delete query.published;
+    // } else {
+    //   // Un 'user' normale vede i record pubblicati O le proprie bozze
+    //   query.$or = [
+    //     { published: true },
+    //     { owner: user.id, published: false }
+    //   ];
+    //   // delete query.published; // Rimuoviamo la condizione base perché ora è gestita da $or
     }
-  }
+  } else { query.published = true }
+
+  Logger.logs({ verbose: { query: JSON.stringify(query) }})
 
   // Aggiungi qui la logica per la ricerca full-text se presente
   if (queryParams.q) {
