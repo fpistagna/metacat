@@ -36,38 +36,23 @@ const _records = async (query) => {
   }
 
   // 3. Eseguiamo la query finale sulla collezione dei Record
+
   const finalRecords = await RecordModel.model
     .find(recordQuery)
-    // .populate('metadata')
-    .select('_id + published + record.doi')
-    .sort({ '_id': -1 });
+    .select('published record.doi owner metadata')
+    .populate({
+      path: 'metadata',
+      select: 'attributes.titles -_id'
+    })
+    .populate({
+      path: 'owner',
+      select: 'email username -_id'
+    })
+    .sort({ '_id': -1 })
+    .exec();
 
   return finalRecords;
 }
-
-// const _records = async (query) => {
-//   const records = await RecordModel.records(query)
-//   if (!records)
-//     throw new customError.RecordError(6, `Records retrieval failed.`)
-//   Logger.logs({
-//     debug: { records: records.length },
-//     verbose: { records: records }
-//   })
-//   return records
-// }
-
-// const _recordByQuery = async (query) => {
-//   Logger.logs({ verbose: { query: JSON.stringify(query) } })
-
-//   const records = await RecordMetadataModel.recordByQuery(query)
-//   Logger.logs({ debug: { records: records.length }, verbose: { records: records }})
-//   if (records.length === 0)
-//     throw new customError.RecordError(9,
-//       `No Records matching query \"${query.q}\".`, 
-//       { query: query.q })
-
-//   return records
-// }
 
 const _record = async (recordId) => {
   Logger.logs({ verbose: { recordId: recordId } })

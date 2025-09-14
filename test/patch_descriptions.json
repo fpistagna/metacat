@@ -1,0 +1,12 @@
+[
+    {
+        "description": "A description of the resource, such as an abstract or methods.",
+        "descriptionType": "Abstract",
+        "lang": "en"
+    },
+    {
+        "description": "Una descrizione della risorsa, come un abstract o i metodi.",
+        "descriptionType": "Abstract",
+        "lang": "it"
+    }
+]
