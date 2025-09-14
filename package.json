@@ -12,6 +12,8 @@
     "migrate:create": "node scripts/migrate.js create",
     "migrate:up": "node scripts/migrate.js up",
     "migrate:down": "node scripts/migrate.js down",
+    "validate:json": "node scripts/validate-json.js",
+    "transform:json": "node scripts/transform-json.js",
     "error": "echo \"Error: no test specified\" && exit 1",
     "ajv": "node ajv.js"
   },
