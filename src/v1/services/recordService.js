@@ -32,12 +32,12 @@ const _records = async (queryParams, user) => {
     }
   } else { query.published = true }
 
-  Logger.logs({ verbose: { query: JSON.stringify(query) }})
-
   // Aggiungi qui la logica per la ricerca full-text se presente
   if (queryParams.q) {
     query.$text = { $search: queryParams.q };
   }
+
+  Logger.logs({ verbose: { query: JSON.stringify(query) } })
 
   const allRecords = await Record.records(query); // Passiamo la query al DAO
   return allRecords;

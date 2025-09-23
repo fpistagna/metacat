@@ -52,7 +52,7 @@ const DateSchema = new Schema({
   dateType: {
     type: String,
     required: true,
-    enum: ['Accepted', 'Available', 'Collected', 'Copyrighted', 'Created', 'Issued', 'Submitted', 'Updated', 'Valid', 'Withdrawn', 'Other']
+    enum: ['Accepted', 'Available', 'Collected', 'Copyrighted', 'Coverage', 'Created', 'Issued', 'Submitted', 'Updated', 'Valid', 'Withdrawn', 'Other']
   },
   dateInformation: String
 }, { _id: false })

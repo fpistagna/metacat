@@ -27,7 +27,7 @@
               "ROR",
               "Other"
             ]
-          }
+          }          
         },
         "required": [
           "funderIdentifier",
@@ -49,7 +49,7 @@
       }
     },
     "required": [
-      "funderName"
+      "funderName" 
     ]
   }
 }
