@@ -23,7 +23,26 @@ function transformDataCite(inputData) {
     delete attributes.types;
   }
   
-  // Direttiva 3: Costruisce la struttura finale
+  // Direttiva 3: Converte gli array dei funderIdentifier(s) in
+  // array con 'oggetto `funderIdentifier` ben composti (datacite 4.6)
+  if (Array.isArray(attributes.fundingReferences)) {
+    attributes.fundingReferences.forEach((e, i) => {
+      if ((e.funderIdentifier &&
+        typeof e.funderIdentifier === 'string') &&
+        (e.funderIdentifierType &&
+          typeof e.funderIdentifierType === 'string')) {
+        let funderIdentifier = e.funderIdentifier;
+        delete e.funderIdentifier;
+        e.funderIdentifier = {
+          funderIdentifier: funderIdentifier,
+          funderIdentifierType: e.funderIdentifierType
+        };
+        delete e.funderIdentifierType;
+      }
+    })
+  }
+
+  // Direttiva 4: Costruisce la struttura finale
   const finalStructure = {
     metadata: {
       id: attributes.id, // Prende l'id dall'input
@@ -64,4 +83,10 @@ const run = () => {
   }
 };
 
-run();
+if (require.main === module) {
+  run();
+}
+
+module.exports = {
+  transformDataCite
+};

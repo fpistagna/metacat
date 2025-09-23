@@ -63,7 +63,7 @@ describe('User Specific API (/api/v1/me)', () => {
       res.body.should.have.property('type').equal('UserError');
     });
 
-    it('should GET all records (drafts and published) for the authenticated user', async () => {
+    it('should GET all records (3) (drafts and published) for the authenticated user', async () => {
       const res = await chai.request(app)
         .get('/api/v1/me/records')
         .set('Authorization', `Bearer ${userToken}`); // <-- Usa il token
@@ -71,9 +71,11 @@ describe('User Specific API (/api/v1/me)', () => {
       res.should.have.status(200);
       res.body.should.be.a('array');
       res.body.length.should.be.eql(3); // Deve trovare i 3 record creati per questo utente
+      console.log(`👍 ${res.body.length}`);
+      res.body.map((x) => console.log(`${JSON.stringify(x)}`)); 
     });
 
-    it('should GET only DRAFT records when using ?published=false filter', async () => {
+    it('should GET only DRAFT records (2)when using ?published=false filter', async () => {
       const res = await chai.request(app)
         .get('/api/v1/me/records?published=false')
         .set('Authorization', `Bearer ${userToken}`);
@@ -84,9 +86,11 @@ describe('User Specific API (/api/v1/me)', () => {
       res.body.forEach(record => {
         record.published.should.be.false;
       });
+      console.log(`👍 ${res.body.length}`);
+      res.body.map((x) => console.log(`${JSON.stringify(x)}`));
     });
 
-    it('should GET only PUBLISHED records when using ?published=true filter', async () => {
+    it('should GET only PUBLISHED records (1) when using ?published=true filter', async () => {
       const res = await chai.request(app)
         .get('/api/v1/me/records?published=true')
         .set('Authorization', `Bearer ${userToken}`);
@@ -95,6 +99,8 @@ describe('User Specific API (/api/v1/me)', () => {
       res.body.should.be.a('array');
       res.body.length.should.be.eql(1); // Deve trovare solo il record pubblicato
       res.body[0].published.should.be.true;
+      console.log(`👍 ${res.body.length}`);
+      res.body.map((x) => console.log(`${JSON.stringify(x)}`));
     });
 
   });
