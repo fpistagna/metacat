@@ -39,15 +39,15 @@ const _records = async (query) => {
 
   const finalRecords = await RecordModel.model
     .find(recordQuery)
-    .select('published record.doi owner metadata')
-    .populate({
-      path: 'metadata',
-      select: 'attributes.titles -_id'
-    })
-    .populate({
-      path: 'owner',
-      select: 'email username -_id'
-    })
+    .select('published record.doi') // owner metadata')
+    // .populate({
+    //   path: 'metadata',
+    //   select: 'attributes.titles -_id'
+    // })
+    // .populate({
+    //   path: 'owner',
+    //   select: 'email username -_id'
+    // })
     .sort({ '_id': -1 })
     .exec();
 
