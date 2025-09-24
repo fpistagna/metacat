@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  arf:
+    build:
+      context: .
+      dockerfile: ./docker/arf/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - DATABASE_URL=mongodb://mongodb:27017/arf0825
+    volumes:
+      - ./src:/app/src # Monta il codice sorgente per lo sviluppo live
+    depends_on:
+      - mongodb
+    networks:
+      - arf-network
+
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - arf-network
+
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/certs:/etc/nginx/certs # Montiamo la cartella dei certificati
+    depends_on:
+      - backend
+    networks:
+      - arf-network
+
+volumes:
+  mongo-data:
+
+networks:
+  arf-network:
+    driver: bridge
