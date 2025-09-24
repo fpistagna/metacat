@@ -270,10 +270,10 @@ class RecordMetadataModel {
 
     const metadataObject = object.metadata
     // Se l'oggetto Metadata esiste già creiamo una nuova eccezzione/errore
-    if (await this.getMetadataById(object.metadata.id))
+    if (await this.getMetadataById(object.metadata.attributes.doi))
       throw new customError.MetadataError(10,
-        `Create Metadata Error: ${object.metadata.id} already exist in DB.`,
-        { recordMetadataId: object.metadata.id })
+        `Create Metadata Error: ${object.metadata.attributes.doi} already exist in DB.`,
+        { recordMetadataId: object.metadata.attributes.doi })
         
     const newRecordMetadata = new this.model(metadataObject)
 
