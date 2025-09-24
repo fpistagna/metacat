@@ -71,8 +71,10 @@ module.exports.optionalAuthentication = async (req, res, next) => {
     }
   } catch (err) {
       Logger.error( { error: err })
-    // Se il token è presente ma non valido, ignoriamo l'errore e procediamo
-    // come se l'utente non fosse loggato.
+      const authHeader = req.header('Authorization')
+      const token = authHeader.split(' ')[1]
+      return next(new customError.UserError(34,
+        `Provided token ${token} is not valid or has expired.`))
   }
 
   next()
