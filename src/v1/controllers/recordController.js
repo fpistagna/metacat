@@ -10,11 +10,27 @@ const { withLogging } = require('../../utils/loggerWrapper')
 const _records = async (req, res, next) => {
   Logger.logs({ verbose: { query: JSON.stringify(req.query), user: req.user } })
   try {
-    const allRecords = await recordService.records(req.query, req.user)
-    Logger.logs({ debug: { hits: allRecords.length } })
-      
-    if (!allRecords.length) res.respondNoContent()
-    else res.respond({ data: allRecords, hits: allRecords.length })
+    const options = {
+      page: parseInt(req.query.page, 10) || 1,
+      limit: parseInt(req.query.limit, 10) || 10,
+      sort: { 'timestamps.createdAt': -1 },
+      select: 'published record.doi owner', // owner metadata',
+      populate: [
+      //     { path: 'metadata', select: 'attributes.titles' },
+          { path: 'owner', select: 'email username -_id' }
+      ]
+    }
+    
+    Logger.logs({ verbose: { options: JSON.stringify(options) } })
+    
+    const allRecords = await recordService.records(req.query, req.user, options)
+    
+    Logger.logs({ debug: { hits: allRecords.totalDocs },
+      verbose: { records: JSON.stringify(allRecords) } })
+    
+      if (!allRecords.docs.length) res.respondNoContent()
+    else 
+      res.respond({ data: allRecords, hits: allRecords.totalDocs })
   } catch (error) {
     Logger.error({ error: error })
     return next(error)

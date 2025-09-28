@@ -10,7 +10,9 @@ const { withAsyncHandler } = require('../../../utils/asyncHandler')
 const { withLogging } = require('../../../utils/loggerWrapper')
 
 /* ##### DAO (Data Access Object) methods #### */
-const _records = async (query) => {
+
+const _records = async (query, options) => {
+  Logger.logs({ verbose: { query: JSON.stringify(query), options: JSON.stringify(options) } })
   // 1. Separiamo i criteri di ricerca
   const recordQuery = {};
   const metadataQuery = {};
@@ -28,6 +30,7 @@ const _records = async (query) => {
     const matchingMetadata = await RecordMetadataModel.model.find(metadataQuery).select('_id');
 
     if (!matchingMetadata.length) {
+      Logger.logs({ debug: { message: 'No search corresponging metadata found.' } })
       return []; // Interrompiamo subito se non ci sono metadati corrispondenti
     }
 
@@ -35,23 +38,11 @@ const _records = async (query) => {
     recordQuery.metadata = { $in: metadataIds };
   }
 
-  // 3. Eseguiamo la query finale sulla collezione dei Record
+  const paginatedResults = await RecordModel.model.paginate(recordQuery, options)
 
-  const finalRecords = await RecordModel.model
-    .find(recordQuery)
-    .select('published record.doi') // owner metadata')
-    // .populate({
-    //   path: 'metadata',
-    //   select: 'attributes.titles -_id'
-    // })
-    // .populate({
-    //   path: 'owner',
-    //   select: 'email username -_id'
-    // })
-    .sort({ '_id': -1 })
-    .exec();
-
-  return finalRecords;
+  Logger.logs({ debug: { hits: paginatedResults.totalDocs } })
+  
+  return paginatedResults;
 }
 
 const _record = async (recordId) => {
@@ -158,7 +149,6 @@ const _deleteRecord = async (recordId) => {
 }
 
 const records = withAsyncHandler(withLogging(_records, Logger))
-// const recordByQuery = withAsyncHandler(withLogging(_recordByQuery, Logger))
 const record = withAsyncHandler(withLogging(_record, Logger))
 const createRecord = withAsyncHandler(withLogging(_createRecord, Logger))
 const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger))
@@ -168,7 +158,6 @@ const deleteRecord = withAsyncHandler(withLogging(_deleteRecord, Logger))
 module.exports = { 
   records,
   record,
-  // recordByQuery,
   createRecord,
   updateRecordAttribute,
   publishRecord,

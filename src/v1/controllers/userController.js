@@ -14,11 +14,13 @@ const _getMyRecords = async (req, res, next) => {
   const queryParams = req.query // es. ?published=false
 
   const records = await recordService.getRecordsByOwner(userId, queryParams)
-
-  if (!records.length) 
+  Logger.logs({ debug: { hits: records.totalDocs }, 
+    verbose: { records: JSON.stringify(records) } })
+  
+  if (!records.docs.length) 
     return res.respondNoContent()
 
-  res.respond(records)
+  res.respond({ data: records, hits: records.totalDocs })
 }
 
 module.exports = {

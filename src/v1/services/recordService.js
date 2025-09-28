@@ -7,8 +7,8 @@ const className = "recordService",
 const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
-const _records = async (queryParams, user) => {
-  Logger.logs({ verbose: { user: user, queryParams: JSON.stringify(queryParams) } })
+const _records = async (queryParams, user, options) => {
+  Logger.logs({ verbose: { user: user, queryParams: JSON.stringify(queryParams), options: JSON.stringify(options) } })
   // 1. Definiamo la query di base: solo record pubblicati
   const query = { published: true };
 
@@ -37,9 +37,11 @@ const _records = async (queryParams, user) => {
     query.$text = { $search: queryParams.q };
   }
 
-  Logger.logs({ verbose: { query: JSON.stringify(query) } })
+  Logger.logs({ verbose: { 
+    query: JSON.stringify(query), options: JSON.stringify(options) } })
 
-  const allRecords = await Record.records(query); // Passiamo la query al DAO
+  const allRecords = await Record.records(query, options); // Passiamo la query al DAO
+  Logger.logs({ debug: { hits: allRecords.totalDocs } })
   return allRecords;
 };
 

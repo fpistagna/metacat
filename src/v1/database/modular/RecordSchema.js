@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
+const mongoosePaginate = require('mongoose-paginate-v2')
 const customError = require('../../../utils/customError')
 const className = "Mongoose:RecordModel",
   LoggerHelper = require('../../../utils/loggerHelper'),
@@ -43,6 +44,8 @@ const recordSchema = new Schema({
     required: true
   }
 })
+
+recordSchema.plugin(mongoosePaginate)
 
 recordSchema.pre('save', function (next) {
   let now = new Date()
