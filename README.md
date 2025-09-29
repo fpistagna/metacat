@@ -1,4 +1,4 @@
-# MetaCat - A _DataCite_ **Metadata Catalog** REST Framework
+# MetaCat - A _DataCite_ **Metadata Catalog** REST backend service
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) 
 [![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://opensource.org/) 
