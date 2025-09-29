@@ -1,14 +1,15 @@
-# ARF API - A DataCite Metadata REST Framework
+# MetaCat - A _DataCite_ **Metadata Catalog** REST Framework
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) 
 [![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://opensource.org/) 
-
 ![Static Badge](https://img.shields.io/badge/language-javascript-yellow)
 ![Static Badge](https://img.shields.io/badge/runtime-Node.js-green) 
 
-ARF is a robust REST API backend for Creating, Reading, Updating, and Deleting (CRUD) metadata records following the **DataCite Metadata Kernel v4.6**. 
+**MetaCat** is a specialized, cloud-native backend service designed to create and manage a catalog of metadata for **scientific products**. It exposes a **_pragmatic_** **REST-like API** for the entire lifecycle of research metadata—from creation to publication—strictly following the **[DataCite Metadata Kernel v4.6](https://schema.datacite.org/meta/kernel-4.6/)**. Each metadata record is linked to a scientific product (such as a dataset, software, or publication) via a Digital Object Identifier (DOI).
 
-This project is built with Node.js, Express, and MongoDB, featuring a complete JWT and OAuth2 (ORCID) authentication and role-based authorization system.
+This project originated as a research and development case study. It is provided to the community under the **AGPL-3.0 License** as both a research product and a foundation for new implementations, offered "AS IS", without any warranty.
+
+The backend is built with Node.js, Express, and MongoDB, featuring a complete JWT and OAuth2 (ORCID) authentication and role-based authorization system, ready for containerized deployment with Docker.
 
 ---
 
