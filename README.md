@@ -5,6 +5,9 @@
 ![Static Badge](https://img.shields.io/badge/language-javascript-yellow)
 ![Static Badge](https://img.shields.io/badge/runtime-Node.js-green) 
 
+<img align="right" width="256" height="256" alt="mc4" src="https://github.com/user-attachments/assets/0ed681a8-2995-446b-b877-059a810dfe37" />
+
+
 **MetaCat** is a specialized, cloud-native backend service designed to create and manage a catalog of metadata for **scientific products**. It exposes a **_pragmatic_** **REST-like API** for the entire lifecycle of research metadata—from creation to publication—strictly following the **[DataCite Metadata Kernel v4.6](https://schema.datacite.org/meta/kernel-4.6/)**. Each metadata record is linked to a scientific product (such as a dataset, software, or publication) via a Digital Object Identifier (DOI).
 
 This project originated as a research and development case study. It is provided to the community under the **AGPL-3.0 License** as both a research product and a foundation for new implementations, offered "AS IS", without any warranty.
