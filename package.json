@@ -1,6 +1,6 @@
 {
   "name": "metacat",
-  "version": "0.1.1-alpha",
+  "version": "0.1.2-alpha",
   "license": "AGPL-3.0-only",
   "description": "A full CRUD DataCite Metadata catalog backend service",
   "keywords": [

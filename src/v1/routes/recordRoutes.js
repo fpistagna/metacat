@@ -16,7 +16,6 @@
  */
 
 
-// In src/v1/routes/recordRoutes.js
 const express = require("express");
 const recordController = require("../controllers/recordController");
 const { validator, attributePatchValidator } = require("../services/ajvService");
