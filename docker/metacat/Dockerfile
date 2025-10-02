@@ -3,7 +3,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
-COPY ./src ./src
+COPY . .
 
 # Fase 2: Production
 FROM node:18-alpine
