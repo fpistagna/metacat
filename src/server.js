@@ -31,7 +31,6 @@ const v1UserRouter = require("./v1/routes/userRoutes")
 
 const errorHandler = require("./utils/errorHandler")
 
-
 const app = express()
 
 app.use(bodyParser.json())
