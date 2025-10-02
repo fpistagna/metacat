@@ -1,7 +1,26 @@
 {
-  "name": "project",
-  "version": "0.1.0",
-  "description": "",
+  "name": "MetaCat - Metadata Catalog",
+  "version": "0.1.0-alpha",
+  "license": "AGPL-3.0-only",
+  "description": "A full CRUD DataCite Metadata catalog backend service",
+  "keywords": [
+    "DataCite",
+    "Metadata",
+    "Catalog",
+    "CRUD",
+    "API",
+    "Express",
+    "NodeJS",
+    "MongoDB",
+    "Mongoose"
+  ],
+  "homepage": "https://github.com/fpistagna/metacat",
+  "author":
+    {
+      "name": "Fabrizio Pistagna",
+      "email": "fabrizio.pistagna@ingv.it",
+      "url": "https://github.com/fpistagna"
+    },
   "main": "./src/server.js",
   "scripts": {
     "start": "node ./src/server.js",
@@ -18,8 +37,6 @@
     "error": "echo \"Error: no test specified\" && exit 1",
     "ajv": "node ajv.js"
   },
-  "author": "Fabrizio Pistagna",
-  "license": "ISC",
   "dependencies": {
     "ajv": "^8.13.0",
     "ajv-formats": "^3.0.1",
