@@ -16,7 +16,6 @@
  */
 
 
-// In src/v1/routes/userRoutes.js
 'use strict';
 
 const express = require('express');
