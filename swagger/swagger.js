@@ -23,7 +23,7 @@ const options = {
   definition: {
     openapi: "3.1.0",
     info: {
-      title: "ARF Express API with Swagger",
+      title: "MetaCat Express API with Swagger",
       version: "0.1.0",
       description:
         "This is a simple CRUD API application for DataCite metadata, with JWT authentication.",
@@ -33,7 +33,7 @@ const options = {
       },
       contact: {
         name: "Fabrizio Pistagna",
-        url: "https://github.com/fpistagna/arf",
+        url: "https://github.com/fpistagna/metacat",
         email: "fabrizio.pistagna@ingv.it",
       },
     },

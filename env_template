@@ -4,7 +4,7 @@ NODE_ENV=verbose
 PORT=3000
 
 # Variabili per il Database
-DATABASE_URL=mongodb://127.0.0.1:27017/arf0825
+DATABASE_URL=mongodb://127.0.0.1:27017/metacat
 
 # Segreto per JWT (usa una stringa lunga, casuale e complessa)
 JWT_SECRET=IL_TUO_SEGRETO_LUNGO_E_CASUALE_PER_JWT

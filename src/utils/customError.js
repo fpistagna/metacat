@@ -16,7 +16,7 @@
  */
 
 
-class ARFError extends Error {
+class MCError extends Error {
   constructor(code, message, options = {}) {
     super(message);
     this.name = this.constructor.name;
@@ -27,12 +27,12 @@ class ARFError extends Error {
   }
 }
 
-class MetadataError extends ARFError { }
-class RecordError extends ARFError { }
-class RecordCreationError extends ARFError { }
-class MongooseError extends ARFError { }
-class UserError extends ARFError { }
-class ValidationError extends ARFError { }
+class MetadataError extends MCError { }
+class RecordError extends MCError { }
+class RecordCreationError extends MCError { }
+class MongooseError extends MCError { }
+class UserError extends MCError { }
+class ValidationError extends MCError { }
 
 module.exports = { 
   MetadataError,

@@ -37,7 +37,7 @@ http POST http://localhost:3000/api/v1/auth/register \
 ### Promuovi l'utente a `curator` direttamente nel database:
 
 ```bash
-mongosh arf0825 --eval \ 
+mongosh metacat --eval \ 
   'db.users.updateOne({ \ 
     "email": "curator@example.com" }, \
     { $set: { "role": "curator" } })'
