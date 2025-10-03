@@ -102,7 +102,8 @@ const attributePatchValidator = (req, res, next) => {
       error: `Attribute '${attributeName}' cannot be updated. No Schema found ` 
     })
     return next(new customError.MetadataError(13,
-      `Attribute '${attributeName}' cannot be updated via this endpoint.`))
+      `Attribute '${attributeName}' cannot be updated via this endpoint.`,
+      { attr: attributeName }))
   }
 
   // Ottieni lo schema già compilato da AJV usando il suo ID
