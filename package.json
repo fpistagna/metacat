@@ -1,6 +1,6 @@
 {
   "name": "metacat",
-  "version": "0.1.2-alpha",
+  "version": "0.1.3-alpha",
   "license": "AGPL-3.0-only",
   "description": "A full CRUD DataCite Metadata catalog backend service",
   "keywords": [
@@ -15,12 +15,11 @@
     "Mongoose"
   ],
   "homepage": "https://github.com/fpistagna/metacat",
-  "author":
-    {
-      "name": "Fabrizio Pistagna",
-      "email": "fabrizio.pistagna@ingv.it",
-      "url": "https://github.com/fpistagna"
-    },
+  "author": {
+    "name": "Fabrizio Pistagna",
+    "email": "fabrizio.pistagna@ingv.it",
+    "url": "https://github.com/fpistagna"
+  },
   "main": "./src/server.js",
   "scripts": {
     "dev": "nodemon ./src/server.js",
