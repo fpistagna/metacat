@@ -16,8 +16,6 @@
  */
 
 
-// In src/controllers/userController.js
-
 'use strict'
 
 const recordService = require('../services/recordService')

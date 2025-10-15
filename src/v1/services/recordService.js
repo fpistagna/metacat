@@ -16,17 +16,20 @@
  */
 
 
-// In src/services/recordService.js
 const Record = require("../database/modular/Record")
-const className = "recordService",
-  LoggerHelper = require('../../utils/loggerHelper'),
-  Logger = new LoggerHelper.Logger(className),
-  customError = require('../../utils/customError')
+const className = "recordService"
+const LoggerHelper = require('../../utils/loggerHelper')
+const Logger = new LoggerHelper.Logger(className)
+const customError = require('../../utils/customError')
 const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
 const _records = async (queryParams, user, options) => {
-  Logger.logs({ verbose: { user: user, queryParams: JSON.stringify(queryParams), options: JSON.stringify(options) } })
+  Logger.logs({ verbose: { 
+    user: user, 
+    queryParams: JSON.stringify(queryParams), 
+    options: JSON.stringify(options) } 
+  })
   // 1. Definiamo la query di base: solo record pubblicati
   const query = { published: true };
 
@@ -36,17 +39,7 @@ const _records = async (queryParams, user, options) => {
     // Admin e Curator possono vedere tutto (a meno che non filtrino diversamente)
     if (['admin', 'curator'].includes(user.role)) {
       // Admin/Curator: possono filtrare liberamente
-      // if (queryParams.published === 'true') query.published = true;
       if (queryParams.published === 'false') query.published = false;
-      // Se non c'è un filtro specifico `published` nella querystring, non filtriamo per stato
-      // if (queryParams.published === undefined) delete query.published;
-    // } else {
-    //   // Un 'user' normale vede i record pubblicati O le proprie bozze
-    //   query.$or = [
-    //     { published: true },
-    //     { owner: user.id, published: false }
-    //   ];
-    //   // delete query.published; // Rimuoviamo la condizione base perché ora è gestita da $or
     }
   } else { query.published = true }
 

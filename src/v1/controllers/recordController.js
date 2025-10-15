@@ -16,8 +16,6 @@
  */
 
 
-// In src/controllers/recordController.js
-
 const recordService = require("../services/recordService"),
   className = "recordController",
   LoggerHelper = require('../../utils/loggerHelper'),

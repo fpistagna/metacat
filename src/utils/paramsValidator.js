@@ -43,9 +43,6 @@ module.exports.paramsValidator = (req, res, next) => {
         attrs: `doi, identifiers, creators, titles, ` +
           `publisher, publicationYear, descriptions`
       })
-    // throw new customError.MetadataError(12, 
-    //   `${result.errors[0].value} - `+
-    // 	`${result.errors[0].msg}`)
   }
   next()
 }
@@ -60,13 +57,9 @@ module.exports.checkAttribute = async (a) => {
 
     Logger.logs({ verbose: { checkAttribute: `Attribute '${a}' not allowed` } })
 
-    throw new customError.MetadataError(12)
-    // throw new customError.MetadataError(12, 
-    //   `Attribute '${a}' is not included in the Attributes list ` + 
-    //   `["doi", "identifiers", "creators", "titles", ` +
-    //   `"publisher", "publicationYear", "descriptions"]`,
-    // { attr: a, 
-    //   attrs: `["doi", "identifiers", "creators", "titles", ` +
-    //     `"publisher", "publicationYear", "descriptions"]` })
+    // Il solo throw di un error è sufficiente,
+    // L'errore vero verà poi generato da paramsValidator
+    //
+    throw new Error()
   }
 }
