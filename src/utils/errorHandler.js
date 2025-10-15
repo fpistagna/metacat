@@ -43,7 +43,7 @@ const ERROR_MAP = {
     10: { status: 409, message: (err) => `Metadata Record Id ${err.recordMetadataId} already exists.` },
     11: { status: 403, message: 'Invalid metadata provided.' },
     12: { status: 422, message: (err) => `Attribute '${err.attr}' is not included in the allowed attributes (${err.attrs}).` },
-    13: { status: 422, message: 'Unprocessable entity during patch operation.' },
+    13: { status: 422, message: (err) => `Attribute '${err.attr}' cannot be updated via this endpoint.` },
     14: { status: 500, message: (err) => `Error while deleting RecordMetadata ID ${err.recordMetadataId}.`},
     default: { status: 500, message: 'An unexpected metadata error occurred.' }
   },

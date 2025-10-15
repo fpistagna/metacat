@@ -7,6 +7,9 @@ COPY . .
 
 # Fase 2: Production
 FROM node:18-alpine
+LABEL author="Fabrizio Pistagna <fabrizio.pistagna@ingv.it>"
+LABEL description="MetaCat OCI compatible image"
+
 WORKDIR /app
 COPY --from=builder /app ./
 EXPOSE 3000
