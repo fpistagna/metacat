@@ -1,0 +1,22 @@
+{
+  "title": "MetaCat: A Backend Service for DataCite Metadata",
+  "description": "MetaCat is a specialized, backend service designed to create and manage a catalog of metadata for scientific products. It exposes a pragmatic REST-like API for the entire lifecycle of research metadata — from creation to publication — strictly following the DataCite Metadata Kernel v4.6. Built with Node.js, Express, MongoDB, featuring JWT/OAuth2 (ORCID) authentication and role-based authorization.",
+  "keywords": [
+    "metadata",
+    "DataCite",
+    "metadata catalog",
+    "scientific data"
+  ],
+  "creators": [
+    {
+      "name": "Pistagna, Fabrizio",
+      "affiliation": "INGV Sezione Catania - Osservatorio Etneo",
+      "orcid": "0000-0002-6685-7678"
+    }
+  ],
+  "license": "AGPL-3.0-only",
+  "access_right": "open",
+  "upload_type": "software",
+  "language": "eng",
+  "version": "v0.1.4-alpha"
+}
