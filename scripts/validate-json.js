@@ -20,9 +20,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const { ajv } = require('../src/v1/services/ajvService');
+const { ajv } = require('../src/v1/middlewares/validationMiddleware');
 
-// Questo script valida un file JSON contro lo schema principale ('root') definito in ajvService.js.
+// Questo script valida un file JSON contro lo schema principale ('root') definito in validationMiddleware.js.
 
 const runValidation = () => {
   const filePath = process.argv[2];
@@ -39,7 +39,7 @@ const runValidation = () => {
 
     const validate = ajv.getSchema('root#');
     if (!validate) {
-      throw new Error("Impossibile trovare lo schema 'root#'. Assicurati che sia caricato in ajvService.");
+      throw new Error("Impossibile trovare lo schema 'root#'. Assicurati che sia caricato in validationMiddleware.");
     }
 
     const isValid = validate(jsonData);
