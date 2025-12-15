@@ -1,5 +1,5 @@
 /**
- * @fileoverview ajvService.js file for the MetaCat <Metadata Catalog> API.
+ * @fileoverview validationMiddleware.js file for the MetaCat <Metadata Catalog> API.
  * @copyright 2025 Fabrizio Pistagna <fabrizio.pistagna@ingv.it> - INGV Sezione Catania - Osservatorio Etneo
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 
 'use strict'
 
-const className = "AJVService",
+const className = "ValidationMiddleware",
   LoggerHelper = require('../../utils/loggerHelper'),
   Logger = new LoggerHelper.Logger(className),
   customError = require('../../utils/customError')

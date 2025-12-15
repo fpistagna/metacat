@@ -21,9 +21,9 @@
 const chai = require('chai');
 const expect = chai.expect; // Usiamo 'expect' per uno stile di asserzione pulito
 
-// Dobbiamo esporre l'istanza di AJV dal nostro ajvService per poterla testare
-// Questo richiede una piccola modifica ad ajvService.js (vedi sotto)
-const { ajv } = require('../src/v1/services/ajvService');
+// Dobbiamo esporre l'istanza di AJV dal nostro validationMiddleware per poterla testare
+// Questo richiede una piccola modifica ad validationMiddleware.js (vedi sotto)
+const { ajv } = require('../src/v1/middlewares/validationMiddleware');
 
 describe('JSON Schema Validation', () => {
 

@@ -18,7 +18,7 @@
 
 const express = require("express");
 const recordController = require("../controllers/recordController");
-const { validator, attributePatchValidator } = require("../services/ajvService");
+const { validator, attributePatchValidator } = require("../middlewares/validationMiddleware");
 const { paramsValidator, checkAttribute } = require("../../utils/paramsValidator");
 const { param } = require('express-validator');
 const { authenticationMiddleware, optionalAuthentication } = require('../middlewares/authenticationMiddleware');

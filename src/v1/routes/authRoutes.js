@@ -20,7 +20,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 const { withAsyncHandler } = require('../../utils/asyncHandler');
-const { validator } = require("../services/ajvService");
+const { validator } = require("../middlewares/validationMiddleware");
 
 router.post('/register', validator('auth.register'), withAsyncHandler(authController.register));
 router.post('/login', validator('auth.login'), withAsyncHandler(authController.login));
