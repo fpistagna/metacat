@@ -82,9 +82,9 @@ const _record = async (recordId, user) => {
     'Forbidden: no permissions to view this resource.')
 }
 
-const _recordAttribute = async(id, attribute) => {
+const _recordAttribute = async(id, attribute, user) => {
   Logger.logs({ debug: { recordId: id, attribute: attribute }})
-  const record = await Record.record(id)
+  const record = await _record(id, user)
     
   if (Object.prototype.hasOwnProperty.call(record.metadata.attributes, attribute)) {
     const {[attribute]: attr} = record.metadata.attributes

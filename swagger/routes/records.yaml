@@ -98,6 +98,30 @@ paths:
         '404': { description: "Record non trovato." }
 
   /records/{recordId}/{attribute}:
+    get:
+      tags: [Records]
+      summary: Recupera un singolo attributo di un record.
+      description: Se il record è pubblicato, l'attributo è accessibile a tutti. Per una bozza sono richiesti il proprietario oppure il ruolo `curator` o `admin`.
+      security: []
+      parameters:
+        - in: path
+          name: recordId
+          required: true
+          schema:
+            type: string
+          description: L'ID del record.
+        - in: path
+          name: attribute
+          required: true
+          schema:
+            type: string
+          description: Il nome dell'attributo da recuperare.
+      responses:
+        '200': { description: Attributo recuperato con successo. }
+        '401': { description: La bozza richiede autenticazione. }
+        '403': { description: Permessi insufficienti per leggere la bozza. }
+        '404': { description: Record o attributo non trovato. }
+
     patch:
       tags: [Records]
       summary: Aggiorna un singolo attributo di un record.

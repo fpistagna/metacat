@@ -36,25 +36,27 @@ const checkRole = (roles) => (req, res, next) => {
 
 // Middleware per controllare se l'utente è proprietario del record O ha un ruolo superiore
 const checkOwnershipOrRole = (roles) => async (req, res, next) => {
-  const record = await RecordModel.recordWithId(req.params.recordId);
-  if (!record)
-    throw new customError.RecordError(6, 'Record not found.');
+  try {
+    const record = await RecordModel.recordWithId(req.params.recordId);
 
-  const isOwner = record.owner.toString() === req.user.id;
-  const hasRole = roles.includes(req.user.role);
+    const isOwner = record.owner.toString() === req.user.id;
+    const hasRole = roles.includes(req.user.role);
 
-  // Un utente normale può modificare/cancellare solo le sue bozze
-  if (isOwner && record.published && req.user.role === 'user')
-    throw new customError.RecordError(13, 'Forbidden: Cannot modify a published record.',
-      { recordId: req.params.recordId });
+    // Un utente normale può modificare/cancellare solo le sue bozze
+    if (isOwner && record.published && req.user.role === 'user')
+      throw new customError.RecordError(107, 'Forbidden: Cannot modify a published record.',
+        { recordId: req.params.recordId });
 
-  if (isOwner || hasRole) {
-    // Per passare il record al controller senza una seconda query, lo attacchiamo a 'req'
-    req.record = record;
-    return next();
+    if (isOwner || hasRole) {
+      // Per passare il record al controller senza una seconda query, lo attacchiamo a 'req'
+      req.record = record;
+      return next();
+    }
+
+    throw new customError.UserError(40, 'Forbidden: You are not the owner of this resource nor have the required role.');
+  } catch (error) {
+    return next(error);
   }
-
-  throw new customError.UserError(12, 'Forbidden: You are not the owner of this resource nor have the required role.');
 };
 
 module.exports = {

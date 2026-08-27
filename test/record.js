@@ -35,8 +35,8 @@ chai.use(chaiHttp);
 describe('Records API (/api/v1/records)', () => {
 
   // Variabili che useremo in tutti i test
-  let normalUser, curatorUser, adminUser;
-  let userToken, curatorToken, adminToken;
+  let normalUser, otherUser, curatorUser, adminUser;
+  let userToken, otherUserToken, curatorToken, adminToken;
   let userDraftRecord, userPublishedRecord;
 
   // Hook globale: eseguito una volta prima di tutti i test
@@ -49,12 +49,15 @@ describe('Records API (/api/v1/records)', () => {
 
     // --- Creazione degli Utenti ---
     normalUser = await UserModel.create({ username: 'normaluser', email: 'user@example.com', password: 'password123', role: 'user' });
+    otherUser = await UserModel.create({ username: 'otheruser', email: 'other@example.com', password: 'password123', role: 'user' });
     curatorUser = await UserModel.create({ username: 'curatoruser', email: 'curator@example.com', password: 'password123', role: 'curator' });
     adminUser = await UserModel.create({ username: 'adminuser', email: 'admin@example.com', password: 'password123', role: 'admin' });
 
     // --- Login e Ottenimento dei Token ---
     const userRes = await chai.request(app).post('/api/v1/auth/login').send({ email: 'user@example.com', password: 'password123' });
     userToken = userRes.body.token;
+    const otherUserRes = await chai.request(app).post('/api/v1/auth/login').send({ email: 'other@example.com', password: 'password123' });
+    otherUserToken = otherUserRes.body.token;
     const curatorRes = await chai.request(app).post('/api/v1/auth/login').send({ email: 'curator@example.com', password: 'password123' });
     curatorToken = curatorRes.body.token;
     const adminRes = await chai.request(app).post('/api/v1/auth/login').send({ email: 'admin@example.com', password: 'password123' });
@@ -100,6 +103,107 @@ describe('Records API (/api/v1/records)', () => {
         .get(`/api/v1/records/${userDraftRecord._id}`)
         .set('Authorization', `Bearer ${curatorToken}`);
       res.should.have.status(200);
+    });
+  });
+
+  // =========================================================
+  // TEST SULL'ENDPOINT GET /api/v1/records/:recordId/:attribute
+  // =========================================================
+  describe('GET /:recordId/:attribute', () => {
+    it('should allow anyone to read an attribute of a published record', async () => {
+      const res = await chai.request(app)
+        .get(`/api/v1/records/${userPublishedRecord._id}/titles`);
+
+      res.should.have.status(200);
+      res.body.values.should.deep.equal([{ title: 'Test' }]);
+    });
+
+    it('should NOT allow an unauthenticated user to read an attribute of a draft record', async () => {
+      const res = await chai.request(app)
+        .get(`/api/v1/records/${userDraftRecord._id}/titles`);
+
+      res.should.have.status(401);
+    });
+
+    it('should allow the owner to read an attribute of their own draft record', async () => {
+      const res = await chai.request(app)
+        .get(`/api/v1/records/${userDraftRecord._id}/titles`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      res.should.have.status(200);
+      res.body.values.should.deep.equal([{ title: 'Test' }]);
+    });
+
+    it('should NOT allow another user to read an attribute of a draft record', async () => {
+      const res = await chai.request(app)
+        .get(`/api/v1/records/${userDraftRecord._id}/titles`)
+        .set('Authorization', `Bearer ${otherUserToken}`);
+
+      res.should.have.status(403);
+    });
+
+    it('should allow a curator to read an attribute of another user\'s draft record', async () => {
+      const res = await chai.request(app)
+        .get(`/api/v1/records/${userDraftRecord._id}/titles`)
+        .set('Authorization', `Bearer ${curatorToken}`);
+
+      res.should.have.status(200);
+    });
+  });
+
+  // ===========================================================
+  // TEST SULL'ENDPOINT PATCH /api/v1/records/:recordId/:attribute
+  // ===========================================================
+  describe('PATCH /:recordId/:attribute', () => {
+    it('should NOT allow an unauthenticated user to update an attribute', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${userDraftRecord._id}/titles`)
+        .send([{ title: 'Unauthorized update' }]);
+
+      res.should.have.status(401);
+    });
+
+    it('should NOT allow another user to update an attribute of a draft record', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${userDraftRecord._id}/titles`)
+        .set('Authorization', `Bearer ${otherUserToken}`)
+        .send([{ title: 'Forbidden update' }]);
+
+      res.should.have.status(403);
+      const unchangedRecord = await RecordModel.recordWithId(userDraftRecord._id);
+      unchangedRecord.metadata.attributes.titles[0].title.should.equal('Test');
+    });
+
+    it('should allow the owner to update an attribute of their own draft record', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${userDraftRecord._id}/titles`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send([{ title: 'Updated draft title' }]);
+
+      res.should.have.status(201);
+      const updatedRecord = await RecordModel.recordWithId(userDraftRecord._id);
+      updatedRecord.metadata.attributes.titles[0].title.should.equal('Updated draft title');
+    });
+
+    it('should NOT allow the owner to update an attribute of their published record', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${userPublishedRecord._id}/titles`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send([{ title: 'Forbidden published update' }]);
+
+      res.should.have.status(403);
+      res.body.should.have.property('errorCode').equal(107);
+    });
+
+    it('should allow a curator to update an attribute of another user\'s published record', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${userPublishedRecord._id}/titles`)
+        .set('Authorization', `Bearer ${curatorToken}`)
+        .send([{ title: 'Curated published title' }]);
+
+      res.should.have.status(201);
+      const updatedRecord = await RecordModel.recordWithId(userPublishedRecord._id);
+      updatedRecord.metadata.attributes.titles[0].title.should.equal('Curated published title');
     });
   });
 
