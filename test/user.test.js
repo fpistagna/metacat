@@ -21,8 +21,7 @@
 
 process.env.NODE_ENV = 'test';
 
-const mongoose = require('mongoose');
-const { connectDB } = require('../src/v1/database/modular/mongoose');
+const { connectTestDB, disconnectTestDB } = require('./helpers/testDatabase');
 const { UserModel } = require('../src/v1/database/modular/UserSchema');
 const { RecordModel } = require('../src/v1/database/modular/RecordSchema');
 const chai = require('chai');
@@ -40,7 +39,7 @@ describe('User Specific API (/api/v1/me)', () => {
 
   // ----- SETUP INIZIALE -----
   before(async () => {
-    await connectDB();
+    await connectTestDB();
     // Pulisce le collezioni
     await UserModel.deleteMany({});
     await RecordModel.model.deleteMany({});
@@ -67,7 +66,7 @@ describe('User Specific API (/api/v1/me)', () => {
 
   // ----- TEARDOWN FINALE -----
   after(async () => {
-    await mongoose.disconnect();
+    await disconnectTestDB();
   });
 
   /*
@@ -87,10 +86,9 @@ describe('User Specific API (/api/v1/me)', () => {
         .set('Authorization', `Bearer ${userToken}`); // <-- Usa il token
 
       res.should.have.status(200);
-      res.body.should.be.a('array');
-      res.body.length.should.be.eql(3); // Deve trovare i 3 record creati per questo utente
-      console.log(`👍 ${res.body.length}`);
-      res.body.map((x) => console.log(`${JSON.stringify(x)}`)); 
+      res.body.should.be.an('object');
+      res.body.data.docs.should.be.an('array').with.lengthOf(3);
+      res.body.hits.should.equal(3);
     });
 
     it('should GET only DRAFT records (2)when using ?published=false filter', async () => {
@@ -99,13 +97,11 @@ describe('User Specific API (/api/v1/me)', () => {
         .set('Authorization', `Bearer ${userToken}`);
 
       res.should.have.status(200);
-      res.body.should.be.a('array');
-      res.body.length.should.be.eql(2);
-      res.body.forEach(record => {
+      res.body.data.docs.should.be.an('array').with.lengthOf(2);
+      res.body.hits.should.equal(2);
+      res.body.data.docs.forEach(record => {
         record.published.should.be.false;
       });
-      console.log(`👍 ${res.body.length}`);
-      res.body.map((x) => console.log(`${JSON.stringify(x)}`));
     });
 
     it('should GET only PUBLISHED records (1) when using ?published=true filter', async () => {
@@ -114,11 +110,9 @@ describe('User Specific API (/api/v1/me)', () => {
         .set('Authorization', `Bearer ${userToken}`);
 
       res.should.have.status(200);
-      res.body.should.be.a('array');
-      res.body.length.should.be.eql(1); // Deve trovare solo il record pubblicato
-      res.body[0].published.should.be.true;
-      console.log(`👍 ${res.body.length}`);
-      res.body.map((x) => console.log(`${JSON.stringify(x)}`));
+      res.body.data.docs.should.be.an('array').with.lengthOf(1);
+      res.body.hits.should.equal(1);
+      res.body.data.docs[0].published.should.be.true;
     });
 
   });

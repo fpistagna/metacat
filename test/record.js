@@ -20,8 +20,7 @@
 
 process.env.NODE_ENV = 'test';
 
-const mongoose = require('mongoose');
-const { connectDB } = require('../src/v1/database/modular/mongoose');
+const { connectTestDB, disconnectTestDB } = require('./helpers/testDatabase');
 const { UserModel } = require('../src/v1/database/modular/UserSchema');
 const { RecordModel } = require('../src/v1/database/modular/RecordSchema');
 const { RecordMetadataModel } = require('../src/v1/database/modular/RecordMetadataSchema');
@@ -41,7 +40,7 @@ describe('Records API (/api/v1/records)', () => {
 
   // Hook globale: eseguito una volta prima di tutti i test
   before(async () => {
-    await connectDB();
+    await connectTestDB();
     // Pulizia completa
     await UserModel.deleteMany({});
     await RecordModel.model.deleteMany({});
@@ -69,7 +68,7 @@ describe('Records API (/api/v1/records)', () => {
   });
 
   after(async () => {
-    await mongoose.disconnect();
+    await disconnectTestDB();
   });
 
   // ===============================================

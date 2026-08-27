@@ -23,22 +23,24 @@ const className = "Mongoose:RecordModel",
   LoggerHelper = require('../../../utils/loggerHelper'),
   Logger = new LoggerHelper.Logger(className)
  
-async function connectDB() {
+async function connectDB(databaseUrl = process.env.DATABASE_URL, options = {}) {
   Logger.callerFunction = 'connectDB'
-  const url = process.env.DATABASE_URL 
+
+  if (!databaseUrl)
+    throw new Error('DATABASE_URL is required to connect to MongoDB.')
   
   try {
-    await mongoose.connect(url) 
+    await mongoose.connect(databaseUrl, options)
     Logger.logs({ debug: { message: `Successfully connected to database.` } }) } 
   catch (err) {
     Logger.error({ error: err })
-    process.exit(1)
+    throw err
   }
 
   const dbConnection = mongoose.connection
 
   dbConnection.once("open", (_) => {
-    Logger.logs({ debug: { dbURL: url, message: "Connection is open." } })
+    Logger.logs({ debug: { message: "Connection is open." } })
   })
  
   dbConnection.on("error", (err) => {
@@ -48,7 +50,7 @@ async function connectDB() {
 }
 
 async function disconnectDB() {
-  await mongoose.disconnect;
+  await mongoose.disconnect()
 }
 
 module.exports = {
