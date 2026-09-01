@@ -3,6 +3,13 @@
 NODE_ENV=verbose
 PORT=3000
 
+# Numero di reverse proxy fidati davanti all'applicazione (Nginx in Docker)
+TRUST_PROXY=1
+
+# Limite dei soli tentativi di login falliti per IP nella finestra indicata
+LOGIN_RATE_LIMIT_WINDOW_MS=900000
+LOGIN_RATE_LIMIT_MAX_ATTEMPTS=5
+
 # Variabili per il Database
 DATABASE_URL=mongodb://127.0.0.1:27017/metacat
 

@@ -33,6 +33,13 @@ const errorHandler = require("./utils/errorHandler")
 
 const app = express()
 
+if (process.env.TRUST_PROXY) {
+  const trustProxyHops = Number(process.env.TRUST_PROXY)
+  app.set('trust proxy', Number.isSafeInteger(trustProxyHops)
+    ? trustProxyHops
+    : process.env.TRUST_PROXY)
+}
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(morgan('dev', { stream: {

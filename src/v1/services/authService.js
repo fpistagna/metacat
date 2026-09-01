@@ -49,8 +49,7 @@ const loginUser = async ({ email, password }) => {
 
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    throw new customError.UserError(32, `Wrong password (${password}) ` +
-      `for user ${user.username}, email ${user.email}`);
+    throw new customError.UserError(32, 'Wrong password for submitted login credentials.');
   }
 
   return signToken(user.id);

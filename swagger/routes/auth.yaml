@@ -97,7 +97,9 @@ paths:
                   token:
                     type: string
                     example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-        '400':
+        '403':
           description: Credenziali non valide.
+        '429':
+          description: Troppi tentativi di login falliti dallo stesso indirizzo IP.
         '500':
           description: Errore del server.
