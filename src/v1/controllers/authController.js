@@ -17,7 +17,7 @@
 
 
 const authService = require('../services/authService');
-const  className = "recordController",
+const  className = "authController",
   LoggerHelper = require('../../utils/loggerHelper'),
   Logger = new LoggerHelper.Logger(className);
 
@@ -25,7 +25,7 @@ const register = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
-    Logger.logs({ verbose: { username: username, email: email, password: password } });
+    Logger.logs({ verbose: { username: username, email: email } });
 
     const token = await authService.registerUser({ username, email, password });
     res.status(201).json({ token });
@@ -39,7 +39,7 @@ const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    Logger.logs({ verbose: { email: email, password: password }});
+    Logger.logs({ verbose: { email: email }});
 
     const token = await authService.loginUser({ email, password });
     res.status(200).json({ token });

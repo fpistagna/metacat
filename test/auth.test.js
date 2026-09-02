@@ -20,15 +20,64 @@
 'use strict';
 
 process.env.NODE_ENV = 'test';
+process.env.TRUST_PROXY = '1';
+process.env.LOGIN_RATE_LIMIT_WINDOW_MS = '60000';
+process.env.LOGIN_RATE_LIMIT_MAX_ATTEMPTS = '3';
 
 const { connectTestDB, disconnectTestDB } = require('./helpers/testDatabase');
 const { UserModel } = require('../src/v1/database/modular/UserSchema');
+const { redactSensitiveData } = require('../src/utils/loggerHelper');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../src/server'); // Importiamo la nostra app Express
 
 chai.should();
 chai.use(chaiHttp);
+
+describe('Logger redaction', () => {
+  it('should redact sensitive fields, including nested values', () => {
+    const sanitized = redactSensitiveData({
+      email: 'user@example.com',
+      password: 'secret-password',
+      token: 'secret-token',
+      Authorization: 'Bearer secret-token',
+      authentication: {
+        access_token: 'secret-token'
+      }
+    });
+
+    sanitized.email.should.equal('user@example.com');
+    sanitized.password.should.equal('[REDACTED]');
+    sanitized.token.should.equal('[REDACTED]');
+    sanitized.Authorization.should.equal('[REDACTED]');
+    sanitized.authentication.access_token.should.equal('[REDACTED]');
+  });
+
+  it('should redact Mongoose documents without exposing their internals', () => {
+    const user = new UserModel({
+      username: 'logger-user',
+      email: 'logger@example.com',
+      password: 'secret-password'
+    });
+    const sanitized = redactSensitiveData({ user });
+
+    sanitized.user.password.should.equal('[REDACTED]');
+    sanitized.user.should.not.have.property('$__');
+    sanitized.user.should.not.have.property('_doc');
+  });
+});
+
+describe('Bearer token handling', () => {
+  it('should reject an invalid token without echoing its value', async () => {
+    const invalidToken = 'invalid-token-sentinel-not-for-logs';
+    const res = await chai.request(app)
+      .get('/api/v1/me/records')
+      .set('Authorization', `Bearer ${invalidToken}`);
+
+    res.should.have.status(401);
+    JSON.stringify(res.body).should.not.include(invalidToken);
+  });
+});
 
 // ----- GESTIONE SETUP E TEARDOWN -----
 before(async () => {
@@ -115,7 +164,7 @@ describe('Authentication API (/api/v1/auth)', () => {
     it('it should fail to login with a wrong password', async () => {
       const credentials = {
         email: 'login@example.com',
-        password: 'wrongpassword'
+        password: 'wrongpassword-not-for-logs'
       };
 
       const res = await chai.request(app)
@@ -124,7 +173,41 @@ describe('Authentication API (/api/v1/auth)', () => {
 
       res.should.have.status(403);
       res.body.should.have.property('type').equal('UserError');
-      res.body.should.have.property('errorCode').equal(32);    
+      res.body.should.have.property('errorCode').equal(32);
+      JSON.stringify(res.body).should.not.include(credentials.password);
+    });
+
+    it('it should not count successful logins towards the rate limit', async () => {
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        const res = await chai.request(app)
+          .post('/api/v1/auth/login')
+          .set('X-Forwarded-For', '203.0.113.10')
+          .send({ email: 'login@example.com', password: 'password123' });
+
+        res.should.have.status(200);
+      }
+    });
+
+    it('it should rate limit repeated failed login attempts from the same IP', async () => {
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const res = await chai.request(app)
+          .post('/api/v1/auth/login')
+          .set('X-Forwarded-For', '203.0.113.20')
+          .send({ email: 'login@example.com', password: 'wrongpassword' });
+
+        res.should.have.status(403);
+      }
+
+      const limitedResponse = await chai.request(app)
+        .post('/api/v1/auth/login')
+        .set('X-Forwarded-For', '203.0.113.20')
+        .send({ email: 'login@example.com', password: 'wrongpassword' });
+
+      limitedResponse.should.have.status(429);
+      limitedResponse.headers.should.have.property('ratelimit');
+      limitedResponse.headers.should.have.property('retry-after');
+      limitedResponse.body.should.have.property('type').equal('RateLimitError');
+      limitedResponse.body.should.have.property('errorCode').equal(60);
     });
   });
 

@@ -21,9 +21,10 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { withAsyncHandler } = require('../../utils/asyncHandler');
 const { validator } = require("../middlewares/validationMiddleware");
+const { loginRateLimiter } = require('../middlewares/rateLimitMiddleware');
 
 router.post('/register', validator('auth.register'), withAsyncHandler(authController.register));
-router.post('/login', validator('auth.login'), withAsyncHandler(authController.login));
+router.post('/login', loginRateLimiter, validator('auth.login'), withAsyncHandler(authController.login));
 router.get('/orcid', authController.redirectToOrcid);
 router.post('/orcid/callback', withAsyncHandler(authController.orcidCallback));
 

@@ -18,6 +18,57 @@
 
 const winston = require('./logger')
 
+const REDACTED_VALUE = '[REDACTED]'
+const SENSITIVE_KEYS = new Set([
+  'password',
+  'token',
+  'jwt',
+  'authorization',
+  'authorizationheader',
+  'authheader',
+  'accesstoken',
+  'refreshtoken',
+  'idtoken',
+  'clientsecret',
+  'authorizationcode'
+])
+
+const normalizedKey = (key) => key.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+const redactSensitiveData = (value, key = '', seen = new WeakSet()) => {
+  if (SENSITIVE_KEYS.has(normalizedKey(key)))
+    return REDACTED_VALUE
+
+  if (!value || typeof value !== 'object')
+    return value
+
+  if (seen.has(value))
+    return '[Circular]'
+
+  if (typeof value.toJSON === 'function') {
+    const jsonValue = value.toJSON()
+    if (jsonValue !== value)
+      return redactSensitiveData(jsonValue, key, seen)
+  }
+
+  seen.add(value)
+
+  const sanitizedValue = Array.isArray(value)
+    ? value.map((item) => redactSensitiveData(item, '', seen))
+    : Object.fromEntries(Object.entries(value)
+      .map(([nestedKey, nestedValue]) => [
+        nestedKey,
+        redactSensitiveData(nestedValue, nestedKey, seen)
+      ]))
+
+  seen.delete(value)
+  return sanitizedValue
+}
+
+const logValue = (value) => value && typeof value === 'object'
+  ? JSON.stringify(value)
+  : value
+
 class Logger {
   constructor(className) {
     winston.verbose(`${className}:constructor`)
@@ -36,22 +87,24 @@ class Logger {
 
   debugString(debugObject) {
     let retString = `${this.className}:${this.callerName}`
+    const sanitizedObject = redactSensitiveData(debugObject)
 
-    for (let arg in Object.keys(debugObject)) {
+    for (let arg in Object.keys(sanitizedObject)) {
         retString += 
-          `:${Object.keys(debugObject)[arg]}`+
-          `:${debugObject[Object.keys(debugObject)[arg]]}`
+          `:${Object.keys(sanitizedObject)[arg]}`+
+          `:${logValue(sanitizedObject[Object.keys(sanitizedObject)[arg]])}`
     }
     return retString
   }
 
   verboseString(verboseObject) {
     let retString = `${this.className}:${this.callerName}`
+    const sanitizedObject = redactSensitiveData(verboseObject)
 
-    for (let arg in Object.keys(verboseObject)) {
+    for (let arg in Object.keys(sanitizedObject)) {
       retString += 
-        `:${Object.keys(verboseObject)[arg]}`+
-        `:${verboseObject[Object.keys(verboseObject)[arg]]}`
+        `:${Object.keys(sanitizedObject)[arg]}`+
+        `:${logValue(sanitizedObject[Object.keys(sanitizedObject)[arg]])}`
     }
     return retString
   }
@@ -79,4 +132,4 @@ class Logger {
   }
 }
 
-module.exports.Logger = Logger
+module.exports = { Logger, redactSensitiveData }
