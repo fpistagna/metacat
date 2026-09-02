@@ -21,8 +21,7 @@
 
 process.env.NODE_ENV = 'test';
 
-const mongoose = require('mongoose');
-const { connectDB } = require('../src/v1/database/modular/mongoose');
+const { connectTestDB, disconnectTestDB } = require('./helpers/testDatabase');
 const { UserModel } = require('../src/v1/database/modular/UserSchema');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -34,7 +33,7 @@ chai.use(chaiHttp);
 // ----- GESTIONE SETUP E TEARDOWN -----
 before(async () => {
   try {
-    await connectDB();
+    await connectTestDB();
     await UserModel.deleteMany({}); // Pulisce la collezione degli utenti
   } catch (error) {
     console.error("Error during test setup:", error);
@@ -43,7 +42,7 @@ before(async () => {
 });
 
 after(async () => {
-  await mongoose.disconnect();
+  await disconnectTestDB();
 });
 
 describe('Authentication API (/api/v1/auth)', () => {

@@ -23,13 +23,17 @@ process.env.NODE_ENV = 'test';
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
 const { exec } = require('child_process');
-const { connectDB } = require('../src/v1/database/modular/mongoose');
+const {
+  connectTestDB,
+  disconnectTestDB,
+  getMigrationTestEnvironment
+} = require('./helpers/testDatabase');
 const chai = require('chai');
 const expect = chai.expect;
 
 function runCommand(command) {
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
+    exec(command, { env: getMigrationTestEnvironment() }, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing command: ${command}\n${stderr}`);
         return reject(error);
@@ -41,11 +45,11 @@ function runCommand(command) {
 
 describe('Database Migrations - add-notes-to-users', () => {
 
-  before(async () => await connectDB());
+  before(async () => await connectTestDB());
 
   after(async () => {
     await runCommand('npm run migrate:down').catch(err => console.log("Could not run migrate:down, maybe no migration was applied."));
-    await mongoose.disconnect();
+    await disconnectTestDB();
   });
 
   beforeEach(async () => {

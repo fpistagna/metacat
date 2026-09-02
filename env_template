@@ -5,6 +5,12 @@ PORT=3000
 
 # Variabili per il Database
 DATABASE_URL=mongodb://127.0.0.1:27017/metacat
+# Credenziali usate dal servizio MongoDB in Docker Compose
+MONGO_USER=<mongo-user>
+MONGO_PASS=<mongo-password>
+# Obbligatorio per i test MongoDB. Il nome deve terminare con "test", "_test" o "-test".
+# La porta host del MongoDB definito in docker-compose.yaml è 27018.
+TEST_DATABASE_URL=mongodb://<mongo-user>:<mongo-password>@127.0.0.1:27018/metacat_test?authSource=admin
 
 # Segreto per JWT (usa una stringa lunga, casuale e complessa)
 JWT_SECRET=IL_TUO_SEGRETO_LUNGO_E_CASUALE_PER_JWT

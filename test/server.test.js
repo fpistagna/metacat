@@ -16,29 +16,21 @@
  */
 
 
-const express = require('express'),
-  bodyParser = require('body-parser'),
-  logger = require('morgan'),
-  responseHelper = require('express-response-helper')
+'use strict';
 
-const v1RecordRouter = require("../src/v1/routes/recordRoutes")
-const errorHandler = require("../src/utils/errorHandler")
-const responseHandler = require("../src/utils/responseHandler")
+process.env.NODE_ENV = 'test';
 
-const app = express()
-const PORT = process.env.PORT || 3000;
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const app = require('../src/server');
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: true}))
-app.use(logger('dev'))
+chai.should();
+chai.use(chaiHttp);
 
-app.use(responseHelper.helper())
+describe('Express application', () => {
+  it('returns 404 for an unknown route through the ephemeral test server', async () => {
+    const response = await chai.request(app).get('/route-that-does-not-exist');
 
-app.use("/api/v1/records", v1RecordRouter)
-app.use(errorHandler)
-
-app.listen(PORT, () => {
-  console.log(`Express server listening on port ${PORT}`)
-})
-
-module.exports = app; // for testing
+    response.should.have.status(404);
+  });
+});

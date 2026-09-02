@@ -79,7 +79,7 @@ Follow these instructions to get a local development environment up and running.
 3.  **Set up Environment Variables:**
     Create a `.env` file in the root of the project by copying the example file. Then, fill in the required values.
     ```bash
-    cp .env.example .env
+    cp env_template .env
     # Now edit the .env file with your secrets and configuration
     ```
 
@@ -131,6 +131,17 @@ You can test all endpoints directly from this interface, including the authentic
 
 The test suite uses Mocha and Chai. The test database is configured separately via your `.env` file for the `test` environment.
 
+Tests that access MongoDB require `TEST_DATABASE_URL`. For safety, its database name must end in `test`, `_test`, or `-test`; the test runner refuses any other database name. Never point this variable to development or production data.
+
+```env
+DATABASE_URL=mongodb://127.0.0.1:27017/metacat
+MONGO_USER=<mongo-user>
+MONGO_PASS=<mongo-password>
+TEST_DATABASE_URL=mongodb://<mongo-user>:<mongo-password>@127.0.0.1:27018/metacat_test?authSource=admin
+```
+
+The example above targets the MongoDB container exposed by Docker Compose on host port `27018`. Replace both placeholders with the same credentials used by `MONGO_USER` and `MONGO_PASS`.
+
 * **Run all tests:**
     ```bash
     npm test
@@ -141,7 +152,7 @@ The test suite uses Mocha and Chai. The test database is configured separately v
     npm run test:auth
 
     # Run only migration tests
-    npm run test:migration
+    npm run test:migration:user
     ```
 
 ---

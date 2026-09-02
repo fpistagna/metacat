@@ -8,6 +8,10 @@
       "type": "string",
       "minLength": 1
     },
+    "type": {
+      "type": "string",
+      "const": "dois"
+    },
     "attributes": {
       "type": "object",
       "properties": {
@@ -41,6 +45,7 @@
   },
   "required": [
     "id",
+    "type",
     "attributes"
   ]
 }
