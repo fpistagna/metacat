@@ -58,7 +58,7 @@ Follow these instructions to get a local development environment up and running.
 
 ### Prerequisites
 
-* Node.js (v18 or later)
+* Node.js (v22 or later)
 * npm
 * Docker & Docker Compose
 * `openssl` (for generating local SSL certificates)
