@@ -17,6 +17,7 @@
 
 
 const mongoose = require('mongoose')
+const { randomUUID } = require('node:crypto')
 const { Schema } = require('mongoose')
 const mongoosePaginate = require('mongoose-paginate-v2')
 const customError = require('../../../utils/customError')
@@ -25,7 +26,6 @@ const className = "Mongoose:RecordModel",
   Logger = new LoggerHelper.Logger(className)
 const { withAsyncHandler } = require('../../../utils/asyncHandler')
 const { withLogging } = require('../../../utils/loggerWrapper')
-const { v4: uuid } = require("uuid")
 
 const recordSchema = new Schema({
   record: {
@@ -73,7 +73,7 @@ recordSchema.pre('save', function (next) {
   this.timestamps.updatedAt = now
   
   if(typeof this.record.id === 'string' &&  this.record.id === '<record uuid>')
-    this.record.id = uuid()
+    this.record.id = randomUUID()
     
   this.record.doi = this.metadata.id
 

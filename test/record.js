@@ -74,6 +74,19 @@ describe('Records API (/api/v1/records)', () => {
     await disconnectTestDB();
   });
 
+  describe('Record schema', () => {
+    it('should generate a UUID v4 when the record identifier is omitted', async () => {
+      const record = await RecordModel.model.create({
+        metadata: userDraftRecord.metadata,
+        owner: normalUser._id
+      });
+
+      record.record.id.should.match(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+      );
+    });
+  });
+
   // ===============================================
   // TEST SULL'ENDPOINT GET /api/v1/records/:recordId
   // ===============================================
