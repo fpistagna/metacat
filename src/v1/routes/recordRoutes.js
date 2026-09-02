@@ -35,6 +35,7 @@ router.get("/:recordId",
   recordController.record);
 
 router.get("/:recordId/:attribute", 
+  optionalAuthentication,
   recordController.recordAttribute);
 
 router.post("/", 
@@ -49,6 +50,7 @@ router.patch("/:recordId/:attribute",
   param('attribute')
   .custom(checkAttribute),
   authenticationMiddleware,
+  checkOwnershipOrRole(['admin', 'curator']),
   paramsValidator,
   attributePatchValidator, 
   recordController.updateRecordAttribute);

@@ -75,7 +75,7 @@ const _recordAttribute = async (req, res, next) => {
     let rId = req.params.recordId
     let rAttribute = req.params.attribute
 
-    const result = await recordService.recordAttribute(rId, rAttribute)
+    const result = await recordService.recordAttribute(rId, rAttribute, req.user)
 
     Logger.logs({ verbose: { record: result.record } })
 

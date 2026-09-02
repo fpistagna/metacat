@@ -34,7 +34,7 @@ const ERROR_MAP = {
     8: { status: 404, message: (err) => `The provided ID '${err.recordId}' has an invalid format.` },
     9: { status: 404, message: (err) => `No Records matching query '${err.query}'` },
     106: { status: 400, message: (err) => `Record with id ${err.recordId} is already published.` },
-    107: { status: 401, message: 'Forbidden: Cannot modify a published record.' },
+    107: { status: 403, message: 'Forbidden: Cannot modify a published record.' },
     108: { status: 500, message: (err) => `Error while deleting Record ID ${err.recordId}`},
     109: {status: 500, message: (err) => `Error saving Record id ${err.recordId} while publishing it.`},
     default: { status: 500, message: 'An unexpected record error occurred.' }
