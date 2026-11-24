@@ -21,7 +21,6 @@ const className = "recordService"
 const LoggerHelper = require('../../utils/loggerHelper')
 const Logger = new LoggerHelper.Logger(className)
 const customError = require('../../utils/customError')
-const { withAsyncHandler } = require('../../utils/asyncHandler')
 const { withLogging } = require('../../utils/loggerWrapper')
 
 const _records = async (queryParams, user, options) => {
@@ -162,16 +161,16 @@ const _getRecordsByOwner = async (ownerId, queryParams) => {
   return records
 }
 
-const records = withAsyncHandler(withLogging(_records, Logger))
-const record = withAsyncHandler(withLogging(_record, Logger))
-const recordAttribute = withAsyncHandler(withLogging(_recordAttribute, Logger))
-const recordByQuery = withAsyncHandler(withLogging(_recordByQuery, Logger))
-const createRecord = withAsyncHandler(withLogging(_createRecord, Logger))
-const updateRecord = withAsyncHandler(withLogging(_updateRecord, Logger))
-const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger))
-const deleteRecord = withAsyncHandler(withLogging(_deleteRecord, Logger))
-const publishRecord = withAsyncHandler(withLogging(_publishRecord, Logger))
-const getRecordsByOwner = withAsyncHandler(withLogging(_getRecordsByOwner, Logger))
+const records = withLogging(_records, Logger)
+const record = withLogging(_record, Logger)
+const recordAttribute = withLogging(_recordAttribute, Logger)
+const recordByQuery = withLogging(_recordByQuery, Logger)
+const createRecord = withLogging(_createRecord, Logger)
+const updateRecord = withLogging(_updateRecord, Logger)
+const updateRecordAttribute = withLogging(_updateRecordAttribute, Logger)
+const deleteRecord = withLogging(_deleteRecord, Logger)
+const publishRecord = withLogging(_publishRecord, Logger)
+const getRecordsByOwner = withLogging(_getRecordsByOwner, Logger)
 
 module.exports = {
   records,

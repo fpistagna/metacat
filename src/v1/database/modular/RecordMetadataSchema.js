@@ -24,7 +24,6 @@ const customError = require('../../../utils/customError')
 const className = "Mongoose:RecordMetadataModel",
   LoggerHelper = require('../../../utils/loggerHelper'),
   Logger = new LoggerHelper.Logger(className)
-const { withAsyncHandler } = require('../../../utils/asyncHandler')
 const { withLogging } = require('../../../utils/loggerWrapper')
 
 const NameIdentifierSchema = new Schema({
@@ -334,9 +333,9 @@ class RecordMetadataModel {
   }
 }
 
-RecordMetadataModel.recordByQuery = withAsyncHandler(withLogging(RecordMetadataModel._recordByQuery, Logger))
-RecordMetadataModel.createMetadata = withAsyncHandler(withLogging(RecordMetadataModel._createMetadata, Logger))
-RecordMetadataModel.updateMetadataAttribute = withAsyncHandler(withLogging(RecordMetadataModel._updateMetadataAttribute, Logger))
+RecordMetadataModel.recordByQuery = withLogging(RecordMetadataModel._recordByQuery, Logger)
+RecordMetadataModel.createMetadata = withLogging(RecordMetadataModel._createMetadata, Logger)
+RecordMetadataModel.updateMetadataAttribute = withLogging(RecordMetadataModel._updateMetadataAttribute, Logger)
 
 
 module.exports.RecordMetadataModel = RecordMetadataModel

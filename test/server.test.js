@@ -22,7 +22,9 @@ process.env.NODE_ENV = 'test';
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const express = require('express');
 const app = require('../src/server');
+const { withAsyncHandler } = require('../src/utils/asyncHandler');
 
 chai.should();
 chai.use(chaiHttp);
@@ -32,5 +34,40 @@ describe('Express application', () => {
     const response = await chai.request(app).get('/route-that-does-not-exist');
 
     response.should.have.status(404);
+  });
+});
+
+describe('Async error handler', () => {
+  const createErrorApp = (handler) => {
+    const errorApp = express();
+
+    errorApp.get('/error', withAsyncHandler(handler));
+    errorApp.use((error, req, res, next) => {
+      res.status(500).json({ message: error.message });
+    });
+
+    return errorApp;
+  };
+
+  it('forwards rejected promises to the Express error middleware', async () => {
+    const errorApp = createErrorApp(async () => {
+      throw new Error('async failure');
+    });
+
+    const response = await chai.request(errorApp).get('/error');
+
+    response.should.have.status(500);
+    response.body.message.should.equal('async failure');
+  });
+
+  it('forwards synchronous throws to the Express error middleware', async () => {
+    const errorApp = createErrorApp(() => {
+      throw new Error('sync failure');
+    });
+
+    const response = await chai.request(errorApp).get('/error');
+
+    response.should.have.status(500);
+    response.body.message.should.equal('sync failure');
   });
 });

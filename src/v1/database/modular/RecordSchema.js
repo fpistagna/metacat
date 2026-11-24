@@ -24,7 +24,6 @@ const customError = require('../../../utils/customError')
 const className = "Mongoose:RecordModel",
   LoggerHelper = require('../../../utils/loggerHelper'),
   Logger = new LoggerHelper.Logger(className)
-const { withAsyncHandler } = require('../../../utils/asyncHandler')
 const { withLogging } = require('../../../utils/loggerWrapper')
 
 const recordSchema = new Schema({
@@ -147,10 +146,10 @@ class RecordModel {
   }
 }
 
-RecordModel.records = withAsyncHandler(withLogging(RecordModel._records, Logger))
-RecordModel.recordWithId = withAsyncHandler(withLogging(RecordModel._recordWithId, Logger))
-RecordModel.createRecordWithMetadata = withAsyncHandler(withLogging(RecordModel._createRecordWithMetadata, Logger))
-RecordModel.updateRecordMetadata = withAsyncHandler(withLogging(RecordModel._updateRecordMetadata, Logger))
-RecordModel.publishRecord = withAsyncHandler(withLogging(RecordModel._publishRecord, Logger))
+RecordModel.records = withLogging(RecordModel._records, Logger)
+RecordModel.recordWithId = withLogging(RecordModel._recordWithId, Logger)
+RecordModel.createRecordWithMetadata = withLogging(RecordModel._createRecordWithMetadata, Logger)
+RecordModel.updateRecordMetadata = withLogging(RecordModel._updateRecordMetadata, Logger)
+RecordModel.publishRecord = withLogging(RecordModel._publishRecord, Logger)
 
 module.exports.RecordModel = RecordModel

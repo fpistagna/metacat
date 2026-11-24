@@ -112,7 +112,7 @@ const _createRecord = async (req, res, next) => {
   }
 }
 
-const _updateRecord = async (req, res) => {
+const _updateRecord = async (req, res, next) => {
   try {
     const updatedRecord = recordService.updateRecord(req.body)
 
