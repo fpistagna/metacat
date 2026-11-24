@@ -92,6 +92,26 @@ const _createRecord = async (data, ownerId) => {
   return record
 }
 
+const _updateRecord = async (recordId, data) => {
+  const record = await RecordModel.recordWithId(recordId)
+  const metadataId = record.metadata._id.toString()
+  const metadata = data.metadata
+  const requestedIdentifiers = [metadata.id, metadata.attributes.doi]
+    .filter(identifier => identifier !== undefined)
+
+  if (requestedIdentifiers.some(identifier => identifier !== metadataId))
+    throw new customError.MetadataError(15,
+      `Cannot change metadata identifier '${metadataId}'.`,
+      { recordMetadataId: metadataId })
+
+  const updatedMetadata = await RecordMetadataModel.updateMetadata(
+    metadataId,
+    metadata
+  )
+
+  return await RecordModel.updateRecordMetadata(record, updatedMetadata)
+}
+
 const _updateRecordAttribute = async(id, attribute, data) => {
   Logger.logs({
     verbose: {
@@ -168,6 +188,7 @@ const _deleteRecord = async (recordId) => {
 const records = withLogging(_records, Logger)
 const record = withLogging(_record, Logger)
 const createRecord = withLogging(_createRecord, Logger)
+const updateRecord = withLogging(_updateRecord, Logger)
 const updateRecordAttribute = withLogging(_updateRecordAttribute, Logger)
 const publishRecord = withLogging(_publishRecord, Logger)
 const deleteRecord = withLogging(_deleteRecord, Logger)
@@ -176,6 +197,7 @@ module.exports = {
   records,
   record,
   createRecord,
+  updateRecord,
   updateRecordAttribute,
   publishRecord,
   deleteRecord

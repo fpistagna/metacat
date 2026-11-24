@@ -216,4 +216,40 @@ describe('JSON Schema Validation', () => {
       expect(validate.errors[0].instancePath).to.equal('/attributes/creators');
     });
   });
+
+  describe('Schema: patchRootSchema', () => {
+    let validate;
+
+    before(() => {
+      validate = ajv.getSchema('patchRootSchema#');
+      expect(validate).to.be.a('function');
+    });
+
+    it('should PASS with one or more metadata attributes', () => {
+      const validData = {
+        metadata: {
+          attributes: {
+            titles: [{ title: 'Updated title' }],
+            publicationYear: '2026'
+          }
+        }
+      };
+
+      expect(validate(validData)).to.be.true;
+    });
+
+    it('should FAIL when metadata attributes are missing', () => {
+      const invalidData = { metadata: {} };
+
+      expect(validate(invalidData)).to.be.false;
+      expect(validate.errors[0].params.missingProperty).to.equal('attributes');
+    });
+
+    it('should FAIL when the attributes object is empty', () => {
+      const invalidData = { metadata: { attributes: {} } };
+
+      expect(validate(invalidData)).to.be.false;
+      expect(validate.errors[0].keyword).to.equal('minProperties');
+    });
+  });
 });

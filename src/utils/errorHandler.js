@@ -45,6 +45,7 @@ const ERROR_MAP = {
     12: { status: 422, message: (err) => `Attribute '${err.attr}' is not included in the allowed attributes (${err.attrs}).` },
     13: { status: 422, message: (err) => `Attribute '${err.attr}' cannot be updated via this endpoint.` },
     14: { status: 500, message: (err) => `Error while deleting RecordMetadata ID ${err.recordMetadataId}.`},
+    15: { status: 409, message: 'The DOI and metadata identifier cannot be changed.' },
     default: { status: 500, message: 'An unexpected metadata error occurred.' }
   },
   MongooseError: {

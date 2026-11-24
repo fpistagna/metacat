@@ -114,17 +114,12 @@ const _createRecord = async (req, res, next) => {
 
 const _updateRecord = async (req, res, next) => {
   try {
-    const updatedRecord = recordService.updateRecord(req.body)
+    const updatedRecord = await recordService.updateRecord(
+      req.params.recordId,
+      req.body
+    )
 
-    if ( updatedRecord.dbOpStatus === "updated" )
-      res.status(201).send({ 
-        status: "updated", data: updatedRecord.data })
-    else if ( updatedRecord.dbOpStatus === "not found" )
-      res.status(404).send({
-        status: "error", error: updatedRecord.error})
-    else
-      res.status(500).send({
-        status: "error", error: updatedRecord.error})
+    res.respond({ status: 'updated', data: updatedRecord }, 200)
   } catch (error) {
     Logger.error({ error: error })
     return next(error)
