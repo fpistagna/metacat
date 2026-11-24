@@ -96,13 +96,17 @@ class RecordModel {
     return records;
   }
   
-  static async _recordWithId(id) {
+  static async _recordWithId(id, session = null) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       // Lancia un errore personalizzato per formato non valido
       throw new customError.RecordError(8,
         `The provided ID '${id}' has an invalid format.`, { recordId: id })
     }
-    let record = await this.model.findById(id).populate("metadata").exec()
+    const query = this.model.findById(id).populate("metadata")
+    if (session)
+      query.session(session)
+
+    const record = await query.exec()
     if (!record)
       // Lancia l'errore personalizzato per record non trovato
       throw new customError.RecordError(7,
@@ -112,8 +116,9 @@ class RecordModel {
     return record
   }
 
-  static async _createRecordWithMetadata(md, oid) {
-    const r = await this.model.create({ metadata: md, owner: oid })
+  static async _createRecordWithMetadata(md, oid, session = null) {
+    const r = new this.model({ metadata: md, owner: oid })
+    await r.save(session ? { session } : {})
     if (!r)
       throw new customError.RecordCreationError(1,
         `Failed to create new record \n${r}\n with provided metadata\n${md}.`,

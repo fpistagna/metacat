@@ -53,7 +53,15 @@ async function disconnectDB() {
   await mongoose.disconnect()
 }
 
+async function runInTransaction(operation) {
+  return await mongoose.connection.transaction(operation, {
+    readConcern: { level: 'snapshot' },
+    writeConcern: { w: 'majority' }
+  })
+}
+
 module.exports = {
   connectDB,
-  disconnectDB
+  disconnectDB,
+  runInTransaction
 }

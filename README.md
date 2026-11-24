@@ -94,7 +94,7 @@ Follow these instructions to get a local development environment up and running.
         ```
     * **Start the full stack (Nginx, Backend, DB):**
         ```bash
-        docker-compose up --build
+        docker compose up --build
         ```
     The API will now be available at `https://localhost`.
 
@@ -134,13 +134,13 @@ The test suite uses Mocha and Chai. The test database is configured separately v
 Tests that access MongoDB require `TEST_DATABASE_URL`. For safety, its database name must end in `test`, `_test`, or `-test`; the test runner refuses any other database name. Never point this variable to development or production data.
 
 ```env
-DATABASE_URL=mongodb://127.0.0.1:27017/metacat
+DATABASE_URL=mongodb://<mongo-user>:<mongo-password>@127.0.0.1:27018/metacat?authSource=admin&replicaSet=rs0&directConnection=true
 MONGO_USER=<mongo-user>
 MONGO_PASS=<mongo-password>
-TEST_DATABASE_URL=mongodb://<mongo-user>:<mongo-password>@127.0.0.1:27018/metacat_test?authSource=admin
+TEST_DATABASE_URL=mongodb://<mongo-user>:<mongo-password>@127.0.0.1:27018/metacat_test?authSource=admin&replicaSet=rs0&directConnection=true
 ```
 
-The example above targets the MongoDB container exposed by Docker Compose on host port `27018`. Replace both placeholders with the same credentials used by `MONGO_USER` and `MONGO_PASS`.
+The example above targets the single-node MongoDB replica set exposed by Docker Compose on host port `27018`. The replica set is required for transactional record operations. Replace both placeholders with the same credentials used by `MONGO_USER` and `MONGO_PASS`.
 
 * **Run all tests:**
     ```bash

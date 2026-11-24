@@ -23,13 +23,13 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      - DATABASE_URL=mongodb://mongodb:27017/metacat0825
-      - DATABASE_URL=mongodb://${MONGO_USER}:${MONGO_PASS}@mongodb:27017/metacat?authSource=admin
-      - TRUST_PROXY=${TRUST_PROXY:-1}
+      DATABASE_URL: "mongodb://${MONGO_USER}:${MONGO_PASS}@mongodb:27017/metacat?authSource=admin&replicaSet=rs0&directConnection=true"
+      TRUST_PROXY: ${TRUST_PROXY:-1}
     volumes:
       - ./src:/app/src # Monta il codice sorgente per lo sviluppo live
     depends_on:
-      - mongodb
+      mongodb-init:
+        condition: service_completed_successfully
     networks:
       - metacat-network
 
@@ -39,10 +39,34 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
+    entrypoint: ["/bin/sh", "/usr/local/bin/metacat-mongo-entrypoint.sh"]
     ports:
       - "27018:27017"
     volumes:
       - mongo-data:/data/db
+      - mongo-config:/data/configdb
+      - ./docker/mongodb/entrypoint.sh:/usr/local/bin/metacat-mongo-entrypoint.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --host localhost --port 27017 --username \"$$MONGO_INITDB_ROOT_USERNAME\" --password \"$$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval \"quit(db.adminCommand('ping').ok ? 0 : 2)\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - metacat-network
+
+  mongodb-init:
+    image: mongo:latest
+    restart: "no"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASS=${MONGO_PASS}
+    entrypoint: ["/bin/sh", "/usr/local/bin/init-replica-set.sh"]
+    volumes:
+      - ./docker/mongodb/init-replica-set.sh:/usr/local/bin/init-replica-set.sh:ro
     networks:
       - metacat-network
 
@@ -63,6 +87,7 @@ services:
 
 volumes:
   mongo-data:
+  mongo-config:
 
 networks:
   metacat-network:

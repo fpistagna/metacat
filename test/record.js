@@ -37,6 +37,7 @@ describe('Records API (/api/v1/records)', () => {
   let normalUser, otherUser, curatorUser, adminUser;
   let userToken, otherUserToken, curatorToken, adminToken;
   let userDraftRecord, userPublishedRecord, fullUpdateDraftRecord;
+  let transactionDeleteRecord;
 
   // Hook globale: eseguito una volta prima di tutti i test
   before(async () => {
@@ -66,10 +67,12 @@ describe('Records API (/api/v1/records)', () => {
     const metadata1 = await RecordMetadataModel.model.create({ _id: '10.test/draft', type: 'dois', attributes: { doi: '10.test/draft', creators: [{ name: 'Test' }], titles: [{ title: 'Test' }], publisher: { name: 'Test' }, publicationYear: '2025', resourceType: { resourceTypeGeneral: 'Dataset' }, identifiers: [{ identifier: 'test', identifierType: 'Other' }] } });
     const metadata2 = await RecordMetadataModel.model.create({ _id: '10.test/published', type: 'dois', attributes: { doi: '10.test/published', creators: [{ name: 'Test' }], titles: [{ title: 'Test' }], publisher: { name: 'Test' }, publicationYear: '2025', resourceType: { resourceTypeGeneral: 'Dataset' }, identifiers: [{ identifier: 'test', identifierType: 'Other' }] } });
     const metadata3 = await RecordMetadataModel.model.create({ _id: '10.test/full-update', type: 'dois', attributes: { doi: '10.test/full-update', creators: [{ name: 'Original Creator' }], titles: [{ title: 'Original title' }], publisher: { name: 'Original Publisher' }, publicationYear: '2025', resourceType: { resourceTypeGeneral: 'Dataset' }, identifiers: [{ identifier: 'test', identifierType: 'Other' }] } });
+    const metadata4 = await RecordMetadataModel.model.create({ _id: '10.test/transaction-delete', type: 'dois', attributes: { doi: '10.test/transaction-delete', creators: [{ name: 'Test' }], titles: [{ title: 'Transaction delete test' }], publisher: { name: 'Test' }, publicationYear: '2025', resourceType: { resourceTypeGeneral: 'Dataset' }, identifiers: [{ identifier: 'test', identifierType: 'Other' }] } });
 
     userDraftRecord = await RecordModel.model.create({ record: { id: 'uuid-draft' }, metadata: metadata1._id, owner: normalUser._id, published: false });
     userPublishedRecord = await RecordModel.model.create({ record: { id: 'uuid-published' }, metadata: metadata2._id, owner: normalUser._id, published: true });
     fullUpdateDraftRecord = await RecordModel.model.create({ record: { id: 'uuid-full-update' }, metadata: metadata3._id, owner: normalUser._id, published: false });
+    transactionDeleteRecord = await RecordModel.model.create({ record: { id: 'uuid-transaction-delete' }, metadata: metadata4._id, owner: normalUser._id, published: false });
   });
 
   after(async () => {
@@ -86,6 +89,37 @@ describe('Records API (/api/v1/records)', () => {
       record.record.id.should.match(
         /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
       );
+    });
+  });
+
+  // ==========================================
+  // TEST SULL'ENDPOINT POST /api/v1/records
+  // ==========================================
+  describe('POST /', () => {
+    it('should roll back metadata when record creation fails', async () => {
+      const payload = structuredClone(require('./sample.json'));
+      const doi = '10.1234/transaction-create';
+      payload.metadata.id = doi;
+      payload.metadata.attributes.doi = doi;
+
+      const originalCreateRecord = RecordModel.createRecordWithMetadata;
+      RecordModel.createRecordWithMetadata = async () => {
+        throw new Error('Forced record creation failure');
+      };
+
+      let res;
+      try {
+        res = await chai.request(app)
+          .post('/api/v1/records')
+          .set('Authorization', `Bearer ${userToken}`)
+          .send(payload);
+      } finally {
+        RecordModel.createRecordWithMetadata = originalCreateRecord;
+      }
+
+      res.should.have.status(500);
+      const orphanedMetadata = await RecordMetadataModel.model.findById(doi);
+      chai.expect(orphanedMetadata).to.equal(null);
     });
   });
 
@@ -333,6 +367,27 @@ describe('Records API (/api/v1/records)', () => {
         .delete(`/api/v1/records/${userPublishedRecord._id}`)
         .set('Authorization', `Bearer ${curatorToken}`);
       res.should.have.status(403); // Forbidden
+    });
+
+    it('should roll back the record deletion when metadata deletion fails', async () => {
+      const metadataId = transactionDeleteRecord.metadata.toString();
+      const originalDeleteMetadata = RecordMetadataModel.model.findByIdAndDelete;
+      RecordMetadataModel.model.findByIdAndDelete = async () => null;
+
+      let res;
+      try {
+        res = await chai.request(app)
+          .delete(`/api/v1/records/${transactionDeleteRecord._id}`)
+          .set('Authorization', `Bearer ${adminToken}`);
+      } finally {
+        RecordMetadataModel.model.findByIdAndDelete = originalDeleteMetadata;
+      }
+
+      res.should.have.status(500);
+      const preservedRecord = await RecordModel.model.findById(transactionDeleteRecord._id);
+      const preservedMetadata = await RecordMetadataModel.model.findById(metadataId);
+      chai.expect(preservedRecord).to.not.equal(null);
+      chai.expect(preservedMetadata).to.not.equal(null);
     });
 
     it('should allow an admin to delete a record', async () => {
