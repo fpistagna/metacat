@@ -25,6 +25,7 @@ const className = "Model:Record",
   Logger = new LoggerHelper.Logger(className)
 
 const { withLogging } = require('../../../utils/loggerWrapper')
+const { runInTransaction } = require('./mongoose')
 
 /* ##### DAO (Data Access Object) methods #### */
 
@@ -80,16 +81,22 @@ const _record = async (recordId) => {
 const _createRecord = async (data, ownerId) => {
   Logger.logs({ verbose: { data: JSON.stringify(data) } })
 
-  const metadata = await RecordMetadataModel.createMetadata(data)
-  const record = await RecordModel.createRecordWithMetadata(metadata, ownerId)
-  if (!record)
-    throw new customError.RecordCreationError(2, 
-      'Record creation failed after metadata was saved.')
-  Logger.logs({
-    debug: { recordId: record.record.id },
-    verbose: { recordId: record.record.id, record: record }
+  return await runInTransaction(async (session) => {
+    const metadata = await RecordMetadataModel.createMetadata(data, session)
+    const record = await RecordModel.createRecordWithMetadata(
+      metadata,
+      ownerId,
+      session
+    )
+    if (!record)
+      throw new customError.RecordCreationError(2,
+        'Record creation failed after metadata was saved.')
+    Logger.logs({
+      debug: { recordId: record.record.id },
+      verbose: { recordId: record.record.id, record: record }
+    })
+    return record
   })
-  return record
 }
 
 const _updateRecord = async (recordId, data) => {
@@ -167,22 +174,29 @@ const _publishRecord = async (recordId) => {
 
 const _deleteRecord = async (recordId) => {
   Logger.logs({ debug: { recordId: recordId } })
-  
-  const r = await RecordModel.recordWithId(recordId)
-  if (!r)
-    throw new customError.RecordError(6, `Record ${recordId} not found`)
 
-  const m = await RecordMetadataModel.model.findByIdAndDelete(r.metadata._id)
-  if (!m)
-    throw new customError.MetadataError(14, 
-      `Error while deleting RecordMetadata ID ${r.metadata._id}.`,
-      { recordMetadataId: r.metadata._id })
-  
-  let dr = await RecordModel.model.findByIdAndDelete(recordId)
-  if (!dr)
-    throw new customError.RecordError(108,
-      `Error while deleting Record ID ${err.recordId}`,
-    { recordId: recordID})
+  await runInTransaction(async (session) => {
+    const record = await RecordModel.recordWithId(recordId, session)
+
+    const deletedRecord = await RecordModel.model.findByIdAndDelete(
+      recordId,
+      { session }
+    )
+    if (!deletedRecord)
+      throw new customError.RecordError(108,
+        `Error while deleting Record ID ${recordId}.`,
+        { recordId: recordId })
+
+    const metadataId = record.metadata._id
+    const deletedMetadata = await RecordMetadataModel.model.findByIdAndDelete(
+      metadataId,
+      { session }
+    )
+    if (!deletedMetadata)
+      throw new customError.MetadataError(14,
+        `Error while deleting RecordMetadata ID ${metadataId}.`,
+        { recordMetadataId: metadataId })
+  })
 }
 
 const records = withLogging(_records, Logger)

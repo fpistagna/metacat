@@ -273,8 +273,12 @@ recordMetadataSchema.index({ "$**": "text" })
 class RecordMetadataModel {
   static model = mongoose.model("RecordMetadata", recordMetadataSchema)
 
-  static async getMetadataById(id) {
-    return await this.model.findById(id)
+  static async getMetadataById(id, session = null) {
+    const query = this.model.findById(id)
+    if (session)
+      query.session(session)
+
+    return await query.exec()
   }
 
   static async _recordByQuery(query) {
@@ -282,12 +286,12 @@ class RecordMetadataModel {
     return await this.model.find({ $text: { $search: query.q } })
   }
 
-  static async _createMetadata(object) {
+  static async _createMetadata(object, session = null) {
     Logger.logs({ verbose: { metadata: JSON.stringify(object) } })
 
     const metadataObject = object.metadata
     // Se l'oggetto Metadata esiste già creiamo una nuova eccezzione/errore
-    if (await this.getMetadataById(object.metadata.attributes.doi))
+    if (await this.getMetadataById(object.metadata.attributes.doi, session))
       throw new customError.MetadataError(10,
         `Create Metadata Error: ${object.metadata.attributes.doi} already exist in DB.`,
         { recordMetadataId: object.metadata.attributes.doi })
@@ -295,7 +299,7 @@ class RecordMetadataModel {
     const newRecordMetadata = new this.model(metadataObject)
 
     // Salva il nuovo documento. Il middleware 'pre-save' si occuperà di sincronizzare l'ID.
-    const savedRecord = await newRecordMetadata.save()
+    const savedRecord = await newRecordMetadata.save(session ? { session } : {})
     Logger.logs({
         debug: { id: savedRecord._id },
         verbose: { 
