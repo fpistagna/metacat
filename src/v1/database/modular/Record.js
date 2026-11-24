@@ -24,7 +24,6 @@ const className = "Model:Record",
   LoggerHelper = require('../../../utils/loggerHelper'),
   Logger = new LoggerHelper.Logger(className)
 
-const { withAsyncHandler } = require('../../../utils/asyncHandler')
 const { withLogging } = require('../../../utils/loggerWrapper')
 
 /* ##### DAO (Data Access Object) methods #### */
@@ -166,12 +165,12 @@ const _deleteRecord = async (recordId) => {
     { recordId: recordID})
 }
 
-const records = withAsyncHandler(withLogging(_records, Logger))
-const record = withAsyncHandler(withLogging(_record, Logger))
-const createRecord = withAsyncHandler(withLogging(_createRecord, Logger))
-const updateRecordAttribute = withAsyncHandler(withLogging(_updateRecordAttribute, Logger))
-const publishRecord = withAsyncHandler(withLogging(_publishRecord, Logger))
-const deleteRecord = withAsyncHandler(withLogging(_deleteRecord, Logger))
+const records = withLogging(_records, Logger)
+const record = withLogging(_record, Logger)
+const createRecord = withLogging(_createRecord, Logger)
+const updateRecordAttribute = withLogging(_updateRecordAttribute, Logger)
+const publishRecord = withLogging(_publishRecord, Logger)
+const deleteRecord = withLogging(_deleteRecord, Logger)
 
 module.exports = { 
   records,
