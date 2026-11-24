@@ -331,10 +331,35 @@ class RecordMetadataModel {
 
     return updatedMetadata
   }
+
+  static async _updateMetadata(id, metadata) {
+    const updateFields = {}
+
+    if (metadata.type !== undefined)
+      updateFields.type = metadata.type
+
+    for (const [key, value] of Object.entries(metadata.attributes))
+      updateFields[`attributes.${key}`] = value
+
+    const updatedMetadata = await this.model.findByIdAndUpdate(
+      id,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    )
+
+    if (!updatedMetadata)
+      throw new customError.MetadataError(11,
+        `Update Metadata Error: ${id} did not update successfully.`,
+        { recordMetadataId: id })
+
+    Logger.logs({ verbose: { metadata: JSON.stringify(updatedMetadata) } })
+    return updatedMetadata
+  }
 }
 
 RecordMetadataModel.recordByQuery = withLogging(RecordMetadataModel._recordByQuery, Logger)
 RecordMetadataModel.createMetadata = withLogging(RecordMetadataModel._createMetadata, Logger)
+RecordMetadataModel.updateMetadata = withLogging(RecordMetadataModel._updateMetadata, Logger)
 RecordMetadataModel.updateMetadataAttribute = withLogging(RecordMetadataModel._updateMetadataAttribute, Logger)
 
 

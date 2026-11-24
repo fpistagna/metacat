@@ -36,7 +36,7 @@ describe('Records API (/api/v1/records)', () => {
   // Variabili che useremo in tutti i test
   let normalUser, otherUser, curatorUser, adminUser;
   let userToken, otherUserToken, curatorToken, adminToken;
-  let userDraftRecord, userPublishedRecord;
+  let userDraftRecord, userPublishedRecord, fullUpdateDraftRecord;
 
   // Hook globale: eseguito una volta prima di tutti i test
   before(async () => {
@@ -65,9 +65,11 @@ describe('Records API (/api/v1/records)', () => {
     // --- Creazione dei Record di Test ---
     const metadata1 = await RecordMetadataModel.model.create({ _id: '10.test/draft', type: 'dois', attributes: { doi: '10.test/draft', creators: [{ name: 'Test' }], titles: [{ title: 'Test' }], publisher: { name: 'Test' }, publicationYear: '2025', resourceType: { resourceTypeGeneral: 'Dataset' }, identifiers: [{ identifier: 'test', identifierType: 'Other' }] } });
     const metadata2 = await RecordMetadataModel.model.create({ _id: '10.test/published', type: 'dois', attributes: { doi: '10.test/published', creators: [{ name: 'Test' }], titles: [{ title: 'Test' }], publisher: { name: 'Test' }, publicationYear: '2025', resourceType: { resourceTypeGeneral: 'Dataset' }, identifiers: [{ identifier: 'test', identifierType: 'Other' }] } });
+    const metadata3 = await RecordMetadataModel.model.create({ _id: '10.test/full-update', type: 'dois', attributes: { doi: '10.test/full-update', creators: [{ name: 'Original Creator' }], titles: [{ title: 'Original title' }], publisher: { name: 'Original Publisher' }, publicationYear: '2025', resourceType: { resourceTypeGeneral: 'Dataset' }, identifiers: [{ identifier: 'test', identifierType: 'Other' }] } });
 
     userDraftRecord = await RecordModel.model.create({ record: { id: 'uuid-draft' }, metadata: metadata1._id, owner: normalUser._id, published: false });
     userPublishedRecord = await RecordModel.model.create({ record: { id: 'uuid-published' }, metadata: metadata2._id, owner: normalUser._id, published: true });
+    fullUpdateDraftRecord = await RecordModel.model.create({ record: { id: 'uuid-full-update' }, metadata: metadata3._id, owner: normalUser._id, published: false });
   });
 
   after(async () => {
@@ -216,6 +218,88 @@ describe('Records API (/api/v1/records)', () => {
       res.should.have.status(201);
       const updatedRecord = await RecordModel.recordWithId(userPublishedRecord._id);
       updatedRecord.metadata.attributes.titles[0].title.should.equal('Curated published title');
+    });
+  });
+
+  // ==============================================
+  // TEST SULL'ENDPOINT PATCH /api/v1/records/:recordId
+  // ==============================================
+  describe('PATCH /:recordId', () => {
+    const updatePayload = {
+      metadata: {
+        id: '10.test/full-update',
+        type: 'dois',
+        attributes: {
+          titles: [{ title: 'Updated title' }],
+          publicationYear: '2026'
+        }
+      }
+    };
+
+    it('should NOT allow an unauthenticated user to update a record', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${fullUpdateDraftRecord._id}`)
+        .send(updatePayload);
+
+      res.should.have.status(401);
+    });
+
+    it('should NOT allow another user to update a draft record', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${fullUpdateDraftRecord._id}`)
+        .set('Authorization', `Bearer ${otherUserToken}`)
+        .send(updatePayload);
+
+      res.should.have.status(403);
+    });
+
+    it('should update multiple attributes of an owned draft', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${fullUpdateDraftRecord._id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send(updatePayload);
+
+      res.should.have.status(200);
+      res.body.status.should.equal('updated');
+      res.body.data.metadata.attributes.titles[0].title.should.equal('Updated title');
+      res.body.data.metadata.attributes.publicationYear.should.equal('2026');
+
+      const updatedRecord = await RecordModel.recordWithId(fullUpdateDraftRecord._id);
+      updatedRecord.metadata.attributes.creators[0].name.should.equal('Original Creator');
+      updatedRecord.timestamps.updatedAt.should.be.greaterThan(updatedRecord.timestamps.createdAt);
+    });
+
+    it('should reject a DOI change and preserve the existing identity', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${fullUpdateDraftRecord._id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ metadata: { attributes: { doi: '10.9999/changed-doi' } } });
+
+      res.should.have.status(409);
+      res.body.should.have.property('errorCode').equal(15);
+
+      const unchangedRecord = await RecordModel.recordWithId(fullUpdateDraftRecord._id);
+      unchangedRecord.metadata.attributes.doi.should.equal('10.test/full-update');
+    });
+
+    it('should NOT allow an owner to update their published record', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${userPublishedRecord._id}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ metadata: { attributes: { publisher: { name: 'Owner update' } } } });
+
+      res.should.have.status(403);
+      res.body.should.have.property('errorCode').equal(107);
+    });
+
+    it('should allow a curator to update a published record', async () => {
+      const res = await chai.request(app)
+        .patch(`/api/v1/records/${userPublishedRecord._id}`)
+        .set('Authorization', `Bearer ${curatorToken}`)
+        .send({ metadata: { attributes: { publisher: { name: 'Curated Publisher' } } } });
+
+      res.should.have.status(200);
+      res.body.data.metadata.attributes.publisher.name.should.equal('Curated Publisher');
     });
   });
 

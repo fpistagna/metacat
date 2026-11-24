@@ -114,8 +114,16 @@ const _createRecord = async (data, user) => {
   return record
 }
 
-const _updateRecord = () => {
-  return
+const _updateRecord = async (recordId, data) => {
+  Logger.logs({ verbose: { recordId: recordId, metadata: JSON.stringify(data) } })
+
+  const updatedRecord = await Record.updateRecord(recordId, data)
+
+  Logger.logs({
+    debug: { recordId: recordId },
+    verbose: { updatedRecord: JSON.stringify(updatedRecord) }
+  })
+  return updatedRecord
 }
 
 const _updateRecordAttribute = async (recordId, attribute, data) => {

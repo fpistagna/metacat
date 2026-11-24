@@ -1,17 +1,19 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "patchRootSchema#",
-  "description": "Schema for partially updating a record's metadata. All fields are optional, but at least one attribute must be provided.",
+  "description": "Schema for partially updating a record's metadata. The attributes object is required and must contain at least one property.",
   "type": "object",
   "properties": {
     "metadata": {
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "type": {
-          "type": "string"
+          "type": "string",
+          "const": "dois"
         },
         "attributes": {
           "type": "object",
@@ -48,11 +50,29 @@
             },
             "descriptions": {
               "$ref": "descriptions#"
+            },
+            "geoLocations": {
+              "$ref": "geoLocations#"
+            },
+            "fundingReferences": {
+              "$ref": "fundingReferences#"
+            },
+            "formats": {
+              "$ref": "formats#"
+            },
+            "sizes": {
+              "$ref": "sizes#"
+            },
+            "language": {
+              "$ref": "language#"
             }
           },
           "minProperties": 1
         }
-      }
+      },
+      "required": [
+        "attributes"
+      ]
     }
   },
   "required": [

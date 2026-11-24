@@ -62,6 +62,58 @@ paths:
         '403': { description: "Permessi insufficienti per vedere questa bozza." }
         '404': { description: "Record non trovato." }
 
+    patch:
+      tags: [Records]
+      summary: Aggiorna più attributi metadata di un record.
+      description: |
+        Applica un aggiornamento parziale agli attributi DataCite indicati nel payload.
+        Il DOI e l'identificatore metadata sono immutabili.
+
+        **Regole di permesso:**
+        - Un `user` può aggiornare solo le proprie bozze.
+        - `curator` e `admin` possono aggiornare qualsiasi record.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: recordId
+          required: true
+          schema:
+            type: string
+          description: L'ID del record da aggiornare.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [metadata]
+              properties:
+                metadata:
+                  type: object
+                  required: [attributes]
+                  properties:
+                    id:
+                      type: string
+                    type:
+                      type: string
+                      enum: [dois]
+                    attributes:
+                      type: object
+                      minProperties: 1
+            example:
+              metadata:
+                attributes:
+                  titles:
+                    - title: Titolo aggiornato
+                  publicationYear: "2026"
+      responses:
+        '200': { description: "Record aggiornato con successo." }
+        '401': { description: "Token di autenticazione mancante o non valido." }
+        '403': { description: "Permessi insufficienti o payload non valido." }
+        '404': { description: "Record non trovato." }
+        '409': { description: "Tentativo di modificare DOI o identificatore metadata." }
+
     delete:
       tags: [Records]
       summary: "Cancella un record (solo Admin)."
